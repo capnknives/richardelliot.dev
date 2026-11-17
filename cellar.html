@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The cellar — Richard Elliot</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css">
+  <script>document.documentElement.className = "";</script>
+</head>
+<body data-room="cellar">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="index.html#projects">Projects</a>
+      <a href="index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">You found it</p>
+      <h1>The cellar</h1>
+      <p class="lede">Where the site keeps how it was made.</p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>What is down here</h2>
+        <div class="body">
+          <p>No framework and no build step. Every page is a plain HTML file, one stylesheet, and four small scripts you can read in the source.</p>
+          <ul>
+            <li>The moving backdrops are one fragment shader with a mode for each room.</li>
+            <li>Titles travel between pages with the browser's own view transitions.</li>
+            <li>The workbench on the front page keeps eleven probes and two kinds of undo.</li>
+            <li>The typefaces are Bricolage Grotesque and Literata, served from this site.</li>
+          </ul>
+        </div>
+      </section>
+      <section>
+        <h2>Every command</h2>
+        <div class="body">
+          <p><code>look</code>, <code>examine</code>, <code>exits</code>, <code>go</code>, <code>back</code>, <code>inventory</code>, <code>help</code>. Each room has things worth examining. One old magic word still does nothing.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Way out">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="index.html" data-exit="home">Up, to the front page</a></li>
+      </ul>
+    </nav>
+
+    <div class="prompt" data-prompt data-room-text="The cellar. Cool and dim. Shelves of jars, and stairs back up to the light.">
+      <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+      <form autocomplete="off">
+        <label for="cmd" aria-label="Command">&gt;</label>
+        <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or up">
+      </form>
+    </div>
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+  <script src="assets/prompt.js"></script>
+</body>
+</html>
