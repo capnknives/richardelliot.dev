@@ -52,3 +52,13 @@ and is served at `riftforge.me`.
 python3 -m http.server 8000
 # then open http://localhost:8000
 ```
+
+## After changing a stylesheet or script
+
+Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
+tag (`site.css?v=3`). When you change one of those files, raise the number in every HTML file so
+returning visitors get the new one:
+
+```bash
+grep -rl '?v=3' --include='*.html' . | xargs sed -i 's/?v=3/?v=4/g'
+```
