@@ -22,7 +22,7 @@
   /* Things to examine, by room. Several names can point at one thing. */
   var THINGS = {
     home: {
-      "doors,door": "Doors down both walls, as far as you can see. Through the nearest four: a lab, a writing room, daylight on water, and a road at dusk.",
+      "doors,door": "Doors down both walls, as far as you can see. Four are close enough to read. Walk on and the next ones come to you: there are more worlds here than the corridor shows at once.",
       "corridor,box,walls,dark": "The inside of the box. The corridor has no color of its own. It goes on further than it should.",
       "light,lamp": "It comes from behind the doors, and from a little overhead. The darkness has not overcome it.",
       "stars,sky,star": "They are different every time the box is opened. All but one. That one has not moved in any world you have seen.",
@@ -43,6 +43,11 @@
       "pump,filter,heater,pad,equipment": "The nameplate is sun-faded, but the serial number still gives away the year it was made.",
       "phone": "It is listening. Say what you see.",
       "water,pool,light": "Light moves across the bottom of the pool. It never repeats."
+    },
+    poolbalance: {
+      "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
+      "kit,test kit,vials,vial,reagents": "Six vials. Five of them take drops and turn a color. The sixth is a thermometer.",
+      "water,pool,calcium": "It is never neutral about calcium. Move a reading and watch which way it leans."
     },
     riftforge: {
       "rift,crack,light": "A seam of gold in the dusk. Things come through. Some of them stay.",
@@ -149,7 +154,7 @@
     var rest = parts.slice(1).join(" ").replace(/^(at|the|to) /, "").replace(/^the /, "");
 
     if (verb === "help" || verb === "?") {
-      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
+      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\nwalk       down the corridor\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
       return;
     }
     if ((verb === "look" || verb === "l") && !rest) {
@@ -168,6 +173,13 @@
       }
       if (here === "home" && /floor|trapdoor/.test(t.keys)) remember("trapdoor");
       say(raw, t.text);
+      return;
+    }
+    if (verb === "walk" || verb === "forward" || verb === "onward" || verb === "advance") {
+      if (here !== "home") { say(raw, "There is no corridor in here. Type back to return to it."); return; }
+      var back = /^(back|backward|backwards)$/.test(rest);
+      window.dispatchEvent(new CustomEvent("corridorwalk", { detail: { steps: back ? -1 : 1 } }));
+      say(raw, back ? "You walk back the way you came." : "You walk on. Two doors fall behind you and two more come up out of the dark.");
       return;
     }
     if (verb === "exits" || verb === "ls") {

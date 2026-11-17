@@ -47,6 +47,8 @@
   --aqua-wash: #dbf0f0;
   --rift: #6b2d5c;
   --rift-wash: #f2e3ec;
+  --pool: #0b5a72;
+  --pool-wash: #dceef2;
 
   --room: var(--ink);
   --wash: var(--paper);
@@ -65,6 +67,7 @@
 [data-room="storygecko"] { --room: var(--gecko); --wash: var(--gecko-wash); }
 [data-room="aquainspection"] { --room: var(--aqua); --wash: var(--aqua-wash); }
 [data-room="riftforge"] { --room: var(--rift); --wash: var(--rift-wash); }
+[data-room="poolbalance"] { --room: var(--pool); --wash: var(--pool-wash); }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -433,6 +436,51 @@ html.box {
   display: none;
 }
 
+/* A door that is further down the corridor than the four you are standing among. */
+.door-tags a.away {
+  pointer-events: none;
+}
+
+.corridor.flat .door-tags a.away {
+  pointer-events: auto;
+}
+
+/* Walk on, step back. Added by assets/backdrop.js when the corridor is live. */
+.corridor .walk {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  transform: translateX(-50%);
+  margin: 0;
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.corridor .walk button {
+  font: 600 0.9375rem/1 var(--text);
+  color: #eef1f8;
+  background: rgba(7, 9, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+}
+
+.corridor .walk button:hover:not(:disabled) {
+  border-color: #fff;
+}
+
+.corridor .walk button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.corridor.flat .walk,
+.corridor.entering .walk {
+  display: none;
+}
+
 .world-note {
   grid-column: 1 / -1;
   max-width: 44rem;
@@ -467,7 +515,7 @@ html.box {
 
 .corridor.flat .door-tags {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 0.75rem;
 }
 
@@ -491,6 +539,7 @@ html.box {
 .door-tags a[data-room="storygecko"] { --door: #7fd69a; }
 .door-tags a[data-room="aquainspection"] { --door: #6fd6dd; }
 .door-tags a[data-room="riftforge"] { --door: #e9b44c; }
+.door-tags a[data-room="poolbalance"] { --door: #b3dcff; }
 
 .world-bar {
   padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
