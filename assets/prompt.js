@@ -22,12 +22,12 @@
   /* Things to examine, by room. Several names can point at one thing. */
   var THINGS = {
     home: {
-      "doors,door,rooms": "Doors to a lab, a writing room, a workshop and a study. The plan on the wall shows where each one is.",
-      "plan,map,floor plan": "A floor plan, drawn in ink. A red dot marks where you are standing. Someone has drawn a small crossed square in the hall.",
-      "workshop,workbench,bench,controls,probes": "A workbench with three controls and eleven probes. Change the page, then try both ways of taking it back.",
-      "yard,pool": "Through the back door: a pool, and an equipment pad humming in the sun.",
-      "road,rift": "Out the front, a road. Something gold flickers at the far end of it.",
-      "floor,draught,draft,boards,square": "One board is not quite flush. A trapdoor. You could go down.",
+      "doors,door": "Four doors, each ajar, each leaking a different light: blue, green, teal and gold. Their names run up the panels.",
+      "corridor,box,walls,dark": "The inside of the box. The corridor has no colour of its own. It goes on further than it should.",
+      "light,lamp": "It comes from behind the doors, and from a little overhead. The darkness has not overcome it.",
+      "stars,sky": "They are different every time the box is opened. The number on the wall says which sky this is.",
+      "workbench,bench,workshop,laws,dials,probes": "A workbench with four dials and eleven probes. Change the laws, then try both ways of getting home.",
+      "floor,draught,draft,boards": "One board is not quite flush. A trapdoor. You could go down.",
       "trapdoor,hatch": "It lifts easily. Stairs lead down."
     },
     retractbench: {
@@ -50,8 +50,9 @@
       "town,towns": "Ordinary American towns. Mostly."
     },
     cellar: {
-      "shelves,shelf,jars": "Fonts in jars, shaders in a crate, and one benchmark, carefully labelled.",
-      "stairs,trapdoor": "Light comes down from the front page. You can go up."
+      "shelves,shelf,jars": "Fonts in jars, shaders in a crate, one benchmark carefully labelled, and a single mustard seed in a jar of its own.",
+      "seed,mustard seed,mustard": "The smallest thing on the shelf.",
+      "stairs,trapdoor": "Light comes down from the corridor. You can go up."
     }
   };
 
