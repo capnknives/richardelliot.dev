@@ -110,7 +110,8 @@
 
     "vec3 tintOf(float i){",
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
-    " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);return vec3(1.,.96,.86);}",
+    " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);",
+    " return uEgg<1.5?vec3(1.,.96,.86):uEgg<2.5?vec3(.95,.62,.34):vec3(.72,.58,1.);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
     "vec3 world(float i,vec2 uv){",
@@ -411,6 +412,13 @@
       hall.classList.add("live");
 
       var widths = {};
+      /* What the extra door can be. The third kind goes nowhere on the site:
+         walk through it and you come out in another world. */
+      var EGGS = [
+        { href: "words.html", sub: "a quiet room", wash: "#1b1d1c" },
+        { href: "cellar.html", sub: "stairs going down", wash: "#1b1d1c" },
+        { href: "#elsewhere", sub: "somewhere else", wash: "#f4efe4", jump: true }
+      ];
       var PERMS = [
         [0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 0, 1], [3, 2, 1, 0], [0, 2, 1, 3], [1, 3, 0, 2],
         [2, 0, 3, 1], [3, 1, 2, 0], [0, 3, 2, 1], [1, 2, 3, 0], [2, 1, 0, 3], [3, 0, 1, 2]
@@ -445,7 +453,8 @@
           pattern: home ? 0 : seed % 3,
           speed: speed || 1,
           perm: home ? PERMS[0] : PERMS[seed % PERMS.length],     /* the doors trade places */
-          egg: !home && seed % 9 === 0,                           /* about one world in nine has an extra door */
+          egg: !home && seed % 6 === 0,                           /* about one world in six has an extra door */
+          eggKind: Math.floor(seed / 6) % 3,                       /* and it is not always the same door */
           wall: home ? rgb(ROOMS.corridor.b) : hsl(hue, 0.34, 0.15),
           deep: home ? rgb(ROOMS.corridor.a) : hsl(hue, 0.5, 0.04)
         };
@@ -457,7 +466,14 @@
         cor.set("uFog", w.fog);
         cor.set("uPattern", w.pattern);
         cor.set("uPerm", w.perm);
-        cor.set("uEgg", w.egg ? 1 : 0);
+        cor.set("uEgg", w.egg ? 1 + (w.eggKind || 0) : 0);
+        if (eggTag) {
+          var kind = EGGS[w.eggKind || 0];
+          eggTag.setAttribute("href", kind.href);
+          eggTag.setAttribute("data-wash", kind.wash);
+          var sub = eggTag.querySelector("[data-egg-sub]");
+          if (sub) sub.textContent = kind.sub;
+        }
         cor.set("uA", w.deep.length ? w.deep : rgb(w.deep));
         cor.set("uB", w.wall.length === 3 && typeof w.wall !== "string" ? w.wall : rgb(w.wall));
         cor.speed = w.speed;
@@ -537,7 +553,10 @@
           if (slot < 0) return false;
           k = Math.floor(slot / 2); side = slot % 2 ? 1 : -1;
         }
-        entering = { start: performance.now(), k: k, side: side, href: tag.href, done: false };
+        entering = {
+          start: performance.now(), k: k, side: side, href: tag.href, done: false,
+          jump: tag === eggTag && !!EGGS[world.eggKind || 0].jump
+        };
         hall.style.setProperty("--enter", tag.getAttribute("data-wash") || "#10131f");
         cor.forceLoop = true;
         cor.play();
@@ -599,8 +618,16 @@
           if (q > 0.62) hall.classList.add("entering");
           if (q >= 1 && !entering.done) {
             entering.done = true;
-            try { window.sessionStorage.setItem("re-enter", "1"); } catch (err) { /* optional */ }
-            window.location.href = entering.href;
+            if (entering.jump) {
+              /* Through the door and out into another world. */
+              entering = null;
+              hall.classList.remove("entering");
+              view.ox = 0; view.shear = 0; view.oz = 0;
+              if (window.RE && window.RE.jump) window.RE.jump();
+            } else {
+              try { window.sessionStorage.setItem("re-enter", "1"); } catch (err) { /* optional */ }
+              window.location.href = entering.href;
+            }
           }
         }
         cor.set("uJump", jump);

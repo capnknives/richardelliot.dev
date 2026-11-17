@@ -77,7 +77,8 @@ body[data-room="riftforge"],
   --rule: #4f3049;
 }
 
-body[data-room="cellar"] {
+body[data-room="cellar"],
+body[data-room="words"] {
   --wash: #1b1d1c;
   --ink: #e9ece7;
   --room: #d6c08a;
@@ -537,6 +538,61 @@ html.box {
   color: var(--light);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Quotes: one per world on the front page, all of them in the gallery ---------- */
+
+.world-quote {
+  margin: 0;
+  padding: 0 var(--gutter) clamp(3rem, 8vw, 5.5rem);
+}
+
+.world-quote blockquote,
+.quotes blockquote {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.world-quote blockquote {
+  font-size: clamp(2.25rem, 7vw, 5.5rem);
+  color: var(--light);
+  max-width: 18em;
+}
+
+.world-quote figcaption,
+.quotes .by {
+  margin: 0.75rem 0 0;
+  font-family: var(--voice);
+  font-style: italic;
+  color: var(--soft);
+}
+
+.quotes {
+  list-style: none;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 3rem) var(--gutter) clamp(2rem, 6vw, 4rem);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2.5rem, 6vw, 5rem) clamp(2rem, 6vw, 5rem);
+}
+
+.quotes blockquote {
+  font-size: clamp(1.9rem, 4.4vw, 3.5rem);
+  color: var(--ink);
+}
+
+.quotes li {
+  border-top: 1px solid var(--rule);
+  padding-top: 1.25rem;
+}
+
+/* The words are lit from behind. */
+.quotes li:nth-child(4n + 1) blockquote { text-shadow: 0 0 1.2em rgba(143, 162, 255, 0.45); }
+.quotes li:nth-child(4n + 2) blockquote { text-shadow: 0 0 1.2em rgba(127, 214, 154, 0.4); }
+.quotes li:nth-child(4n + 3) blockquote { text-shadow: 0 0 1.2em rgba(111, 214, 221, 0.4); }
+.quotes li:nth-child(4n + 4) blockquote { text-shadow: 0 0 1.2em rgba(233, 180, 76, 0.45); }
 
 /* ---------- What a world changes on the page ---------- */
 
@@ -1246,11 +1302,13 @@ body[data-room="cellar"] .sheet {
 }
 
 body[data-room="riftforge"] .exits a,
+body[data-room="words"] .exits a,
 body[data-room="cellar"] .exits a {
   color: var(--ink);
 }
 
 body[data-room="riftforge"] .exits a:hover,
+body[data-room="words"] .exits a:hover,
 body[data-room="cellar"] .exits a:hover {
   color: var(--room);
 }
@@ -1415,6 +1473,10 @@ body[data-room="cellar"] .exits a:hover {
 }
 
 @media (max-width: 46rem) {
+  .quotes {
+    grid-template-columns: 1fr;
+  }
+
   .corridor {
     height: min(70vh, 118vw);
   }
