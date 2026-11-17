@@ -3,7 +3,7 @@
 
    The front page is the inside of a box: a dark corridor of doors, each
    opening on a world. Each project page is one of those worlds. A world's
-   colour and mood come from data-room, set on <body> (project pages) or on
+   color and mood come from data-room, set on <body> (project pages) or on
    a .band or .door (front page).
 
    Type: Sofia Sans Extra Condensed for names and headlines, Sofia Sans for
@@ -38,7 +38,7 @@
   --rule: #c5cdd4;
   --mark: #d93a1c;            /* "you are here": the one lobby accent */
 
-  /* Room colours: a deep tone for type and a pale wash for ground. */
+  /* Room colors: a deep tone for type and a pale wash for ground. */
   --retract: #2b3fa0;
   --retract-wash: #e3e7f7;
   --gecko: #22613c;
@@ -92,6 +92,11 @@ body[data-room="cellar"] {
 }
 
 html {
+  /* One fluid scale for everything. Sizes are in rem, so this single line
+     makes the whole site grow on large monitors: 16px up to about a
+     1450px-wide window, rising to 24px on very wide screens. Phones and
+     tablets stay at 16px and are handled by the fluid sizes below. */
+  font-size: clamp(100%, 0.5rem + 0.55vw, 150%);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-bottom: calc(var(--bar) + 1rem);
@@ -216,7 +221,7 @@ kbd {
 }
 
 /* ---------- Front page: inside the box ----------
-   The corridor is dark and has no colour of its own. Colour only comes
+   The corridor is dark and has no color of its own. Color only comes
    through the doors. --light is the tint of this world's light (box.js). */
 
 html.box {
@@ -404,6 +409,54 @@ html.box {
   color: var(--light);
 }
 
+/* Entering a door: the view floods with that world's color just before the page changes. */
+.corridor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--enter, #10131f);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease-in;
+}
+
+.corridor.entering::after {
+  opacity: 1;
+}
+
+.door-tags a[data-egg] {
+  color: #fff6dc;
+}
+
+.door-tags a[hidden] {
+  display: none;
+}
+
+.world-note {
+  grid-column: 1 / -1;
+  max-width: 44rem;
+  color: var(--light);
+}
+
+/* Arriving in a room from the corridor: it opens up from a door-shaped slot. */
+.arrive .backdrop {
+  animation: door-open 760ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.arrive .room-head > * {
+  animation: step-in 520ms ease-out 180ms both;
+}
+
+@keyframes door-open {
+  from { clip-path: inset(6% 36% 0 36%); filter: brightness(1.5); }
+  to { clip-path: inset(0); filter: none; }
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: scale(1.06); }
+  to { opacity: 1; transform: none; }
+}
+
 .corridor.flat {
   height: auto;
   min-height: 0;
@@ -415,6 +468,10 @@ html.box {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+.corridor.flat::after {
+  display: none;
 }
 
 .corridor.flat .door-tags a {
@@ -544,7 +601,7 @@ html.box body::before {
   margin: 0;
 }
 
-.practised {
+.practiced {
   max-width: var(--measure);
   color: var(--soft);
   margin: 0.5rem 0 0;
@@ -613,7 +670,7 @@ html.box body::before {
   max-width: 30rem;
 }
 
-/* A veil of the room's own colour keeps the facts readable over the backdrop. */
+/* A veil of the room's own color keeps the facts readable over the backdrop. */
 .band .facts {
   background: color-mix(in srgb, var(--wash) 84%, transparent);
   padding: 0 0.9rem;

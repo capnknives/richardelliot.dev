@@ -171,6 +171,53 @@
     };
   }
 
+  var VOICES = [
+    "You are inside the box. Every door opens on a world I built.",
+    "You are inside the box. The doors were somewhere else a moment ago.",
+    "You are inside the box. It is bigger than it looked from outside.",
+    "You are inside the box again. Nothing is quite where you left it.",
+    "You are inside the box. Somebody has moved the doors."
+  ];
+  var VOICES2 = [
+    "Each one a working project, with its own laws and its own weather.",
+    "The same four projects, whichever world you are standing in.",
+    "Whatever else changes out here, these four are real.",
+    "The doors move. What is behind them does not."
+  ];
+  var FLAVOR = [
+    "The corridor hums a little flat in this one.",
+    "Somewhere down the hall, a door has just closed.",
+    "The stars are in the wrong places, but only slightly.",
+    "It smells faintly of rain.",
+    "The floor is warm, as if someone just left.",
+    "A version of you has already been through here.",
+    "Every clock in this world is four minutes fast.",
+    "The echo arrives before the sound.",
+    "The doors are numbered here. The numbers keep changing.",
+    "Someone has left a light on at the far end.",
+    "Your footsteps land a half-beat late.",
+    "The walls are closer than they were, or you are larger."
+  ];
+
+  function hasExtraDoor(n) {
+    return n !== 0 && n % 9 === 0;           /* must match the rule in backdrop.js */
+  }
+
+  function fieldNote(n, k) {
+    if (n === 0) return "Field note, world 0000. This is the world as built. Everything else is a variation.";
+    var law = k.g < 0.8 ? "Gravity is weak here, and the headings have thinned out."
+      : k.g > 1.08 ? "Gravity is strong here, and the headings have put on weight."
+      : k.c > 1.3 ? "Light is quick here, so the corridor will not hold still."
+      : k.c < 0.8 ? "Light is slow here, and the corridor is in no hurry."
+      : k.a < 115 ? "Letters keep their distance in this world."
+      : k.a > 160 ? "Letters crowd together in this world."
+      : "The constants here are close to home.";
+    return "Field note, world " + pad(n) + ". " + law + " " + FLAVOR[(n * 7) % FLAVOR.length] +
+      (hasExtraDoor(n) ? " And there is a door here that is not on the plan." : "");
+  }
+
+  var seen = {};
+  var lastWorld = 0;
   var jumpTimer = 0;
   function apply(n, jump) {
     var tint = n === 0 ? TINTS[0] : TINTS[1 + (n % (TINTS.length - 1))];
@@ -189,6 +236,14 @@
     if (out.c) out.c.textContent = "\u00d7" + k.c.toFixed(2);
     if (out.g) out.g.textContent = "\u00d7" + k.g.toFixed(2);
     if (out.a) out.a.textContent = "1/" + k.a;
+    var v1 = document.querySelector("[data-world-voice]");
+    var v2 = document.querySelector("[data-world-voice2]");
+    var note = document.querySelector("[data-world-note]");
+    if (v1) v1.textContent = n === 0 ? VOICES[0] : VOICES[n % VOICES.length];
+    if (v2) v2.textContent = n === 0 ? VOICES2[0] : VOICES2[n % VOICES2.length];
+    if (note) note.textContent = fieldNote(n, k);
+    seen[n] = true;
+    lastWorld = n;
     set("sessionStorage", "re-world", String(n));
     var moving = !!jump && !root.classList.contains("plain") &&
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -238,6 +293,17 @@
   }
 
   if (!chip) return;          /* project pages: plain view only, no worlds */
+
+  /* For the command bar. */
+  window.RE.jump = function () { if (again) again.click(); };
+  window.RE.toOrigin = function () { if (home) home.click(); };
+  window.RE.info = function () {
+    var k = constants(lastWorld);
+    return "World " + pad(lastWorld) + (lastWorld === 0 ? ", the origin" : "") + ". Light \u00d7" + k.c.toFixed(2) +
+      ", gravity \u00d7" + k.g.toFixed(2) + ", fine structure 1/" + k.a + "." +
+      (hasExtraDoor(lastWorld) ? " There is one door too many here." : "");
+  };
+  window.RE.visited = function () { return Object.keys(seen).length; };
 
   var known = get("sessionStorage", "re-world");
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

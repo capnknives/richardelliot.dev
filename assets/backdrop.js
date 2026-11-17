@@ -13,7 +13,7 @@
    The same arithmetic runs in JavaScript to pin the door labels in place and
    to work out which door a click landed on.
 
-   No WebGL: flat colours, and the doors become an ordinary row of links.
+   No WebGL: flat colors, and the doors become an ordinary row of links.
    Reduced motion: a single still frame, no jump. Plain view: all of it off. */
 (function () {
   "use strict";
@@ -42,6 +42,7 @@
     "uniform vec3 uA;uniform vec3 uB;uniform vec3 uC;",
     "uniform float uJump;uniform float uOz;uniform float uRoll;uniform float uFocal;",
     "uniform float uFog;uniform float uPattern;uniform vec2 uPointer;",
+    "uniform float uOx;uniform vec4 uPerm;uniform float uEgg;",
     "vec3 gA;vec3 gB;vec3 gC;float gAsp;float gWide;float gRiftX;",
 
     "float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
@@ -106,7 +107,7 @@
 
     "vec3 tintOf(float i){",
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
-    " if(i<2.5)return vec3(.40,.86,.90);return vec3(.95,.70,.28);}",
+    " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);return vec3(1.,.96,.86);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
     "vec3 world(float i,vec2 uv){",
@@ -115,7 +116,9 @@
     " if(i<.5){gA=vec3(.89,.91,.97);gB=vec3(.72,.76,.95);gC=vec3(.52,.58,.92);col=probes(uv*.9);}",
     " else if(i<1.5){gA=vec3(.88,.94,.89);gB=vec3(.70,.88,.74);gC=vec3(.50,.76,.56);col=scales(uv*.8);}",
     " else if(i<2.5){gA=vec3(.74,.91,.92);gB=vec3(.97,1.,1.);gC=vec3(.55,.84,.87);col=caustics(uv*.8);}",
-    " else{gA=vec3(.12,.06,.13);gB=vec3(.29,.13,.27);gC=vec3(.91,.71,.30);col=rift(uv);}",
+    " else if(i<3.5){gA=vec3(.12,.06,.13);gB=vec3(.29,.13,.27);gC=vec3(.91,.71,.30);col=rift(uv);}",
+    " else{gA=vec3(.02,.02,.06);gB=vec3(.22,.24,.5);gC=vec3(1.,.97,.9);",          /* the door that should not be there */
+    "  col=sky(uv*1.6+uTime*.01)+gC*(.9*exp(-length(uv-vec2(.375,.62))*16.)+.25*exp(-length(uv-vec2(.375,.62))*4.));}",
     " gA=sa;gB=sb;gC=sc;gAsp=sasp;return col;}",
 
     "float seams(vec3 p){",
@@ -124,13 +127,16 @@
 
     "vec3 scene(vec2 uv){",
     " float cr=cos(uRoll),sr=sin(uRoll);uv=vec2(cr*uv.x-sr*uv.y,sr*uv.x+cr*uv.y);",
-    " vec3 ro=vec3(0.,-.25,uOz);",
+    " vec3 ro=vec3(uOx,-.25,uOz);",
     " vec3 rd=normalize(vec3(uv+uPointer,uFocal));",
     " float rx=abs(rd.x)<1e-4?1e-4:rd.x;float ry=abs(rd.y)<1e-4?1e-4:rd.y;",
     " float tx=((rx>0.?W:-W)-ro.x)/rx;float ty=((ry>0.?H:-H)-ro.y)/ry;",
     " float t=min(tx,ty);vec3 p=ro+rd*t;",
     " float zz=p.z-Z0;float k=floor(zz/D);float dz=zz-(k+.5)*D;",
-    " float side=p.x>0.?1.:0.;float idx=mod(k*2.+side,4.);vec3 tint=tintOf(idx);",
+    " float side=p.x>0.?1.:0.;float slot=mod(k*2.+side,4.);",
+    " float idx=slot<.5?uPerm.x:slot<1.5?uPerm.y:slot<2.5?uPerm.z:uPerm.w;",          /* which world is behind which door */
+    " if(uEgg>.5&&abs(k-2.)<.5&&side<.5)idx=4.;",
+    " vec3 tint=tintOf(idx);",
     " vec3 col;",
     " if(tx<ty){",
     "  float inx=abs(dz)/DW;float yy=(p.y+H)/DH;",
@@ -164,7 +170,7 @@
     " else if(uMode<4.5)col=sky(uv);",
     " else{",
     "  vec2 c=(gl_FragCoord.xy-.5*uRes)/uRes.y;",
-    "  if(uJump>.001){float a=sin(3.14159*uJump);",                                   /* mid-jump: colours come apart */
+    "  if(uJump>.001){float a=sin(3.14159*uJump);",                                   /* mid-jump: colors come apart */
     "   col=vec3(scene(c*(1.+.07*a)).r,scene(c).g,scene(c*(1.-.07*a)).b)+gC*pow(a,7.)*.9;}",
     "  else col=scene(c);",
     "  col*=1.-.35*dot(c,c);",
@@ -179,7 +185,7 @@
 
   var root = document.documentElement;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var UNIFORMS = ["uRes", "uTime", "uMode", "uSeed", "uA", "uB", "uC", "uJump", "uOz", "uRoll", "uFocal", "uFog", "uPattern", "uPointer"];
+  var UNIFORMS = ["uRes", "uTime", "uMode", "uSeed", "uA", "uB", "uC", "uJump", "uOz", "uRoll", "uFocal", "uFog", "uPattern", "uPointer", "uOx", "uPerm", "uEgg"];
 
   function Backdrop(canvas) {
     var gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "low-power" });
@@ -216,6 +222,7 @@
     UNIFORMS.forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
     gl.uniform1f(u.uFocal, 1);
     gl.uniform1f(u.uFog, 0.1);
+    gl.uniform4fv(u.uPerm, [0, 1, 2, 3]);
 
     var self = this;
     var raf = 0;
@@ -229,6 +236,7 @@
 
     this.set = function (name, a, b) {
       if (b !== undefined) gl.uniform2f(u[name], a, b);
+      else if (a.length === 4) gl.uniform4fv(u[name], a);
       else if (a.length) gl.uniform3fv(u[name], a);
       else gl.uniform1f(u[name], a);
     };
@@ -244,7 +252,7 @@
       return true;
     };
 
-    /* The box changes with the world: a seed moves the stars, a tint colours the light. */
+    /* The box changes with the world: a seed moves the stars, a tint colors the light. */
     this.setWorld = function (seed, tint) {
       gl.uniform1f(u.uSeed, (seed % 997) / 997 * 40);
       if (tint) gl.uniform3fv(u.uC, rgb(tint));
@@ -334,6 +342,13 @@
   /* ---------- Project pages: one backdrop behind the masthead and title ---------- */
   var room = document.body.getAttribute("data-room");
   var head = document.querySelector(".room-head");
+  try {
+    /* Arriving through a door in the corridor: the room opens up from a door-shaped slot. */
+    if (room && window.sessionStorage.getItem("re-enter") === "1") {
+      window.sessionStorage.removeItem("re-enter");
+      if (!still && !root.classList.contains("plain")) root.classList.add("arrive");
+    }
+  } catch (e) { /* storage is optional */ }
   if (room && head && ROOMS[room]) {
     var canvas = make("backdrop");
     document.body.insertBefore(canvas, document.body.firstChild);
@@ -378,7 +393,8 @@
   /* ---------- Front page: the corridor ---------- */
   var hall = document.querySelector("[data-corridor]");
   if (hall) {
-    var tags = Array.prototype.slice.call(hall.querySelectorAll(".door-tags a"));
+    var tags = Array.prototype.slice.call(hall.querySelectorAll(".door-tags a:not([data-egg])"));
+    var eggTag = hall.querySelector(".door-tags a[data-egg]");
     var cc = make("corridor-view");
     hall.insertBefore(cc, hall.firstChild);
     var cor = create(cc);
@@ -389,21 +405,44 @@
       cor.setRoom("corridor");
       hall.classList.add("live");
 
-      var world = { tint: "#f4efe4", roll: 0, fog: 0.1, pattern: 0, seed: 0, speed: 1 };
+      var widths = {};
+      var PERMS = [
+        [0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 0, 1], [3, 2, 1, 0], [0, 2, 1, 3], [1, 3, 0, 2],
+        [2, 0, 3, 1], [3, 1, 2, 0], [0, 3, 2, 1], [1, 2, 3, 0], [2, 1, 0, 3], [3, 0, 1, 2]
+      ];
+      var world = { tint: "#f4efe4", roll: 0, fog: 0.1, pattern: 0, seed: 0, speed: 1, perm: PERMS[0], egg: false, wall: ROOMS.corridor.b, deep: ROOMS.corridor.a };
       var pending = null;
       var jumpStart = 0;
       var JUMP_MS = 1150;
+      var ENTER_MS = 800;
+      var entering = null;       /* { start, k, side, href } while the camera flies into a door */
       var pointer = { x: 0, y: 0, tx: 0, ty: 0 };
-      var view = { roll: 0, focal: 1, oz: 0 };
+      var view = { roll: 0, focal: 1, oz: 0, ox: 0, shear: 0 };
 
+      var hsl = function (h, sat, light) {
+        var a = sat * Math.min(light, 1 - light);
+        var f = function (n) {
+          var k = (n + h / 30) % 12;
+          return light - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+        };
+        return [f(0), f(8), f(4)];
+      };
+
+      /* Everything about the corridor that depends on which world this is. */
       var params = function (seed, tint, speed) {
+        var home = seed === 0;
+        var hue = (seed * 47) % 360;
         return {
           seed: seed,
           tint: tint || "#f4efe4",
-          roll: seed === 0 ? 0 : ((seed % 9) - 4) * 0.014,
-          fog: seed === 0 ? 0.1 : 0.075 + (seed % 7) * 0.012,
-          pattern: seed === 0 ? 0 : seed % 3,
-          speed: speed || 1
+          roll: home ? 0 : ((seed % 9) - 4) * 0.014,
+          fog: home ? 0.1 : 0.075 + (seed % 7) * 0.012,
+          pattern: home ? 0 : seed % 3,
+          speed: speed || 1,
+          perm: home ? PERMS[0] : PERMS[seed % PERMS.length],     /* the doors trade places */
+          egg: !home && seed % 9 === 0,                           /* about one world in nine has an extra door */
+          wall: home ? rgb(ROOMS.corridor.b) : hsl(hue, 0.34, 0.15),
+          deep: home ? rgb(ROOMS.corridor.a) : hsl(hue, 0.5, 0.04)
         };
       };
 
@@ -412,7 +451,14 @@
         cor.setWorld(w.seed, w.tint);
         cor.set("uFog", w.fog);
         cor.set("uPattern", w.pattern);
+        cor.set("uPerm", w.perm);
+        cor.set("uEgg", w.egg ? 1 : 0);
+        cor.set("uA", w.deep.length ? w.deep : rgb(w.deep));
+        cor.set("uB", w.wall.length === 3 && typeof w.wall !== "string" ? w.wall : rgb(w.wall));
         cor.speed = w.speed;
+        widths = {};
+        if (eggTag) eggTag.hidden = !w.egg;
+        hall.classList.toggle("has-egg", w.egg);
       };
 
       var focalFor = function () {
@@ -422,7 +468,7 @@
       /* Where a point in the corridor lands on screen, in CSS pixels. */
       var project = function (x, y, z) {
         var vz = z - view.oz;
-        var sx = x / vz * view.focal - pointer.x;
+        var sx = (x - view.ox) / vz * view.focal - pointer.x;
         var sy = (y - G.EYE) / vz * view.focal - pointer.y;
         var c = Math.cos(-view.roll), s = Math.sin(-view.roll);
         var ux = c * sx - s * sy, uy = s * sx + c * sy;
@@ -443,32 +489,72 @@
         if (tx >= ty) return -1;
         var pz = view.oz + rz * tx, pyy = G.EYE + ry * tx;
         var zz = pz - G.Z0, k = Math.floor(zz / G.D), dz = zz - (k + 0.5) * G.D;
-        if (Math.abs(dz) > G.DW || pyy > -G.H + G.DH || k < 0 || k > 1) return -1;
-        return k * 2 + (rx > 0 ? 1 : 0);
+        if (Math.abs(dz) > G.DW || pyy > -G.H + G.DH) return -1;
+        if (world.egg && k === 2 && rx < 0) return 4;                  /* the extra door */
+        if (k < 0 || k > 1) return -1;
+        return world.perm[k * 2 + (rx > 0 ? 1 : 0)];                   /* index into tags */
       };
 
-      var widths = {};
-      var place = function () {
-        var jumping = jumpStart > 0;
+      var put = function (tag, key, k, side, hide) {
         var cw = cc.clientWidth;
-        tags.forEach(function (tag, i) {
-          var k = Math.floor(i / 2), side = i % 2 ? 1 : -1;
-          var z = G.Z0 + (k + 0.5) * G.D;
-          var top = project(side * G.W, -G.H + G.DH + 0.1, z);
-          var size = Math.round(Math.max(15, Math.min(64, cc.clientHeight * 0.3 * view.focal / top.depth)));
-          var key = i + ":" + size;
-          if (tag.style.fontSize !== size + "px") tag.style.fontSize = size + "px";
-          if (!widths[key]) widths[key] = tag.offsetWidth;
-          var w = widths[key];
-          /* Left-wall names hang to the left of their door, right-wall names to the right,
-             so the two far ones never run into each other. Both stay inside the view. */
-          var x = side < 0 ? top.x - w + size * 0.6 : top.x - size * 0.6;
-          x = Math.max(6, Math.min(cw - w - 6, x));
-          var y = Math.max(size * 1.75 + 6, top.y);
-          tag.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translateY(-100%)";
-          tag.style.opacity = jumping ? "0" : "1";
-        });
+        var z = G.Z0 + (k + 0.5) * G.D;
+        var top = project(side * G.W, -G.H + G.DH + 0.1, z);
+        var size = Math.round(Math.max(15, Math.min(64, cc.clientHeight * 0.3 * view.focal / top.depth)));
+        if (tag.style.fontSize !== size + "px") tag.style.fontSize = size + "px";
+        var wk = key + ":" + size;
+        if (!widths[wk]) widths[wk] = tag.offsetWidth;
+        var w = widths[wk];
+        /* Left-wall names hang to the left of their door, right-wall names to the right,
+           so the two far ones never run into each other. Both stay inside the view. */
+        var x = side < 0 ? top.x - w + size * 0.6 : top.x - size * 0.6;
+        x = Math.max(6, Math.min(cw - w - 6, x));
+        var y = Math.max(size * 1.75 + 6, top.y);
+        tag.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translateY(-100%)";
+        tag.style.opacity = hide ? "0" : "1";
       };
+
+      var place = function () {
+        var hide = jumpStart > 0 || !!entering;
+        for (var slot = 0; slot < 4; slot++) {
+          put(tags[world.perm[slot]], "t" + world.perm[slot], Math.floor(slot / 2), slot % 2 ? 1 : -1, hide);
+        }
+        if (eggTag && world.egg) put(eggTag, "egg", 2, -1, hide);
+      };
+
+      /* Fly the camera into a door, then go there. Returns false if it should just navigate. */
+      var enter = function (tag) {
+        if (still || isPlain() || entering || hall.classList.contains("flat")) return false;
+        var k, side;
+        if (tag === eggTag) {
+          k = 2; side = -1;
+        } else {
+          var slot = world.perm.indexOf(tags.indexOf(tag));
+          if (slot < 0) return false;
+          k = Math.floor(slot / 2); side = slot % 2 ? 1 : -1;
+        }
+        entering = { start: performance.now(), k: k, side: side, href: tag.href, done: false };
+        hall.style.setProperty("--enter", tag.getAttribute("data-wash") || "#10131f");
+        cor.forceLoop = true;
+        cor.play();
+        return true;
+      };
+
+      tags.concat(eggTag ? [eggTag] : []).forEach(function (tag) {
+        tag.addEventListener("click", function (e) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+          if (enter(tag)) e.preventDefault();
+        });
+      });
+
+      /* Coming back with the Back button: undo the fly-in. */
+      window.addEventListener("pageshow", function (e) {
+        if (!e.persisted) return;
+        entering = null;
+        hall.classList.remove("entering");
+        cor.resize();
+        cor.draw();
+        if (cor.onScreen && !isPlain()) cor.play();
+      });
 
       cor.before = function () {
         var now = performance.now();
@@ -496,11 +582,28 @@
             }
           }
         }
+        view.ox = 0;
+        view.shear = 0;
+        if (entering) {
+          var q = Math.min(1, (now - entering.start) / ENTER_MS);
+          var ez = q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+          view.oz = ez * (G.Z0 + (entering.k + 0.5) * G.D);            /* walk level with the door */
+          view.ox = entering.side * ez * 0.8;                          /* step toward it */
+          view.shear = entering.side * q * q * q * 3.4;                /* and turn to face it */
+          view.roll = world.roll * (1 - ez);
+          if (q > 0.62) hall.classList.add("entering");
+          if (q >= 1 && !entering.done) {
+            entering.done = true;
+            try { window.sessionStorage.setItem("re-enter", "1"); } catch (err) { /* optional */ }
+            window.location.href = entering.href;
+          }
+        }
         cor.set("uJump", jump);
         cor.set("uOz", view.oz);
+        cor.set("uOx", view.ox);
         cor.set("uRoll", view.roll);
         cor.set("uFocal", view.focal);
-        cor.set("uPointer", pointer.x + sway, pointer.y);
+        cor.set("uPointer", pointer.x + sway + view.shear, pointer.y * (entering ? 0.3 : 1));
         place();
       };
 
@@ -532,7 +635,8 @@
       cc.addEventListener("click", function (e) {
         var r = cc.getBoundingClientRect();
         var i = doorAt(e.clientX - r.left, e.clientY - r.top);
-        if (i >= 0 && tags[i]) tags[i].click();
+        if (i === 4 && eggTag) eggTag.click();
+        else if (i >= 0 && tags[i]) tags[i].click();
       });
 
       cor.resize();

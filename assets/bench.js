@@ -5,7 +5,7 @@
    - "from the record" puts back the saved originals. It is exact, and on the
      branch map you step back into the world you left.
    - "without the record" has nothing saved to go on, so it gets close and
-     stops: colours come back a hair off, weight lands on the nearest hundred,
+     stops: colors come back a hair off, weight lands on the nearest hundred,
      spacing is nearly closed, and the visitor's line is left behind in the
      browser tab's title. On the branch map you land beside your world.
    The second one is a simulation, written to behave the way approximate undo
@@ -36,7 +36,7 @@
     return getComputedStyle(root).getPropertyValue(name).trim().toLowerCase();
   }
 
-  /* ---- colour helpers ---- */
+  /* ---- color helpers ---- */
   function toRgb(hex) {
     var n = parseInt(hex.slice(1), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -75,9 +75,9 @@
     line: line.textContent,
     title: document.title,
     weight: parseInt(getComputedStyle(line).fontWeight, 10),
-    colours: {}
+    colors: {}
   };
-  PROBED.concat(WASHES).forEach(function (name) { base.colours[name] = cssVar(name); });
+  PROBED.concat(WASHES).forEach(function (name) { base.colors[name] = cssVar(name); });
 
   var PROBES = [
     { name: "the line", read: function () { return line.textContent; } },
@@ -148,9 +148,9 @@
     measure();
   }
 
-  function setColours(fn) {
+  function setColors(fn) {
     PROBED.concat(WASHES).forEach(function (name) {
-      root.style.setProperty(name, fn(base.colours[name], name));
+      root.style.setProperty(name, fn(base.colors[name], name));
     });
   }
 
@@ -162,7 +162,7 @@
   });
   hue.addEventListener("input", function () {
     var deg = parseInt(hue.value, 10);
-    setColours(function (hex) { return rotate(hex, deg); });
+    setColors(function (hex) { return rotate(hex, deg); });
     edited("hue");
   });
   weight.addEventListener("input", function () {
@@ -204,7 +204,7 @@
       text.value = "";                      /* ...the tab title is left as it was */
     }
     if (touched.hue) {
-      setColours(function (hex) { return nudge(hex); });
+      setColors(function (hex) { return nudge(hex); });
       hue.value = 0;
     }
     if (touched.weight) {
