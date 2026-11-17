@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Richard Elliot — software that listens, remembers, and can take it back</title>
+  <meta name="description" content="Portfolio of Richard Elliot, an AI software engineering student in Texas: model-editing research, writing tools, voice-driven field software and a text-game engine.">
+  <meta property="og:title" content="Richard Elliot — software that listens, remembers, and can take it back">
+  <meta property="og:description" content="Portfolio of Richard Elliot, an AI software engineering student in Texas: model-editing research, writing tools, voice-driven field software and a text-game engine.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css">
+  <script>document.documentElement.className = "";</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="index.html#projects">Projects</a>
+      <a href="index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="opening">
+      <h1>Software that listens, remembers, and can take it back.</h1>
+      <p class="lede">I'm Richard Elliot, an AI software engineering student in Texas. I build tools around language models, and I study what happens when you try to undo a change to one.</p>
+    </div>
+
+  <div class="prompt" data-prompt data-room-text="The front page. A plain room with four doors, each a different colour.">
+    <p class="prompt-log" data-prompt-log aria-live="polite"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or help">
+    </form>
+  </div>
+
+    <h2 class="section-head" id="projects">Projects</h2>
+    <ul class="rooms">
+      <li data-room="retractbench">
+        <a href="projects/retractbench.html" data-exit="retractbench">
+          <span class="title">retractbench</span>
+          <span class="what">A benchmark that asks whether an edit to a language model can be fully taken back, with one protocol for every editing method.</span>
+          <span class="state">Research, open source</span>
+        </a>
+      </li>
+      <li data-room="storygecko">
+        <a href="projects/storygecko.html" data-exit="storygecko">
+          <span class="title">StoryGecko</span>
+          <span class="what">Upload a manuscript and get a story bible: who is who, what happened, and what you have not resolved yet.</span>
+          <span class="state">In development, private testing</span>
+        </a>
+      </li>
+      <li data-room="aquainspection">
+        <a href="projects/aquainspection.html" data-exit="aquainspection">
+          <span class="title">Aquainspection</span>
+          <span class="what">Pool inspection reports for Texas, filled out by talking. A technician walks the equipment pad and the report writes itself.</span>
+          <span class="state">Alpha, private demo</span>
+        </a>
+      </li>
+      <li data-room="riftforge">
+        <a href="projects/riftforge.html" data-exit="riftforge">
+          <span class="title">Riftforge</span>
+          <span class="what">A text-game engine in pure Python, and Mortals and Monsters, the persistent online world that runs on it.</span>
+          <span class="state">Live alpha, engine open source</span>
+        </a>
+      </li>
+    </ul>
+
+    <section class="plain" id="about">
+      <h2>About</h2>
+      <p>I have read code for most of my life and write scripts as a hobby. For the last four years I have studied AI ethics and how models are made, with one stubborn focus: changing the model itself, in modular and inspectable ways, instead of wrapping it in more context.</p>
+      <p>I am studying AI software engineering at Maestro College, and I plan to continue on to a computer science degree. The projects here are how I practise: each one is a working system with real users or real measurements behind it.</p>
+      <p>The best place to reach me is <a href="https://github.com/capnknives" data-exit="github">GitHub, as capnknives</a>.</p>
+    </section>
+
+    <section class="plain">
+      <h2>Also</h2>
+      <ul class="also">
+        <li><a href="https://github.com/capnknives/WitsV3">WitsV3</a><br>A local-first assistant that runs on your own machine. It plans, calls tools, keeps memory, and edits its own code through a pipeline that runs the tests and either commits the change or puts the original back.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+  <script src="assets/prompt.js"></script>
+</body>
+</html>

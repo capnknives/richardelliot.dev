@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riftforge — Richard Elliot</title>
+  <meta name="description" content="Riftforge: an open-source MUD engine in pure Python, and the game Mortals and Monsters built on it.">
+  <meta property="og:title" content="Riftforge — Richard Elliot">
+  <meta property="og:description" content="Riftforge: an open-source MUD engine in pure Python, and the game Mortals and Monsters built on it.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css">
+  <script>document.documentElement.className = "";</script>
+</head>
+<body data-room="riftforge">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">Live alpha, engine open source</p>
+      <h1>Riftforge</h1>
+      <p class="lede">A text-game engine, and the world that runs on it.</p>
+      <p class="actions"><a class="primary" href="https://play.riftforge.me/client/">Play in your browser</a><a href="https://github.com/capnknives/riftforge-engine">Engine on GitHub</a><a href="https://riftforge.me/">Game site</a></p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>The engine</h2>
+        <div class="body">
+<p>Riftforge is a MUD engine: the server behind a multiplayer text game. It is written in pure Python on <code>asyncio</code> using only the standard library, with no frameworks and no third-party runtime dependencies.</p>
+<p>It supplies the reusable parts of a text world, such as travel, combat, an economy, planes and the gates between them. A game's own lore and writing live in a separate project that pins a tagged release of the engine.</p>
+        </div>
+      </section>
+      <section>
+        <h2>The game</h2>
+        <div class="body">
+<p>Mortals and Monsters is the world built on it: ordinary American towns laid over a layered afterlife, played in a browser or over telnet. It is free, and it is in alpha.</p>
+<ul>
+  <li>Your character stays in the world when you log off.</li>
+  <li>Towns and dungeons sit on real geography, and you travel between them.</li>
+  <li>Non-player characters work, eat and get into trouble using the same commands players type.</li>
+  <li>A screen-reader mode flattens the framed interface, and nothing is signalled by colour alone.</li>
+</ul>
+        </div>
+      </section>
+      <section>
+        <h2>Why it is here</h2>
+        <div class="body">
+<p>A persistent world is a long-running system: its state has to survive restarts, disconnects and many people acting at once. The engine handles that on its own, without leaning on a framework.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other projects">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+      </ul>
+    </nav>
+
+  <div class="prompt" data-prompt data-room-text="Riftforge. A crossroads at dusk. Every road leads to a town that keeps living while you are away.">
+    <p class="prompt-log" data-prompt-log aria-live="polite"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+  <script src="../assets/prompt.js"></script>
+</body>
+</html>

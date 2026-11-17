@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>retractbench — Richard Elliot</title>
+  <meta name="description" content="retractbench: an open benchmark that tests whether edits to a language model can be fully undone.">
+  <meta property="og:title" content="retractbench — Richard Elliot">
+  <meta property="og:description" content="retractbench: an open benchmark that tests whether edits to a language model can be fully undone.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css">
+  <script>document.documentElement.className = "";</script>
+</head>
+<body data-room="retractbench">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">Research, open source</p>
+      <h1>retractbench</h1>
+      <p class="lede">Can an edit to a language model be fully taken back?</p>
+      <p class="actions"><a class="primary" href="https://github.com/capnknives/retractbench">Read the code on GitHub</a></p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>The question</h2>
+        <div class="body">
+<p>Model-editing methods let you add or change a fact in a language model without retraining it. Many of them also claim, or are assumed, to be reversible. If that is true, you can correct a model, remove something it should not hold, and prove afterwards that it is gone.</p>
+<p>retractbench tests the claim directly, with the same probes and the same strict metrics for methods that work in very different places: activation codebooks, weight edits, adapters, trained caches and retrieval.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it tests</h2>
+        <div class="body">
+<ol>
+  <li>Record the base model's answers to a set of probes.</li>
+  <li>Write the edit.</li>
+  <li>Probe again: the exact prompt, paraphrases, unrelated prompts, and hard negatives (the same kind of question about a different subject).</li>
+  <li>Revoke the edit.</li>
+  <li>Probe once more and compare against step 1.</li>
+</ol>
+<p>For approximate undo methods it also runs a control: the same undo applied to a model that was never edited. That separates &ldquo;the undo left the edit behind&rdquo; from &ldquo;the undo changed the model by itself.&rdquo;</p>
+        </div>
+      </section>
+      <section>
+        <h2>What it has found</h2>
+        <div class="body">
+<table class="figures">
+  <caption>Edits where all 11 probes matched the original model after the undo, out of 100 CounterFact edits made with ROME. Results as of November 3, 2026.</caption>
+  <tr><th scope="row">SVD-truncation undo, Qwen2.5-7B</th><td>0 <small>/ 100</small></td></tr>
+  <tr><th scope="row">SVD-truncation undo, Qwen2.5-1.5B</th><td>1 <small>/ 100</small></td></tr>
+  <tr><th scope="row">Restore or subtract, both models</th><td>100 <small>/ 100</small></td></tr>
+</table>
+<p>On the larger model, at a well-chosen setting, the published SVD undo gets close to the original: the edit is mostly removed and sampled output is hard to tell apart from the original. It is never exact. On the smaller model it is far off. Only an undo that keeps a record of the edit is exact.</p>
+<p class="fine">The edits were made with the original authors' own code (Youssef et al., ICLR 2026). Full numbers, both settings and every correction are in the repository's log.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it is built</h2>
+        <div class="body">
+<ul>
+  <li>Python, with PyTorch for the editors and a harness that tests without it.</li>
+  <li>Any object with <code>generate</code>, <code>apply</code>, <code>revoke</code> and <code>config</code> methods plugs in as an editor.</li>
+  <li>Every run records the git commit, config and library versions next to its results.</li>
+  <li>Small models run locally; larger ones run the same scripts on a rented GPU.</li>
+</ul>
+        </div>
+      </section>
+      <section>
+        <h2>Where it is going</h2>
+        <div class="body">
+<p>More editing methods under the same protocol: WISE, LoRA adapters, trained caches and a retrieval baseline. The aim is a standard, cross-method answer to a question regulators and users are going to ask: when a change to a model is taken back, what is the proof?</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other projects">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="storygecko"><a href="storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="riftforge.html" data-exit="riftforge">Riftforge</a></li>
+      </ul>
+    </nav>
+
+  <div class="prompt" data-prompt data-room-text="retractbench. A lab bench: probes laid out in rows, one model edited, one never touched.">
+    <p class="prompt-log" data-prompt-log aria-live="polite"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+  <script src="../assets/prompt.js"></script>
+</body>
+</html>

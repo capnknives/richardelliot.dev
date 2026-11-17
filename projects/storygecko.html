@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StoryGecko — Richard Elliot</title>
+  <meta name="description" content="StoryGecko: a writing tool that builds and maintains a story bible from your manuscript.">
+  <meta property="og:title" content="StoryGecko — Richard Elliot">
+  <meta property="og:description" content="StoryGecko: a writing tool that builds and maintains a story bible from your manuscript.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css">
+  <script>document.documentElement.className = "";</script>
+</head>
+<body data-room="storygecko">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">In development, private testing</p>
+      <h1>StoryGecko</h1>
+      <p class="lede">A story bible that keeps up with your manuscript.</p>
+      <p class="actions"><span class="note">The code is private while testing is under way.</span></p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>The problem</h2>
+        <div class="body">
+<p>Long fiction outgrows its author's memory. Eye colours drift, a side character's job changes between chapters, a thread opened in chapter three never closes. Writers keep a story bible to hold all of that, and keeping it current is a second job.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What it does</h2>
+        <div class="body">
+<ul>
+  <li>Reads an uploaded manuscript and drafts the story bible from it: characters, places, events and open threads.</li>
+  <li>Puts anything uncertain or contradictory into a review queue instead of guessing.</li>
+  <li>Offers &ldquo;what happens next&rdquo; suggestions grounded in what the story has already established.</li>
+  <li>A built-in writing editor is in progress, so the manuscript and its bible live in the same place.</li>
+</ul>
+        </div>
+      </section>
+      <section>
+        <h2>The rule it follows</h2>
+        <div class="body">
+<p>The writer stays the author. The bible changes only when the writer agrees to the change. When a chapter has been edited, StoryGecko asks before updating anything, and never rewrites the record on its own.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it is built</h2>
+        <div class="body">
+<ul>
+  <li>Python and FastAPI on the server, with per-writer accounts and data.</li>
+  <li>Sign-in is built into the app, with no third-party identity service.</li>
+  <li>Developed against my own novella as the test manuscript, now with a first outside tester.</li>
+</ul>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other projects">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="riftforge.html" data-exit="riftforge">Riftforge</a></li>
+      </ul>
+    </nav>
+
+  <div class="prompt" data-prompt data-room-text="StoryGecko. A writing desk. A manuscript on one side, a growing index of everything in it on the other.">
+    <p class="prompt-log" data-prompt-log aria-live="polite"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+  <script src="../assets/prompt.js"></script>
+</body>
+</html>

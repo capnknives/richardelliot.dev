@@ -1,0 +1,597 @@
+/* Richard Elliot — portfolio.
+   Plain CSS, no build step. Each project is a "room" with its own colour:
+   set data-room on <body> (project pages) or on a project row (home page). */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("fonts/literata-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("fonts/literata-latin-wght-italic.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f2f4f1;
+  --ink: #17212b;
+  --soft: #55626c;
+  --rule: #c7cfcb;
+
+  /* Room colours: a deep tone for type and a pale wash for ground. */
+  --retract: #2b3fa0;
+  --retract-wash: #e3e7f7;
+  --gecko: #22613c;
+  --gecko-wash: #e0efe3;
+  --aqua: #0a606a;
+  --aqua-wash: #dbf0f0;
+  --rift: #6b2d5c;
+  --rift-wash: #f2e3ec;
+
+  --room: var(--ink);
+  --wash: var(--paper);
+
+  --display: "Bricolage Grotesque", "Arial Narrow", Arial, sans-serif;
+  --text: "Literata", Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --measure: 34rem;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+}
+
+[data-room="retractbench"] { --room: var(--retract); --wash: var(--retract-wash); }
+[data-room="storygecko"] { --room: var(--gecko); --wash: var(--gecko-wash); }
+[data-room="aquainspection"] { --room: var(--aqua); --wash: var(--aqua-wash); }
+[data-room="riftforge"] { --room: var(--rift); --wash: var(--rift-wash); }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--wash);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--room);
+}
+
+:focus-visible {
+  outline: 3px solid var(--room);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+code,
+kbd {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.skip {
+  position: absolute;
+  left: -999rem;
+  top: 0.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.9rem;
+}
+
+.skip:focus {
+  left: var(--gutter);
+  z-index: 10;
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding: 1.5rem var(--gutter) 0;
+  font-family: var(--display);
+}
+
+.masthead .name {
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-decoration: none;
+}
+
+.masthead nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  font-size: 1rem;
+}
+
+.masthead nav a {
+  text-decoration: none;
+  padding: 0.35rem 0;
+}
+
+.masthead nav a:hover,
+.masthead nav a[aria-current="page"] {
+  text-decoration: underline;
+}
+
+/* ---------- Home: opening ---------- */
+
+.opening {
+  padding: clamp(3rem, 11vw, 8rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
+}
+
+.opening h1 {
+  font-size: clamp(2.6rem, 9.2vw, 7.25rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  max-width: 12ch;
+}
+
+.opening .lede {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  max-width: var(--measure);
+  font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+  line-height: 1.5;
+}
+
+/* ---------- The prompt ---------- */
+
+.prompt {
+  margin: 0 var(--gutter);
+  border-top: 2px solid var(--ink);
+  padding-top: 1rem;
+  font-family: var(--mono);
+  font-size: 0.9375rem;
+}
+
+.prompt-log {
+  margin: 0 0 0.75rem;
+  max-width: 44rem;
+  white-space: pre-wrap;
+  color: var(--soft);
+  min-height: 1.5em;
+}
+
+.prompt-log .said {
+  color: var(--ink);
+}
+
+.prompt form {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 44rem;
+}
+
+.prompt label {
+  font-weight: 700;
+  color: var(--room);
+}
+
+.prompt input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  /* 16px minimum stops iOS zooming the page on focus. */
+  font-size: 1rem;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 0.5rem 0;
+}
+
+.prompt input::placeholder {
+  color: var(--soft);
+  opacity: 1;
+}
+
+.prompt input:focus {
+  outline: none;
+  border-bottom: 2px solid var(--room);
+}
+
+.no-js .prompt {
+  display: none;
+}
+
+/* ---------- Home: project list ---------- */
+
+.section-head {
+  padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.rooms {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.rooms li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.rooms a {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr) minmax(0, 3fr);
+  gap: 0.5rem 2rem;
+  align-items: baseline;
+  padding: clamp(1.25rem, 3vw, 2rem) var(--gutter);
+  text-decoration: none;
+  transition: background-color 120ms ease-out;
+}
+
+.rooms a:hover,
+.rooms a:focus-visible {
+  background: var(--wash);
+  color: var(--ink);
+}
+
+.rooms .title {
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 4.2vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--room);
+  overflow-wrap: anywhere;
+}
+
+.rooms .what {
+  max-width: 30rem;
+}
+
+.rooms .state {
+  font-family: var(--display);
+  font-size: 0.9375rem;
+  color: var(--soft);
+  justify-self: end;
+  text-align: right;
+}
+
+/* ---------- Home: about and other work ---------- */
+
+.plain {
+  padding: 0 var(--gutter);
+  max-width: calc(var(--measure) + 2 * var(--gutter));
+}
+
+.plain h2,
+.section-head {
+  font-family: var(--display);
+}
+
+.plain h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding-top: clamp(3rem, 8vw, 5.5rem);
+  margin-bottom: 1rem;
+}
+
+.also {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.also li {
+  margin-bottom: 1em;
+}
+
+.also a {
+  font-family: var(--display);
+  font-weight: 650;
+}
+
+/* ---------- Project pages ---------- */
+
+.room-head {
+  padding: clamp(2.5rem, 9vw, 6.5rem) var(--gutter) clamp(2rem, 5vw, 3rem);
+}
+
+.room-head .state {
+  font-family: var(--display);
+  font-size: 1rem;
+  color: var(--room);
+  margin: 0 0 1rem;
+}
+
+.room-head h1 {
+  font-size: clamp(2.6rem, 11vw, 8rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+  color: var(--room);
+  overflow-wrap: anywhere;
+}
+
+.room-head .lede {
+  margin: clamp(1.25rem, 3.5vw, 2rem) 0 0;
+  max-width: 22ch;
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  font-family: var(--display);
+  font-weight: 600;
+}
+
+.actions a {
+  display: inline-block;
+  padding: 0.7rem 1.1rem;
+  border: 2px solid var(--room);
+  text-decoration: none;
+  color: var(--room);
+}
+
+.actions a.primary {
+  background: var(--room);
+  color: var(--wash);
+}
+
+.actions a:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--wash);
+}
+
+.actions .note {
+  align-self: center;
+  font-weight: 400;
+  color: var(--soft);
+}
+
+.sheet {
+  background: var(--paper);
+  padding: clamp(2rem, 6vw, 4rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+}
+
+.sheet section {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: 0.75rem 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.sheet section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.sheet h2 {
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.sheet .body {
+  max-width: var(--measure);
+}
+
+.sheet .body > :last-child {
+  margin-bottom: 0;
+}
+
+.sheet ul,
+.sheet ol {
+  margin: 0 0 1em;
+  padding-left: 1.25rem;
+}
+
+.sheet li {
+  margin-bottom: 0.4em;
+}
+
+.sheet li::marker {
+  color: var(--room);
+  font-family: var(--display);
+  font-weight: 700;
+}
+
+.figures {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.25rem 0 1em;
+  font-family: var(--display);
+}
+
+.figures caption {
+  text-align: left;
+  font-family: var(--text);
+  font-size: 0.9375rem;
+  color: var(--soft);
+  padding-bottom: 0.75rem;
+}
+
+.figures th,
+.figures td {
+  text-align: left;
+  vertical-align: baseline;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule);
+  font-weight: 400;
+}
+
+.figures td {
+  text-align: right;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--room);
+  white-space: nowrap;
+  padding-left: 1rem;
+}
+
+.figures td small {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--soft);
+}
+
+.fine {
+  font-size: 0.9375rem;
+  color: var(--soft);
+}
+
+/* ---------- Exits (bottom of project pages) and footer ---------- */
+
+.exits {
+  padding: clamp(2rem, 6vw, 3.5rem) var(--gutter);
+  font-family: var(--display);
+}
+
+.exits h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.exits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 2rem;
+}
+
+.exits a {
+  display: inline-block;
+  padding: 0.35rem 0;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--room);
+}
+
+.exits a:hover {
+  color: var(--ink);
+}
+
+.exits + .prompt {
+  margin-bottom: 0;
+}
+
+.colophon {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding: 1.5rem var(--gutter) 2.5rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  color: var(--soft);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+}
+
+.colophon p {
+  margin: 0;
+}
+
+/* ---------- Not found ---------- */
+
+.lost {
+  padding: clamp(4rem, 16vw, 10rem) var(--gutter);
+}
+
+.lost h1 {
+  font-size: clamp(2.6rem, 9vw, 6rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+
+.lost p {
+  margin-top: 1.5rem;
+  max-width: var(--measure);
+  font-size: 1.25rem;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 46rem) {
+  .rooms a {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms .state {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .sheet section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .prompt,
+  .skip {
+    display: none;
+  }
+}
