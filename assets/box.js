@@ -4,8 +4,10 @@
    a few seconds collapses it into one world, with a number. "Open the box
    again" forks a new world; "Return to origin" goes back to world 0000.
 
-   Worlds differ only in small things: the tint of the light and where the
-   stars are. Navigation and content never change between them.
+   Each world has its own constants (light, gravity, fine structure), worked
+   out from its number. They change the corridor, the weight and spacing of
+   the headings, and a faint overlay across the page. Navigation and content
+   never change between worlds.
 
    This file also keeps the branch map (every fork and return this session)
    and the Plain view switch, which turns all of the above off. */
@@ -149,13 +151,55 @@
     return ("000" + n).slice(-4);
   }
 
-  function apply(n) {
+  var OVERLAYS = [
+    "none",
+    "repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 4px)",
+    "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 100% 56px, linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 56px 100%",
+    "radial-gradient(120% 60% at 10% 0%, rgba(120,160,255,0.16), transparent 60%), radial-gradient(90% 50% at 100% 30%, rgba(120,255,190,0.10), transparent 60%)",
+    "radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.5), transparent 60%) 0 0 / 90px 90px, radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.35), transparent 60%) 0 0 / 130px 130px"
+  ];
+
+  /* Each world's constants, worked out from its number. They are not
+     decoration: light sets the corridor's pace, gravity the weight of the
+     headings, fine structure the spacing of their letters. */
+  function constants(n) {
+    if (n === 0) return { c: 1, g: 1, a: 137 };
+    return {
+      c: 0.6 + ((n * 37) % 100) / 100 * 1.0,         /* 0.60 to 1.59 */
+      g: 0.62 + ((n * 53) % 100) / 100 * 0.6,        /* 0.62 to 1.21 */
+      a: 97 + ((n * 71) % 80)                        /* 1/97 to 1/176 */
+    };
+  }
+
+  var jumpTimer = 0;
+  function apply(n, jump) {
     var tint = n === 0 ? TINTS[0] : TINTS[1 + (n % (TINTS.length - 1))];
+    var k = constants(n);
     root.style.setProperty("--light", tint);
+    root.style.setProperty("--world-w", Math.round(Math.max(480, Math.min(900, 760 * k.g))));
+    root.style.setProperty("--world-track", ((137 - k.a) / 137 * 0.09).toFixed(4) + "em");
+    root.style.setProperty("--sky-overlay", n === 0 ? "none" : OVERLAYS[n % OVERLAYS.length]);
     root.setAttribute("data-world", pad(n));
     if (chip) chip.textContent = n === 0 ? "World 0000, the origin" : "World " + pad(n);
+    var out = {
+      c: document.querySelector("[data-const='c']"),
+      g: document.querySelector("[data-const='g']"),
+      a: document.querySelector("[data-const='a']")
+    };
+    if (out.c) out.c.textContent = "\u00d7" + k.c.toFixed(2);
+    if (out.g) out.g.textContent = "\u00d7" + k.g.toFixed(2);
+    if (out.a) out.a.textContent = "1/" + k.a;
     set("sessionStorage", "re-world", String(n));
-    window.dispatchEvent(new CustomEvent("worldchange", { detail: { seed: n, tint: tint } }));
+    var moving = !!jump && !root.classList.contains("plain") &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (moving) {
+      root.classList.remove("jumping");
+      void root.offsetWidth;                          /* restart the animation */
+      root.classList.add("jumping");
+      window.clearTimeout(jumpTimer);
+      jumpTimer = window.setTimeout(function () { root.classList.remove("jumping"); }, 1200);
+    }
+    window.dispatchEvent(new CustomEvent("worldchange", { detail: { seed: n, tint: tint, speed: k.c, jump: moving } }));
   }
 
   function roll() {
@@ -180,7 +224,7 @@
       collapsed = true;
       root.classList.remove("superposed");
       var n = roll();
-      apply(n);
+      apply(n, true);
       if (!fork("World " + pad(n))) window.RE.origin();
     });
   }
@@ -188,7 +232,7 @@
     home.addEventListener("click", function () {
       collapsed = true;
       root.classList.remove("superposed");
-      apply(0);
+      apply(0, true);
       window.RE.origin();
     });
   }
@@ -207,7 +251,7 @@
     root.classList.add("superposed");
     chip.textContent = "Unobserved";
     draw();
-    ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(function (type) {
+    ["pointerdown", "keydown", "wheel", "touchstart"].forEach(function (type) {
       window.addEventListener(type, collapse, { once: true, passive: true });
     });
     window.setTimeout(collapse, 4000);

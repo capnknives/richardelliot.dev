@@ -22,7 +22,7 @@
   /* Things to examine, by room. Several names can point at one thing. */
   var THINGS = {
     home: {
-      "doors,door": "Four doors, each ajar, each leaking a different light: blue, green, teal and gold. Their names run up the panels.",
+      "doors,door": "Doors down both walls, as far as you can see. Through the nearest four: a lab, a writing room, daylight on water, and a road at dusk.",
       "corridor,box,walls,dark": "The inside of the box. The corridor has no colour of its own. It goes on further than it should.",
       "light,lamp": "It comes from behind the doors, and from a little overhead. The darkness has not overcome it.",
       "stars,sky": "They are different every time the box is opened. The number on the wall says which sky this is.",
