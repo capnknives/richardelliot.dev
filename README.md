@@ -8,13 +8,15 @@ file, push to `main`, and it is live.
 
 | Path | What |
 | --- | --- |
-| `index.html` | Front page: the inside of the box (headline), the 3D corridor whose doors are links, the world bar (number, constants, jump), a band per project, hire me, the workshop, beliefs, working rules, the record, about. |
+| `index.html` | Front page: the inside of the box (headline), the 3D corridor whose doors are links, the world bar (number, constants, jump), a band per project, side doors (small tools), hire me, the workshop, beliefs, working rules, the record, about. |
 | `projects/*.html` | One landing page per project. |
+| `tools/*.html` | One page per small tool. Each is a door in the corridor and an entry under "Side doors". |
+| `assets/pool-balance.css`, `assets/pool-balance.js` | The pool water balance tool (`tools/pool-balance.html`): its layout, the water chemistry, the dosing plan and the drawn pool wall. Loaded on that page only. |
 | `assets/site.css` | All styling. The front page is dark (`html.box`); each project is a world with its own color and mood, set by `data-room` on `<body>`, a `.band` or a `.door`. |
 | `assets/box.js` | Worlds (the headline starts in superposition and collapses into a numbered world; the number sets that world's constants, which drive the corridor, heading weight and spacing, and a page overlay), the branch map, and the Plain view switch. Loaded on every page for Plain view. |
-| `assets/prompt.js` | The command prompt (`look`, `examine`, `exits`, `go <name>`, `inventory`, `back`), the things to examine in each room, the hidden way down, and a set of commands that are not in the help. Docked at the bottom of every page; `/` focuses it. |
+| `assets/prompt.js` | The command prompt (`look`, `examine`, `exits`, `go <name>`, `walk`, `inventory`, `back`), the things to examine in each room, the hidden way down, and a set of commands that are not in the help. Docked at the bottom of every page; `/` focuses it. |
 | `assets/bench.js` | The workshop on the front page: one line and three constants to change, eleven probes, two ways home. The "without the record" undo is a simulation. |
-| `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
+| `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. The corridor holds one door per link in `.door-tags` (up to eight), names the nearest four, and lets you walk on to bring the next ones close. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
 | `cellar.html` | A hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. |
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
@@ -27,21 +29,30 @@ file, push to `main`, and it is live.
    `[data-room="key"]` line next to the existing four. Check the deep tone against the wash for
    contrast (4.5:1 or better).
 3. In `index.html`, copy a `<section class="band">` for it and add a link to `.door-tags`, with
-   `data-exit="key"` (the command bar reads those links). The corridor shows four worlds, two on
-   each wall, repeating down its length. A fifth needs changes in `assets/backdrop.js`: the
-   `world()` and `tintOf()` shader functions, the `mod(..., 4.)` that picks a door's world, and
-   the label placement.
+   `data-exit="key"` (the command bar reads those links). The corridor picks up the new link by
+   itself: doors go two to a stretch of wall in the order of the links, the nearest four are
+   named, and walking on brings up the rest, up to eight links. What is seen through the new door
+   is the next number in the `world()` and `tintOf()` shader functions in `assets/backdrop.js`
+   (0 to 4 are taken, 9 is the hidden door). Without a branch there it shows the hidden door's sky.
 4. Add a link in the "Exits" list of the other project pages, also with `data-exit="key"`.
 5. Optional: a moving backdrop (an entry in `ROOMS` in `assets/backdrop.js` and a matching branch
    in the shader), a `view-transition-name` pair in `assets/site.css`, and things to examine in
    `THINGS` in `assets/prompt.js`. Without these the room still works, on a flat color.
+
+## Add a small tool
+
+Same steps as a project, with these differences: the page goes in `tools/`, its own styles and
+script go in `assets/<name>.css` and `assets/<name>.js` (scope the styles under one class on
+`<main>`, as `.pool` does), and on the front page it gets an item in the "Side doors" list
+instead of a band. `tools/pool-balance.html` is the one to copy.
 
 ## Keep true
 
 The front page states facts that go stale: the stage of each project, the figures under
 retractbench, the dated entries in "The record", and what "Hire me" offers. Update them when
 things move. "What I believe" says the site has no trackers, cookies or framework: keep that
-true, or change the sentence.
+true, or change the sentence. The pool water balance page says it sends nothing anywhere: keep
+that true too.
 
 ## Domain and HTTPS
 
