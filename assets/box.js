@@ -200,8 +200,85 @@
   ];
 
   function hasExtraDoor(n) {
-    return n !== 0 && n % 9 === 0;           /* must match the rule in backdrop.js */
+    return n !== 0 && n % 6 === 0;           /* must match the rule in backdrop.js */
   }
+
+  /* One of these shows on the front page in each world. The gallery (words.html)
+     holds the same list: change both together. */
+  var QUOTES = [
+      [
+          "Speak softly and carry a big stick.",
+          "Theodore Roosevelt, quoting a proverb"
+      ],
+      [
+          "Everybody\u2019s lost but me.",
+          "Indiana Jones and the Last Crusade"
+      ],
+      [
+          "Stand for something, or you will fall for anything.",
+          "Source disputed"
+      ],
+      [
+          "The only thing necessary for the triumph of evil is for good men to do nothing.",
+          "Often credited to Edmund Burke"
+      ],
+      [
+          "Do what you can, with what you have, where you are.",
+          "Theodore Roosevelt, quoting Squire Bill Widener"
+      ],
+      [
+          "Well done is better than well said.",
+          "Benjamin Franklin"
+      ],
+      [
+          "Fortune favors the bold.",
+          "Latin proverb"
+      ],
+      [
+          "A ship in harbor is safe, but that is not what ships are built for.",
+          "John A. Shedd"
+      ],
+      [
+          "Trust, but verify.",
+          "Russian proverb"
+      ],
+      [
+          "Measure twice, cut once.",
+          "Proverb"
+      ],
+      [
+          "Nature cannot be fooled.",
+          "Richard Feynman"
+      ],
+      [
+          "Iron sharpens iron.",
+          "Proverbs 27:17"
+      ],
+      [
+          "Be strong and of a good courage.",
+          "Joshua 1:9"
+      ],
+      [
+          "Never give up, never surrender.",
+          "Galaxy Quest"
+      ],
+      [
+          "Do. Or do not. There is no try.",
+          "The Empire Strikes Back"
+      ],
+      [
+          "So they ran both together: and the other disciple did outrun Peter, and came first to the sepulchre.",
+          "John 20:4, as told by the disciple who got there first"
+      ],
+      [
+          "He who has felt the deepest grief is best able to experience supreme happiness.",
+          "Alexandre Dumas, The Count of Monte Cristo"
+      ],
+      [
+          "For all have sinned, and come short of the glory of God.",
+          "Romans 3:23"
+      ]
+  ];
 
   function fieldNote(n, k) {
     if (n === 0) return "Field note, world 0000. This is the world as built. Everything else is a variation.";
@@ -243,6 +320,11 @@
     if (v1) v1.textContent = n === 0 ? VOICES[0] : VOICES[n % VOICES.length];
     if (v2) v2.textContent = n === 0 ? VOICES2[0] : VOICES2[n % VOICES2.length];
     if (note) note.textContent = fieldNote(n, k);
+    var quote = n === 323 ? QUOTES[QUOTES.length - 1] : QUOTES[n % QUOTES.length];
+    var qEl = document.querySelector("[data-quote]");
+    var byEl = document.querySelector("[data-quote-by]");
+    if (qEl) qEl.textContent = quote[0];
+    if (byEl) byEl.textContent = quote[1];
     seen[n] = true;
     lastWorld = n;
     set("sessionStorage", "re-world", String(n));

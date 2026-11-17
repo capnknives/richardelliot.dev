@@ -15,6 +15,7 @@ file, push to `main`, and it is live.
 | `assets/prompt.js` | The command prompt (`look`, `examine`, `exits`, `go <name>`, `inventory`, `back`), the things to examine in each room, the hidden way down, and a set of commands that are not in the help. Docked at the bottom of every page; `/` focuses it. |
 | `assets/bench.js` | The workshop on the front page: one line and three constants to change, eleven probes, two ways home. The "without the record" undo is a simulation. |
 | `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
+| `words.html` | The gallery: every quote, reached through the extra door that appears in about one world in six. The same list lives in `QUOTES` in `assets/box.js`, which shows one per world on the front page; change both together. Not linked from the navigation. |
 | `cellar.html` | A hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. |
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
@@ -63,11 +64,11 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=9`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=10`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=9' --include='*.html' . | xargs sed -i 's/?v=9/?v=10/g'
+grep -rl '?v=10' --include='*.html' . | xargs sed -i 's/?v=10/?v=11/g'
 ```
 
 ## Screen sizes

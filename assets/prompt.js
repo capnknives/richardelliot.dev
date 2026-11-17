@@ -49,6 +49,11 @@
       "road,roads,crossroads": "Every road leads to a town that keeps living while you are away.",
       "town,towns": "Ordinary American towns. Mostly."
     },
+    words: {
+      "words,wall,walls,quotes": "Each line is lit from behind. Some of them were said by people who never said them, and are true anyway.",
+      "light,lights": "Four colors, the same four as the doors.",
+      "door": "It leads back to the corridor. It may not be where you left it."
+    },
     cellar: {
       "shelves,shelf,jars": "Fonts in jars, shaders in a crate, one benchmark carefully labeled, and a single mustard seed in a jar of its own.",
       "seed,mustard seed,mustard": "The smallest thing on the shelf.",
