@@ -205,6 +205,7 @@
 
   function fieldNote(n, k) {
     if (n === 0) return "Field note, world 0000. This is the world as built. Everything else is a variation.";
+    if (n === 323) return "Field note, world 0323. For all have sinned, and come short of the glory of God. Out here, every world falls short of the first.";
     var law = k.g < 0.8 ? "Gravity is weak here, and the headings have thinned out."
       : k.g > 1.08 ? "Gravity is strong here, and the headings have put on weight."
       : k.c > 1.3 ? "Light is quick here, so the corridor will not hold still."
@@ -297,6 +298,13 @@
   /* For the command bar. */
   window.RE.jump = function () { if (again) again.click(); };
   window.RE.toOrigin = function () { if (home) home.click(); };
+  window.RE.goWorld = function (n) {
+    collapsed = true;
+    root.classList.remove("superposed");
+    apply(n, true);
+    if (n === 0) window.RE.origin();
+    else if (!fork("World " + pad(n))) window.RE.origin();
+  };
   window.RE.info = function () {
     var k = constants(lastWorld);
     return "World " + pad(lastWorld) + (lastWorld === 0 ? ", the origin" : "") + ". Light \u00d7" + k.c.toFixed(2) +

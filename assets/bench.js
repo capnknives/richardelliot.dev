@@ -224,7 +224,7 @@
     var same = measure();
     var missed = PROBES.length - same;
     say.textContent = missed
-      ? "It looks like home. " + missed + " of " + PROBES.length + " probes say it is the world next door. That gap is what retractbench measures in language models."
+      ? "It looks like home. It falls short by " + missed + " of " + PROBES.length + " probes: this is the world next door. That gap is what retractbench measures in language models."
       : "This time every probe matches. That can happen. It is not something you can count on.";
   }
 
