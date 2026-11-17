@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#10131f">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/site.css?v=5">
+  <link rel="stylesheet" href="assets/site.css?v=6">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body>
@@ -37,27 +37,30 @@
         <a class="primary" href="#hire">Hire me to build</a>
         <a href="projects/retractbench.html">Read the research</a>
       </p>
-      <p class="world">
-        <span class="world-label" data-world-label aria-live="polite">World 0000, the origin</span>
-        <button type="button" data-world="again">Open the box again</button>
-        <button type="button" data-world="origin">Return to origin</button>
-      </p>
     </div>
 
-    <nav class="doors" aria-label="Doors to the projects">
-      <a class="door" href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench">
-        <span class="panel"><span class="door-name">retractbench</span><span class="door-kind">research</span></span>
-      </a>
-      <a class="door" href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko">
-        <span class="panel"><span class="door-name">StoryGecko</span><span class="door-kind">writing tool</span></span>
-      </a>
-      <a class="door" href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection">
-        <span class="panel"><span class="door-name">Aquainspection</span><span class="door-kind">field app</span></span>
-      </a>
-      <a class="door" href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge">
-        <span class="panel"><span class="door-name">Riftforge</span><span class="door-kind">game engine</span></span>
-      </a>
-    </nav>
+    <section class="corridor" data-corridor aria-label="The corridor">
+      <nav class="door-tags" aria-label="Doors to the projects">
+        <a href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench">retractbench <span>research</span></a>
+        <a href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko">StoryGecko <span>writing tool</span></a>
+        <a href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection">Aquainspection <span>field app</span></a>
+        <a href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge">Riftforge <span>game engine</span></a>
+      </nav>
+    </section>
+
+    <div class="world-bar">
+      <p class="world">
+        <span class="world-label" data-world-label aria-live="polite">World 0000, the origin</span>
+        <button type="button" class="jump" data-world="again">Jump to another world</button>
+        <button type="button" data-world="origin">Return to origin</button>
+      </p>
+      <dl class="constants" data-constants>
+        <div><dt>Light</dt><dd data-const="c">×1.00</dd></div>
+        <div><dt>Gravity</dt><dd data-const="g">×1.00</dd></div>
+        <div><dt>Fine structure</dt><dd data-const="a">1/137</dd></div>
+      </dl>
+      <p class="fine">Every world has its own constants. Here they set the pace of the corridor, the weight of the headings and the spacing of their letters.</p>
+    </div>
 
     <div class="walk-head" id="worlds">
       <h2>Four worlds</h2>
@@ -262,7 +265,7 @@
 
   <footer class="colophon">
     <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
-    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a> <span class="sdg" title="Soli Deo gloria">S.D.G.</span></p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
   <div class="prompt" data-prompt data-room-text="Inside the box. A dark corridor runs on in both directions. Four doors stand ajar, each leaking a different light. A workbench sits against one wall. There is a draught from somewhere under the floor.">
@@ -273,9 +276,9 @@
     </form>
   </div>
 
-  <script src="assets/box.js?v=5"></script>
-  <script src="assets/prompt.js?v=5"></script>
-  <script src="assets/bench.js?v=5"></script>
-  <script src="assets/backdrop.js?v=5"></script>
+  <script src="assets/box.js?v=6"></script>
+  <script src="assets/prompt.js?v=6"></script>
+  <script src="assets/bench.js?v=6"></script>
+  <script src="assets/backdrop.js?v=6"></script>
 </body>
 </html>
