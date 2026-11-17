@@ -6,7 +6,14 @@
    3 riftforge       a rift at dusk
    4 box             the starfield behind the headline
    5 corridor        the inside of the box, in 3D: an endless corridor whose
-                     doors are portals onto modes 0 to 3
+                     doors are portals onto the worlds
+
+   The corridor holds one door per link in .door-tags, in order, two to a
+   stretch of wall, up to eight, and then they repeat. Only the nearest four
+   are named. Walking on (the buttons, a click on a far door, or "walk" at the
+   prompt) brings the next stretch up close. What is seen through door number i is drawn
+   by world(i) in the shader: 0 to 3 are modes 0 to 3, 4 is the pool wall of
+   the water balance tool, and 9 is the door that is not on the plan.
 
    The corridor is not ray-marched. Walls, floor and ceiling are flat, so each
    pixel's ray is intersected with them directly, which is cheap and exact.
@@ -42,7 +49,7 @@
     "uniform vec3 uA;uniform vec3 uB;uniform vec3 uC;",
     "uniform float uJump;uniform float uOz;uniform float uRoll;uniform float uFocal;",
     "uniform float uFog;uniform float uPattern;uniform vec2 uPointer;",
-    "uniform float uOx;uniform vec4 uPerm;uniform float uEgg;",
+    "uniform float uOx;uniform float uPerm[8];uniform float uN;uniform vec2 uEggAt;uniform float uEgg;",
     "vec3 gA;vec3 gB;vec3 gC;float gAsp;float gWide;float gRiftX;",
 
     "float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
@@ -105,12 +112,24 @@
     " col+=vec3(1.,.97,.9)*(1.1*exp(-length(f)*70.)+.5*exp(-abs(f.x)*400.-abs(f.y)*22.)+.5*exp(-abs(f.y)*400.-abs(f.x)*22.));",
     " return col;}",
 
+    /* A pool wall seen side-on: air, a waterline, and calcium drifting in deep water. */
+    "vec3 tank(vec2 uv){",
+    " float s=.74+.012*sin(uv.x*16.+uTime*.8)+.008*sin(uv.x*37.-uTime*1.1);",
+    " if(uv.y>s)return mix(gA,vec3(1.),.4*smoothstep(s,1.,uv.y));",
+    " float d=(s-uv.y)/s;vec3 col=mix(gB,gC,d);",
+    " col+=.09*sin(uv.x*9.+sin(uv.y*7.+uTime*.5)*2.+uTime*.3)*(1.-d);",
+    " vec2 g=vec2(uv.x*15.,uv.y*15.-uTime*.2);vec2 id=floor(g);vec2 h=hash2(id);",
+    " col+=.75*smoothstep(.1,0.,length(fract(g)-.2-.6*h))*step(.62,hash(id+3.));",
+    " col+=smoothstep(.014,0.,abs(uv.y-s))*.8;",
+    " return col;}",
+
     /* ---- the corridor ---- */
     "const float W=1.1;const float H=1.25;const float D=3.;const float DW=.75;const float DH=2.;const float Z0=1.1;",
 
     "vec3 tintOf(float i){",
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
     " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);",
+    " if(i<4.5)return vec3(.70,.88,1.);",
     " return uEgg<1.5?vec3(1.,.96,.86):uEgg<2.5?vec3(.95,.62,.34):vec3(.72,.58,1.);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
@@ -121,6 +140,7 @@
     " else if(i<1.5){gA=vec3(.88,.94,.89);gB=vec3(.70,.88,.74);gC=vec3(.50,.76,.56);col=scales(uv*.8);}",
     " else if(i<2.5){gA=vec3(.74,.91,.92);gB=vec3(.97,1.,1.);gC=vec3(.55,.84,.87);col=caustics(uv*.8);}",
     " else if(i<3.5){gA=vec3(.12,.06,.13);gB=vec3(.29,.13,.27);gC=vec3(.91,.71,.30);col=rift(uv);}",
+    " else if(i<4.5){gA=vec3(.86,.93,.95);gB=vec3(.39,.73,.76);gC=vec3(.04,.35,.45);col=tank(uv/vec2(.75,1.));}",
     " else{gA=vec3(.02,.02,.06);gB=vec3(.22,.24,.5);gC=vec3(1.,.97,.9);",          /* the door that should not be there */
     "  col=sky(uv*1.6+uTime*.01)+gC*(.9*exp(-length(uv-vec2(.375,.62))*16.)+.25*exp(-length(uv-vec2(.375,.62))*4.));}",
     " gA=sa;gB=sb;gC=sc;gAsp=sasp;return col;}",
@@ -137,9 +157,9 @@
     " float tx=((rx>0.?W:-W)-ro.x)/rx;float ty=((ry>0.?H:-H)-ro.y)/ry;",
     " float t=min(tx,ty);vec3 p=ro+rd*t;",
     " float zz=p.z-Z0;float k=floor(zz/D);float dz=zz-(k+.5)*D;",
-    " float side=p.x>0.?1.:0.;float slot=mod(k*2.+side,4.);",
-    " float idx=slot<.5?uPerm.x:slot<1.5?uPerm.y:slot<2.5?uPerm.z:uPerm.w;",          /* which world is behind which door */
-    " if(uEgg>.5&&abs(k-2.)<.5&&side<.5)idx=4.;",
+    " float side=p.x>0.?1.:0.;float slot=mod(k*2.+side,uN);",
+    " float idx=0.;for(int j=0;j<8;j++){if(abs(float(j)-slot)<.5)idx=uPerm[j];}",    /* which world is behind which door */
+    " if(uEgg>.5&&abs(k-uEggAt.x)<.5&&abs(side-uEggAt.y)<.5)idx=9.;",
     " vec3 tint=tintOf(idx);",
     " vec3 col;",
     " if(tx<ty){",
@@ -191,7 +211,7 @@
 
   var root = document.documentElement;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var UNIFORMS = ["uRes", "uTime", "uMode", "uSeed", "uA", "uB", "uC", "uJump", "uOz", "uRoll", "uFocal", "uFog", "uPattern", "uPointer", "uOx", "uPerm", "uEgg"];
+  var UNIFORMS = ["uRes", "uTime", "uMode", "uSeed", "uA", "uB", "uC", "uJump", "uOz", "uRoll", "uFocal", "uFog", "uPattern", "uPointer", "uOx", "uPerm", "uN", "uEggAt", "uEgg"];
 
   function Backdrop(canvas) {
     var gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "low-power" });
@@ -228,7 +248,9 @@
     UNIFORMS.forEach(function (n) { u[n] = gl.getUniformLocation(prog, n); });
     gl.uniform1f(u.uFocal, 1);
     gl.uniform1f(u.uFog, 0.1);
-    gl.uniform4fv(u.uPerm, [0, 1, 2, 3]);
+    gl.uniform1fv(u.uPerm, [0, 1, 2, 3, 4, 5, 6, 7]);
+    gl.uniform1f(u.uN, 4);
+    gl.uniform2f(u.uEggAt, 2, 0);
 
     var self = this;
     var raf = 0;
@@ -242,7 +264,7 @@
 
     this.set = function (name, a, b) {
       if (b !== undefined) gl.uniform2f(u[name], a, b);
-      else if (a.length === 4) gl.uniform4fv(u[name], a);
+      else if (a.length > 4) gl.uniform1fv(u[name], a);
       else if (a.length) gl.uniform3fv(u[name], a);
       else gl.uniform1f(u[name], a);
     };
@@ -411,19 +433,42 @@
       cor.setRoom("corridor");
       hall.classList.add("live");
 
-      var widths = {};
-      /* What the extra door can be. The third kind goes nowhere on the site:
-         walk through it and you come out in another world. */
+      var widths = {}, heights = {};
+      /* What the door that is not on the plan can be. The third kind goes nowhere on
+         the site: walk through it and you come out in another world. */
       var EGGS = [
         { href: "words.html", sub: "a quiet room", wash: "#1b1d1c" },
         { href: "cellar.html", sub: "stairs going down", wash: "#1b1d1c" },
         { href: "#elsewhere", sub: "somewhere else", wash: "#f4efe4", jump: true }
       ];
-      var PERMS = [
-        [0, 1, 2, 3], [1, 0, 3, 2], [2, 3, 0, 1], [3, 2, 1, 0], [0, 2, 1, 3], [1, 3, 0, 2],
-        [2, 0, 3, 1], [3, 1, 2, 0], [0, 3, 2, 1], [1, 2, 3, 0], [2, 1, 0, 3], [3, 0, 1, 2]
-      ];
-      var world = { tint: "#f4efe4", roll: 0, fog: 0.1, pattern: 0, seed: 0, speed: 1, perm: PERMS[0], egg: false, wall: ROOMS.corridor.b, deep: ROOMS.corridor.a };
+      /* One door per link, up to the eight the shader has room for. Doors fill the
+         corridor two to a stretch: slot 0 near left, 1 near right, 2 next left, and so on.
+         The door that is not on the plan takes the slot after the last one. */
+      tags = tags.slice(0, 8);
+      var N = tags.length;
+      var EGG_K = Math.floor(N / 2), EGG_RIGHT = N % 2;
+      var PERIOD = N % 2 ? N : N / 2;                 /* stretches of wall before the doors repeat */
+      var JUMP_K = PERIOD * Math.ceil(8 / PERIOD);
+      /* The order of the doors in a world: the plan at home, a shuffle fixed by the seed elsewhere. */
+      var permFor = function (seed) {
+        var a = [], i, j, t, s = seed;
+        for (i = 0; i < N; i++) a.push(i);
+        if (seed === 0) return a;
+        for (i = N - 1; i > 0; i--) {
+          s = (s * 9301 + 49297) % 233280;
+          j = Math.floor(s / 233280 * (i + 1));
+          t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      };
+      var padded = function (perm) {
+        var f = new Float32Array(8);
+        for (var i = 0; i < perm.length; i++) f[i] = perm[i];
+        return f;
+      };
+      cor.set("uN", N);
+      cor.set("uEggAt", EGG_K, EGG_RIGHT);
+      var world = { tint: "#f4efe4", roll: 0, fog: 0.1, pattern: 0, seed: 0, speed: 1, perm: permFor(0), egg: false, wall: ROOMS.corridor.b, deep: ROOMS.corridor.a };
       var pending = null;
       var jumpStart = 0;
       var JUMP_MS = 1150;
@@ -431,6 +476,9 @@
       var entering = null;       /* { start, k, side, href } while the camera flies into a door */
       var pointer = { x: 0, y: 0, tx: 0, ty: 0 };
       var view = { roll: 0, focal: 1, oz: 0, ox: 0, shear: 0 };
+      /* How far down the corridor you have walked: k in stretches of wall, z where the camera is now. */
+      var walk = { k: 0, z: 0, from: 0, start: 0, ms: 1, moving: false };
+      var mod = function (a, n) { return ((a % n) + n) % n; };
 
       var hsl = function (h, sat, light) {
         var a = sat * Math.min(light, 1 - light);
@@ -452,7 +500,7 @@
           fog: home ? 0.1 : 0.075 + (seed % 7) * 0.012,
           pattern: home ? 0 : seed % 3,
           speed: speed || 1,
-          perm: home ? PERMS[0] : PERMS[seed % PERMS.length],     /* the doors trade places */
+          perm: permFor(seed),                                    /* the doors trade places */
           egg: !home && seed % 6 === 0,                           /* about one world in six has an extra door */
           eggKind: Math.floor(seed / 6) % 3,                       /* and it is not always the same door */
           wall: home ? rgb(ROOMS.corridor.b) : hsl(hue, 0.34, 0.15),
@@ -465,7 +513,7 @@
         cor.setWorld(w.seed, w.tint);
         cor.set("uFog", w.fog);
         cor.set("uPattern", w.pattern);
-        cor.set("uPerm", w.perm);
+        cor.set("uPerm", padded(w.perm));
         cor.set("uEgg", w.egg ? 1 + (w.eggKind || 0) : 0);
         if (eggTag) {
           var kind = EGGS[w.eggKind || 0];
@@ -478,6 +526,7 @@
         cor.set("uB", w.wall.length === 3 && typeof w.wall !== "string" ? w.wall : rgb(w.wall));
         cor.speed = w.speed;
         widths = {};
+        heights = {};
         if (eggTag) eggTag.hidden = !w.egg;
         hall.classList.toggle("has-egg", w.egg);
       };
@@ -507,51 +556,83 @@
         if (Math.abs(ry) < 1e-4) ry = 1e-4;
         var tx = ((rx > 0 ? G.W : -G.W)) / rx;
         var ty = ((ry > 0 ? G.H : -G.H) - G.EYE) / ry;
-        if (tx >= ty) return -1;
+        if (tx >= ty) return null;
         var pz = view.oz + rz * tx, pyy = G.EYE + ry * tx;
         var zz = pz - G.Z0, k = Math.floor(zz / G.D), dz = zz - (k + 0.5) * G.D;
-        if (Math.abs(dz) > G.DW || pyy > -G.H + G.DH) return -1;
-        if (world.egg && k === 2 && rx < 0) return 4;                  /* the extra door */
-        if (k < 0 || k > 1) return -1;
-        return world.perm[k * 2 + (rx > 0 ? 1 : 0)];                   /* index into tags */
+        if (Math.abs(dz) > G.DW || pyy > -G.H + G.DH) return null;
+        if (k < walk.k) return null;
+        var slot = k * 2 + (rx > 0 ? 1 : 0);
+        if (world.egg && slot === N && k - walk.k <= 2) return { egg: true };   /* the extra door */
+        if (k > walk.k + 1) return { far: k };                         /* too far to enter: walk to it */
+        return { tag: world.perm[mod(slot, N)] };                      /* index into tags */
       };
 
-      var put = function (tag, key, k, side, hide) {
+      var put = function (tag, key, k, side, hide, floor) {
         var cw = cc.clientWidth;
         var z = G.Z0 + (k + 0.5) * G.D;
         var top = project(side * G.W, -G.H + G.DH + 0.1, z);
         var size = Math.round(Math.max(15, Math.min(64, cc.clientHeight * 0.3 * view.focal / top.depth)));
         if (tag.style.fontSize !== size + "px") tag.style.fontSize = size + "px";
         var wk = key + ":" + size;
-        if (!widths[wk]) widths[wk] = tag.offsetWidth;
+        if (!widths[wk]) { widths[wk] = tag.offsetWidth; heights[wk] = tag.offsetHeight; }
         var w = widths[wk];
         /* Left-wall names hang to the left of their door, right-wall names to the right,
            so the two far ones never run into each other. Both stay inside the view. */
         var x = side < 0 ? top.x - w + size * 0.6 : top.x - size * 0.6;
         x = Math.max(6, Math.min(cw - w - 6, x));
-        var y = Math.max(size * 1.75 + 6, top.y);
+        /* A name further down the same wall drops below the one in front of it. */
+        var y = Math.max(size * 1.75 + 6, top.y, floor + heights[wk]);
         tag.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) translateY(-100%)";
         tag.style.opacity = hide ? "0" : "1";
+        tag.classList.remove("away");
+        return y;
+      };
+
+      /* The four doors you are standing among: calls back with (tag index, stretch, right wall?). */
+      var near = function (each) {
+        for (var j = 0; j < 4; j++) {
+          var k = walk.k + (j >> 1), right = j % 2, slot = k * 2 + right;
+          if (world.egg && slot === N) continue;      /* the extra door has taken this place */
+          each(world.perm[mod(slot, N)], k, right);
+        }
+      };
+      var away = function (tag) {
+        tag.style.opacity = "0";
+        tag.classList.add("away");
       };
 
       var place = function () {
-        var hide = jumpStart > 0 || !!entering;
-        for (var slot = 0; slot < 4; slot++) {
-          put(tags[world.perm[slot]], "t" + world.perm[slot], Math.floor(slot / 2), slot % 2 ? 1 : -1, hide);
+        var hide = jumpStart > 0 || !!entering || walk.moving;
+        var floor = [0, 0];                           /* bottom of the last name on the left wall, and the right */
+        var shown = {};
+        near(function (i, k, right) {
+          if (shown[i]) return;
+          shown[i] = true;
+          floor[right] = put(tags[i], "t" + i, k, right ? 1 : -1, hide, floor[right]);
+        });
+        for (var i = 0; i < N; i++) {
+          if (!shown[i]) away(tags[i]);
         }
-        if (eggTag && world.egg) put(eggTag, "egg", 2, -1, hide);
+        if (eggTag) {
+          if (world.egg && EGG_K >= walk.k && EGG_K - walk.k <= 2) put(eggTag, "egg", EGG_K, EGG_RIGHT ? 1 : -1, hide, floor[EGG_RIGHT]);
+          else away(eggTag);
+        }
       };
 
       /* Fly the camera into a door, then go there. Returns false if it should just navigate. */
       var enter = function (tag) {
         if (still || isPlain() || entering || hall.classList.contains("flat")) return false;
         var k, side;
+        if (tag.classList.contains("away")) return false;
         if (tag === eggTag) {
-          k = 2; side = -1;
+          k = EGG_K; side = EGG_RIGHT ? 1 : -1;
         } else {
-          var slot = world.perm.indexOf(tags.indexOf(tag));
-          if (slot < 0) return false;
-          k = Math.floor(slot / 2); side = slot % 2 ? 1 : -1;
+          var want = tags.indexOf(tag), found = false;
+          near(function (i, nk, right) {
+            if (found || i !== want) return;
+            found = true; k = nk; side = right ? 1 : -1;
+          });
+          if (!found) return false;
         }
         entering = {
           start: performance.now(), k: k, side: side, href: tag.href, done: false,
@@ -587,7 +668,19 @@
         var sway = still ? 0 : Math.sin(now / 4200 * world.speed) * 0.012;
         view.focal = focalFor();
         view.roll = world.roll;
-        view.oz = 0;
+        /* Walking: ease toward the stretch you asked for, with a slight bob in the step. */
+        var goal = walk.k * G.D, bob = 0;
+        var wt = still ? 1 : (now - walk.start) / walk.ms;
+        if (wt < 1) {
+          var we = wt < 0.5 ? 2 * wt * wt : 1 - Math.pow(-2 * wt + 2, 2) / 2;
+          walk.z = walk.from + (goal - walk.from) * we;
+          walk.moving = true;
+          bob = Math.sin(walk.z * 4.2) * 0.007 * Math.sin(Math.PI * wt);
+        } else {
+          walk.z = goal;
+          walk.moving = false;
+        }
+        view.oz = walk.z;
         var jump = 0;
         if (jumpStart) {
           var t = (now - jumpStart) / JUMP_MS;
@@ -597,7 +690,7 @@
           } else {
             jump = t;
             var e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-            view.oz = e * G.D * 2 * 4;                 /* past four pairs of doors: lands on the same pattern */
+            view.oz = walk.z + e * G.D * JUMP_K;       /* a whole number of repeats: lands on the same pattern */
             view.focal *= 1 - 0.42 * Math.sin(Math.PI * t);
             view.roll += Math.sin(Math.PI * t) * 0.55 * (pending && pending.seed % 2 ? 1 : -1);
             if (t >= 0.5 && pending) {
@@ -611,7 +704,7 @@
         if (entering) {
           var q = Math.min(1, (now - entering.start) / ENTER_MS);
           var ez = q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
-          view.oz = ez * (G.Z0 + (entering.k + 0.5) * G.D);            /* walk level with the door */
+          view.oz = walk.z + ez * (G.Z0 + (entering.k + 0.5) * G.D - walk.z);   /* walk level with the door */
           view.ox = entering.side * ez * 0.8;                          /* step toward it */
           view.shear = entering.side * q * q * q * 3.4;                /* and turn to face it */
           view.roll = world.roll * (1 - ez);
@@ -635,7 +728,7 @@
         cor.set("uOx", view.ox);
         cor.set("uRoll", view.roll);
         cor.set("uFocal", view.focal);
-        cor.set("uPointer", pointer.x + sway + view.shear, pointer.y * (entering ? 0.3 : 1));
+        cor.set("uPointer", pointer.x + sway + view.shear, pointer.y * (entering ? 0.3 : 1) + bob);
         place();
       };
 
@@ -657,7 +750,7 @@
         var r = cc.getBoundingClientRect();
         pointer.tx = ((e.clientX - r.left) / r.width - 0.5) * 0.16;
         pointer.ty = -((e.clientY - r.top) / r.height - 0.5) * 0.1;
-        cc.style.cursor = doorAt(e.clientX - r.left, e.clientY - r.top) >= 0 ? "pointer" : "";
+        cc.style.cursor = doorAt(e.clientX - r.left, e.clientY - r.top) ? "pointer" : "";
         if (still) cor.draw();
       });
       hall.addEventListener("pointerleave", function () {
@@ -666,9 +759,47 @@
       });
       cc.addEventListener("click", function (e) {
         var r = cc.getBoundingClientRect();
-        var i = doorAt(e.clientX - r.left, e.clientY - r.top);
-        if (i === 4 && eggTag) eggTag.click();
-        else if (i >= 0 && tags[i]) tags[i].click();
+        var hit = doorAt(e.clientX - r.left, e.clientY - r.top);
+        if (!hit || walk.moving) return;
+        if (hit.egg) { if (eggTag) eggTag.click(); }
+        else if (hit.far !== undefined) step(hit.far - walk.k);
+        else if (tags[hit.tag]) tags[hit.tag].click();
+      });
+
+      /* ---- Walking the corridor ---- */
+      var controls = document.createElement("p");
+      controls.className = "walk";
+      controls.innerHTML = '<button type="button" data-walk="-1">Step back</button><button type="button" data-walk="1">Walk on</button>';
+      hall.appendChild(controls);
+      var backButton = controls.querySelector('[data-walk="-1"]');
+      backButton.disabled = true;
+      var step = function (n) {
+        if (entering || jumpStart) return;
+        var to = Math.max(0, walk.k + n);
+        if (to === walk.k) return;
+        walk.from = walk.z;
+        walk.start = performance.now();
+        walk.ms = Math.min(1700, 650 + 300 * Math.abs(to - walk.k));
+        walk.k = to;
+        backButton.disabled = walk.k === 0;
+        if (still || isPlain()) { cor.resize(); cor.draw(); }
+        else if (cor.onScreen) cor.play();
+      };
+      controls.addEventListener("click", function (e) {
+        var n = e.target.getAttribute && e.target.getAttribute("data-walk");
+        if (n) step(parseInt(n, 10));
+      });
+      window.addEventListener("corridorwalk", function (e) {
+        step(e.detail && e.detail.steps ? e.detail.steps : 1);
+      });
+      /* Tabbing to a door that is out of sight walks you to it. */
+      tags.forEach(function (tag, want) {
+        tag.addEventListener("focus", function () {
+          if (!tag.classList.contains("away") || hall.classList.contains("flat")) return;
+          for (var k = walk.k; k < walk.k + PERIOD * 2 + 2; k++) {
+            if (world.perm[mod(k * 2, N)] === want || world.perm[mod(k * 2 + 1, N)] === want) { step(k - walk.k); return; }
+          }
+        });
       });
 
       cor.resize();

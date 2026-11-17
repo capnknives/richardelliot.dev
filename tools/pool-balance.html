@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pool water balance — Richard Elliot</title>
+  <meta name="description" content="Enter six pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
+  <meta property="og:title" content="Pool water balance — Richard Elliot">
+  <meta property="og:description" content="Enter six pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/pool-balance.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=11">
+  <link rel="stylesheet" href="../assets/pool-balance.css?v=11">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="poolbalance">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main" class="pool">
+    <div class="room-head">
+      <p class="state">A small tool. It runs in your browser and sends nothing anywhere.</p>
+      <h1>Pool water balance</h1>
+      <p class="lede">Six test readings in, a dosing plan out.</p>
+    </div>
+
+    <noscript><p style="padding: 0 var(--gutter)">This calculator needs JavaScript to run.</p></noscript>
+
+    <div class="layout">
+      <section class="result" aria-labelledby="lsi-label">
+        <canvas class="tank" id="tank" role="img" aria-label="Cross-section of a pool wall under water. The wall pits when the water is corrosive and crusts over when it is scale-forming."></canvas>
+        <div class="reading">
+          <output id="lsi" for="ph ta ch cya temp tds" aria-live="polite">0.00</output>
+          <strong id="state">Balanced</strong>
+        </div>
+        <div class="scale" aria-hidden="true">
+          <div class="bar"></div><div class="pin" id="pin"></div>
+          <span class="l">eats plaster</span><span class="m" id="lsi-label">saturation index</span><span class="r">grows scale</span>
+        </div>
+        <p class="verdict" id="verdict"></p>
+      </section>
+
+      <form class="readings" id="readings" aria-label="Test readings" novalidate>
+        <h2>Your readings</h2>
+        <div id="rows"></div>
+        <button type="button" class="reset" id="reset">Put the example readings back</button>
+      </form>
+
+      <section class="plan" aria-labelledby="plan-h">
+        <h2 id="plan-h">What to add, in this order</h2>
+        <ol id="steps"></ol>
+        <p class="after" id="after"></p>
+      </section>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>Before you dose</h2>
+        <div class="body">
+<p>These are estimates. Add two thirds of any dose, circulate, retest, then add the rest if the water still needs it. Add acid to water, never water to acid, and never mix pool chemicals with each other.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it is worked out</h2>
+        <div class="body">
+<p>The saturation index is the Langelier index: pH minus the pH at which this water would be exactly saturated with calcium carbonate. That saturation pH comes from temperature, dissolved solids, calcium hardness and carbonate alkalinity. Between −0.3 and +0.3 counts as balanced.</p>
+<p>Stabilizer shows up in an alkalinity test, so the part that belongs to cyanurate is taken out first. Acid and soda ash doses come from the carbonate and cyanurate equilibria instead of a lookup chart, so they account for how well your water is buffered. Baking soda, calcium chloride and stabilizer doses are plain stoichiometry.</p>
+<p>The arithmetic is in <a href="../assets/pool-balance.js">one short script</a> you can read.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Why it is here</h2>
+        <div class="body">
+<p>I build <a href="../projects/aquainspection.html">Aquainspection</a>, inspection software for Texas pool companies. This is the kind of small, single-purpose tool I can turn around in a day.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" data-prompt data-room-text="A pool at noon. A test kit sits open on the coping, six vials in a row. Below the waterline, the wall keeps a record of everything the water has done to it.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=11"></script>
+  <script src="../assets/prompt.js?v=11"></script>
+  <script src="../assets/backdrop.js?v=11"></script>
+  <script src="../assets/pool-balance.js?v=11"></script>
+</body>
+</html>
