@@ -240,7 +240,7 @@ html.box {
 .box-hero {
   position: relative;
   isolation: isolate;
-  padding: clamp(2.5rem, 8vw, 6rem) var(--gutter) clamp(2.5rem, 6vw, 4.5rem);
+  padding: clamp(2.5rem, 8vw, 6rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
   margin-top: -4.5rem;          /* the sky runs up behind the masthead */
   padding-top: calc(clamp(2.5rem, 8vw, 6rem) + 4.5rem);
 }
@@ -360,6 +360,7 @@ html.box {
 .corridor {
   position: relative;
   overflow: hidden;
+  margin-bottom: clamp(3rem, 8vw, 5.5rem);
   height: min(78vh, 56.25vw);
   min-height: 22rem;
   background: #070912;
@@ -434,7 +435,7 @@ html.box {
 .door-tags a[data-room="riftforge"] { --door: #e9b44c; }
 
 .world-bar {
-  padding: clamp(1.25rem, 3vw, 2rem) var(--gutter) clamp(3rem, 8vw, 5.5rem);
+  padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 1rem clamp(1.5rem, 5vw, 4rem);
