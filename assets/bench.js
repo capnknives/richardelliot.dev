@@ -1,12 +1,13 @@
-/* The workbench: edit this page, then try to take the edit back.
+/* The workshop: change the laws of this page, then try to get home.
    A toy version of the question retractbench asks of language models.
 
    Eleven probes record what the page looked like before any edit. Two undos:
-   - "from the record" puts back the saved originals. It is exact.
+   - "from the record" puts back the saved originals. It is exact, and on the
+     branch map you step back into the world you left.
    - "without the record" has nothing saved to go on, so it gets close and
-     stops: colours come back a hair off, the headline weight lands on the
-     nearest hundred, and the
-     visitor's line is left behind in the browser tab's title.
+     stops: colours come back a hair off, weight lands on the nearest hundred,
+     spacing is nearly closed, and the visitor's line is left behind in the
+     browser tab's title. On the branch map you land beside your world.
    The second one is a simulation, written to behave the way approximate undo
    methods do in the real measurements: near, and not the same. */
 (function () {
@@ -16,16 +17,17 @@
   if (!bench) return;
 
   var root = document.documentElement;
-  var h1 = bench.querySelector("[data-bench-line]");
-  var lede = document.querySelector(".hall .lede");
-  var firstTitle = document.querySelector(".band-title");
+  var line = bench.querySelector("[data-bench-line]");
+  var lede = document.querySelector(".box-hero .lede");
 
   var text = bench.querySelector("[data-edit='headline']");
   var hue = bench.querySelector("[data-edit='hue']");
   var weight = bench.querySelector("[data-edit='weight']");
+  var space = bench.querySelector("[data-edit='space']");
   var chips = bench.querySelector("[data-probes]");
   var count = bench.querySelector("[data-count]");
   var say = bench.querySelector("[data-say]");
+  var verdict = bench.querySelector("[data-verdict]");
 
   var PROBED = ["--paper", "--ink", "--retract", "--gecko", "--aqua", "--rift"];
   var WASHES = ["--retract-wash", "--gecko-wash", "--aqua-wash", "--rift-wash"];
@@ -63,37 +65,42 @@
       : h < 240 ? [0, x, k] : h < 300 ? [x, 0, k] : [k, 0, x];
     return toHex(r.map(function (v) { return (v + m) * 255; }));
   }
-  function coarse(hex) {
+  function nudge(hex) {
     /* Two steps out of 255 on each channel: too small to see, enough to measure. */
     return toHex(toRgb(hex).map(function (v) { return v < 128 ? v + 2 : v - 2; }));
   }
 
   /* ---- the record: what the page was before anyone touched it ---- */
   var base = {
-    headline: h1.textContent,
+    line: line.textContent,
     title: document.title,
-    weight: parseInt(getComputedStyle(h1).fontWeight, 10),
-    titleWeight: parseInt(getComputedStyle(firstTitle).fontWeight, 10),
+    weight: parseInt(getComputedStyle(line).fontWeight, 10),
     colours: {}
   };
   PROBED.concat(WASHES).forEach(function (name) { base.colours[name] = cssVar(name); });
 
   var PROBES = [
-    { name: "the line", read: function () { return h1.textContent; } },
+    { name: "the line", read: function () { return line.textContent; } },
     { name: "tab title", read: function () { return document.title; } },
-    { name: "line weight", read: function () { return getComputedStyle(h1).fontWeight; } },
-    { name: "room-name weight", read: function () { return getComputedStyle(firstTitle).fontWeight; } },
-    { name: "paper", read: function () { return cssVar("--paper"); } },
-    { name: "ink", read: function () { return cssVar("--ink"); } },
+    { name: "gravity", read: function () { return getComputedStyle(line).fontWeight; } },
+    { name: "space", read: function () { return getComputedStyle(line).letterSpacing; } },
+    { name: "dark", read: function () { return cssVar("--paper"); } },
+    { name: "light", read: function () { return cssVar("--ink"); } },
     { name: "blue", read: function () { return cssVar("--retract"); } },
     { name: "green", read: function () { return cssVar("--gecko"); } },
     { name: "teal", read: function () { return cssVar("--aqua"); } },
     { name: "plum", read: function () { return cssVar("--rift"); } },
-    { name: "introduction", read: function () { return lede.textContent; } }
+    { name: "introduction", read: function () { return lede ? lede.textContent : ""; } }
   ];
   var original = PROBES.map(function (p) { return p.read(); });
 
-  var touched = { headline: false, hue: false, weight: false };
+  var touched = { line: false, hue: false, weight: false, space: false };
+  var forked = false;
+  var homeNode = -1;       /* where on the branch map the unedited page lives */
+
+  function anyTouched() {
+    return touched.line || touched.hue || touched.weight || touched.space;
+  }
 
   function measure() {
     var same = 0;
@@ -118,7 +125,29 @@
     return same;
   }
 
-  /* ---- edits ---- */
+  /* How far have the constants drifted from the ones this world was built on? */
+  function judge() {
+    var h = parseInt(hue.value, 10);
+    var drift = Math.min(h, 360 - h) / 180
+      + Math.abs(parseInt(weight.value, 10) - base.weight) / 450
+      + Math.abs(parseInt(space.value, 10)) / 45;
+    verdict.textContent = drift < 0.03 ? "Habitable. These are the constants this world was built on."
+      : drift < 0.55 ? "Barely habitable. Life here would be different."
+      : "Uninhabitable. Nobody could read in this universe.";
+  }
+
+  function edited(which) {
+    touched[which] = true;
+    if (!forked && window.RE) {
+      forked = true;
+      if (homeNode < 0) homeNode = window.RE.where();
+      window.RE.fork("edited", "edit");
+    }
+    say.textContent = "";
+    judge();
+    measure();
+  }
+
   function setColours(fn) {
     PROBED.concat(WASHES).forEach(function (name) {
       root.style.setProperty(name, fn(base.colours[name], name));
@@ -127,76 +156,82 @@
 
   text.addEventListener("input", function () {
     var v = text.value.trim();
-    touched.headline = true;
-    h1.textContent = v || base.headline;
+    line.textContent = v || base.line;
     document.title = v ? v + " — Richard Elliot" : base.title;
-    say.textContent = "";
-    measure();
+    edited("line");
   });
-
   hue.addEventListener("input", function () {
     var deg = parseInt(hue.value, 10);
-    touched.hue = true;
     setColours(function (hex) { return rotate(hex, deg); });
-    say.textContent = "";
-    measure();
+    edited("hue");
   });
-
   weight.addEventListener("input", function () {
-    var w = parseInt(weight.value, 10);
-    touched.weight = true;
-    root.style.setProperty("--w-head", w);
-    root.style.setProperty("--w-title", Math.min(900, w + 50));
-    say.textContent = "";
-    measure();
+    root.style.setProperty("--w-head", parseInt(weight.value, 10));
+    edited("weight");
+  });
+  space.addEventListener("input", function () {
+    root.style.setProperty("--ls", parseInt(space.value, 10));
+    edited("space");
   });
 
-  /* ---- undo, two ways ---- */
+  /* ---- two ways home ---- */
   function fromRecord() {
-    h1.textContent = base.headline;
+    line.textContent = base.line;
     document.title = base.title;
     PROBED.concat(WASHES).forEach(function (name) { root.style.removeProperty(name); });
     root.style.removeProperty("--w-head");
-    root.style.removeProperty("--w-title");
+    root.style.removeProperty("--ls");
     text.value = "";
     hue.value = 0;
     weight.value = base.weight;
-    touched = { headline: false, hue: false, weight: false };
+    space.value = 0;
+    if (homeNode >= 0 && window.RE) window.RE.goto(homeNode);
+    homeNode = -1;
+    touched = { line: false, hue: false, weight: false, space: false };
+    forked = false;
+    judge();
     measure();
-    say.textContent = "Revoked from the record. Every probe matches: an undo that kept the original is exact.";
+    say.textContent = "Home. Every probe matches, and the map shows you back in the world you left. An undo that kept the original is exact.";
   }
 
   function withoutRecord() {
-    if (!touched.headline && !touched.hue && !touched.weight) {
-      say.textContent = "Nothing to undo yet. Change the line, the colour or the weight first.";
+    if (!anyTouched()) {
+      say.textContent = "Nothing to undo yet. Change the line or one of the constants first.";
       return;
     }
-    if (touched.headline) {
-      h1.textContent = base.headline;       /* the visible text comes back... */
+    if (touched.line) {
+      line.textContent = base.line;         /* the visible text comes back... */
       text.value = "";                      /* ...the tab title is left as it was */
     }
     if (touched.hue) {
-      setColours(function (hex) { return coarse(hex); });
+      setColours(function (hex) { return nudge(hex); });
       hue.value = 0;
     }
     if (touched.weight) {
       var w = Math.round(base.weight / 100) * 100;
-      var t = Math.round(base.titleWeight / 100) * 100;
       root.style.setProperty("--w-head", w);
-      root.style.setProperty("--w-title", t);
       weight.value = w;
     }
+    if (touched.space) {
+      root.style.setProperty("--ls", 1);
+      space.value = 0;
+    }
+    if (window.RE) window.RE.near();
+    /* Still not home, and the next edit starts a fresh branch from here. */
+    touched = { line: false, hue: false, weight: false, space: false };
+    forked = false;
+    judge();
     var same = measure();
     var missed = PROBES.length - same;
     say.textContent = missed
-      ? "Undone without the record. It looks right, and " + missed + " of " + PROBES.length +
-        " probes say it is not. That gap is what retractbench measures in language models."
-      : "Undone without the record, and this time every probe matches. That can happen. It is not something you can count on.";
+      ? "It looks like home. " + missed + " of " + PROBES.length + " probes say it is the world next door. That gap is what retractbench measures in language models."
+      : "This time every probe matches. That can happen. It is not something you can count on.";
   }
 
   bench.querySelector("[data-undo='record']").addEventListener("click", fromRecord);
   bench.querySelector("[data-undo='blind']").addEventListener("click", withoutRecord);
 
   weight.value = base.weight;
+  judge();
   measure();
 })();

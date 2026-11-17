@@ -12,14 +12,15 @@
     retractbench: { mode: 0, a: "#e3e7f7", b: "#c9d0f1", c: "#aab4e6" },
     storygecko: { mode: 1, a: "#e0efe3", b: "#cbe4d0", c: "#b3d6ba" },
     aquainspection: { mode: 2, a: "#cdebec", b: "#f6fdfd", c: "#a9dcdf" },
-    riftforge: { mode: 3, a: "#1f1020", b: "#4a2145", c: "#e9b44c" }
+    riftforge: { mode: 3, a: "#1f1020", b: "#4a2145", c: "#e9b44c" },
+    box: { mode: 4, a: "#10131f", b: "#2b3358", c: "#f4efe4" }
   };
 
   var VERT = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
 
   var FRAG = [
     "precision mediump float;",
-    "uniform vec2 uRes;uniform float uTime;uniform float uMode;",
+    "uniform vec2 uRes;uniform float uTime;uniform float uMode;uniform float uSeed;",
     "uniform vec3 uA;uniform vec3 uB;uniform vec3 uC;",
     "float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
     "vec2 hash2(vec2 p){return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);}",
@@ -65,10 +66,20 @@
     " col+=uC*glow;col+=uB*.6*exp(-d*5.)*taper;",
     " return col;}",
 
+    "vec3 stars(vec2 uv){",
+    " vec3 col=uA+uB*.55*smoothstep(.42,.95,fbm(uv*1.25+uSeed*3.7));",
+    " col+=uB*.25*smoothstep(.5,1.,fbm(uv*3.1-uSeed*1.9));",
+    " for(int k=0;k<3;k++){float fk=float(k);float L=14.+fk*13.;",
+    "  vec2 g=uv*L+uSeed*17.+fk*31.;vec2 id=floor(g);vec2 f=fract(g)-.5;",
+    "  vec2 h=hash2(id+fk*7.);float on=step(.8+fk*.04,hash(id+fk*3.+.5));",
+    "  float d=length(f-(h-.5)*.7);float tw=.55+.45*sin(uTime*(.4+h.x*1.6)+h.y*6.2831);",
+    "  col+=uC*on*tw*smoothstep(.07-fk*.015,0.,d)*(1.-fk*.25);}",
+    " return col;}",
+
     "void main(){",
     " vec2 uv=gl_FragCoord.xy/uRes.y;vec3 col;",
     " if(uMode<.5)col=probes(uv);else if(uMode<1.5)col=scales(uv);",
-    " else if(uMode<2.5)col=caustics(uv);else col=rift(uv);",
+    " else if(uMode<2.5)col=caustics(uv);else if(uMode<3.5)col=rift(uv);else col=stars(uv);",
     " gl_FragColor=vec4(col,1.);}"
   ].join("\n");
 
@@ -107,7 +118,7 @@
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
     var u = {};
-    ["uRes", "uTime", "uMode", "uA", "uB", "uC"].forEach(function (n) {
+    ["uRes", "uTime", "uMode", "uSeed", "uA", "uB", "uC"].forEach(function (n) {
       u[n] = gl.getUniformLocation(prog, n);
     });
 
@@ -123,7 +134,14 @@
       gl.uniform3fv(u.uA, rgb(r.a));
       gl.uniform3fv(u.uB, rgb(r.b));
       gl.uniform3fv(u.uC, rgb(r.c));
+      gl.uniform1f(u.uSeed, 0);
       return true;
+    };
+
+    /* The box changes with the world: a seed moves the stars, a tint colours the light. */
+    this.setWorld = function (seed, tint) {
+      gl.uniform1f(u.uSeed, (seed % 997) / 997 * 40);
+      if (tint) gl.uniform3fv(u.uC, rgb(tint));
     };
 
     this.resize = function () {
@@ -181,6 +199,7 @@
   /* Project page: one backdrop behind the masthead and the title block. */
   var room = document.body.getAttribute("data-room");
   var head = document.querySelector(".room-head");
+  var bd = null;
   if (room && head && ROOMS[room]) {
     var canvas = make("backdrop");
     document.body.insertBefore(canvas, document.body.firstChild);
@@ -188,7 +207,7 @@
       canvas.style.height = Math.ceil(head.getBoundingClientRect().bottom + window.scrollY) + "px";
     };
     size();
-    var bd = new Backdrop(canvas);
+    bd = new Backdrop(canvas);
     if (bd && bd.setRoom) {
       bd.setRoom(room);
       bd.play();
@@ -199,42 +218,76 @@
       });
       if ("IntersectionObserver" in window) {
         new IntersectionObserver(function (entries) {
-          if (entries[0].isIntersecting) bd.play();
+          if (entries[0].isIntersecting && !document.documentElement.classList.contains("plain")) bd.play();
           else bd.pause();
         }).observe(canvas);
       }
     } else {
       canvas.remove();
+      bd = null;
     }
   }
 
-  /* Front page: each room's band gets its own backdrop, running only while
-     that band is on screen. */
-  var bands = document.querySelectorAll(".band[data-room]");
-  Array.prototype.forEach.call(bands, function (band) {
-    var name = band.getAttribute("data-room");
+  /* Front page: the box's own sky, and a backdrop for each world's band.
+     Each one runs only while it is on screen. */
+  var all = [];
+  var plain = document.documentElement.classList.contains("plain");
+  var hosts = document.querySelectorAll(".band[data-room], [data-backdrop]");
+  Array.prototype.forEach.call(hosts, function (host) {
+    var name = host.getAttribute("data-backdrop") || host.getAttribute("data-room");
     if (!ROOMS[name]) return;
     var c = make("backdrop");
-    band.insertBefore(c, band.firstChild);
+    host.insertBefore(c, host.firstChild);
     var b = new Backdrop(c);
     if (!b || !b.setRoom) {
       c.remove();
       return;
     }
     b.setRoom(name);
+    b.canvas = c;
+    b.onScreen = false;
+    if (name === "box") {
+      window.addEventListener("worldchange", function (e) {
+        b.setWorld(e.detail.seed, e.detail.tint);
+        if (!b.onScreen || still) { b.resize(); b.draw(); }
+      });
+      var w = parseInt(document.documentElement.getAttribute("data-world") || "0", 10);
+      var tint = getComputedStyle(document.documentElement).getPropertyValue("--light").trim();
+      b.setWorld(w, /^#[0-9a-f]{6}$/i.test(tint) ? tint : null);
+    }
     b.resize();
     b.draw();
+    all.push(b);
     window.addEventListener("resize", function () {
       b.resize();
       b.draw();
     });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
-        if (entries[0].isIntersecting) b.play();
+        b.onScreen = entries[0].isIntersecting;
+        if (b.onScreen && !plain) b.play();
         else b.pause();
-      }, { rootMargin: "80px" }).observe(band);
-    } else {
+      }, { rootMargin: "80px" }).observe(host);
+    } else if (!plain) {
+      b.onScreen = true;
       b.play();
     }
   });
+
+  /* Plain view: stop every backdrop and hide it; Full view brings them back. */
+  function applyPlain() {
+    plain = document.documentElement.classList.contains("plain");
+    var canvases = document.querySelectorAll("canvas.backdrop");
+    Array.prototype.forEach.call(canvases, function (c) { c.style.display = plain ? "none" : ""; });
+    all.forEach(function (b) {
+      if (plain) b.pause();
+      else if (b.onScreen) b.play();
+    });
+    if (bd && bd.pause) {
+      if (plain) bd.pause();
+      else bd.play();
+    }
+  }
+  window.addEventListener("plainchange", applyPlain);
+  if (plain) applyPlain();
 })();

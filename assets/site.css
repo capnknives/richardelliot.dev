@@ -1,9 +1,10 @@
 /* Richard Elliot — portfolio.
    Plain CSS, no build step.
 
-   The site is a house. The front page is its floor plan and a walk through
-   the rooms; each project page is one room. A room's colour and mood come
-   from data-room, set on <body> (project pages) or on a .band (front page).
+   The front page is the inside of a box: a dark corridor of doors, each
+   opening on a world. Each project page is one of those worlds. A world's
+   colour and mood come from data-room, set on <body> (project pages) or on
+   a .band or .door (front page).
 
    Type: Sofia Sans Extra Condensed for names and headlines, Sofia Sans for
    reading, Literata italic for the narrator's voice. */
@@ -214,202 +215,261 @@ kbd {
   text-decoration: underline;
 }
 
-/* ---------- Front page: the hall ---------- */
+/* ---------- Front page: inside the box ----------
+   The corridor is dark and has no colour of its own. Colour only comes
+   through the doors. --light is the tint of this world's light (box.js). */
 
-.hall {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: start;
-  padding: clamp(2rem, 6vw, 4.5rem) var(--gutter) clamp(2.5rem, 7vw, 5rem);
+html.box {
+  --paper: #10131f;
+  --ink: #ece8df;
+  --soft: #a2a8bd;
+  --rule: #2c3250;
+  --mark: #ffd27d;
+  --wash: var(--paper);
+  --light: #f4efe4;
+  background: var(--paper);
 }
 
-.hall h1 {
-  font-size: clamp(3.75rem, 10.2vw, 10.5rem);
+/* Worlds behind the doors keep their own daylight. */
+.box .band:not([data-room="riftforge"]) {
+  --ink: #101820;
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+}
+
+.box-hero {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(2.5rem, 8vw, 6rem) var(--gutter) clamp(2.5rem, 6vw, 4.5rem);
+  margin-top: -4.5rem;          /* the sky runs up behind the masthead */
+  padding-top: calc(clamp(2.5rem, 8vw, 6rem) + 4.5rem);
+}
+
+.box-hero .backdrop {
+  height: 100%;
+}
+
+.box .masthead {
+  position: relative;
+  z-index: 2;
+}
+
+.box-hero h1 {
+  position: relative;
+  font-size: clamp(3.5rem, 13.2vw, 11.5rem);
   line-height: 0.84;
-  letter-spacing: -0.005em;
   margin: 0.75rem 0 0;
+  max-width: 11.5em;
+  color: var(--light);
 }
 
-.hall .lede {
+/* Superposition: until someone looks, the headline is several headlines. */
+.box-hero h1::before,
+.box-hero h1::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
+}
+
+.box-hero h1::before { color: #8fb4ff; }
+.box-hero h1::after { color: #ffb38a; }
+
+.superposed .box-hero h1 {
+  opacity: 0.85;
+}
+
+.superposed .box-hero h1::before {
+  opacity: 0.55;
+  transform: translate(-0.035em, 0.02em);
+  animation: drift-a 2.6s ease-in-out infinite alternate;
+}
+
+.superposed .box-hero h1::after {
+  opacity: 0.5;
+  transform: translate(0.04em, -0.025em);
+  animation: drift-b 3.1s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a {
+  to { transform: translate(-0.06em, -0.015em); }
+}
+
+@keyframes drift-b {
+  to { transform: translate(0.065em, 0.03em); }
+}
+
+.box-hero .lede {
   margin: clamp(1.25rem, 3vw, 2rem) 0 0;
-  max-width: 30rem;
+  max-width: 34rem;
   font-size: clamp(1.125rem, 2vw, 1.3125rem);
   line-height: 1.45;
 }
 
-.hall-jump {
-  margin: 1.5rem 0 0;
+.world {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  font-weight: 600;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: clamp(1.75rem, 4vw, 2.75rem) 0 0;
+  font-size: 0.9375rem;
 }
 
-/* ---------- The floor plan ---------- */
-
-.plan-wrap {
-  margin: 0;
-  max-width: 34rem;
-  width: 100%;
-  justify-self: end;
-}
-
-.plan {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.plan .wall {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 4;
-  stroke-linejoin: miter;
-}
-
-.plan .fence {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.5;
-  stroke-dasharray: 2 6;
-  stroke-linecap: round;
-}
-
-.plan .gap {
-  stroke: var(--paper);
-  stroke-width: 7;
-}
-
-.plan .swing,
-.plan .thin {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.25;
-}
-
-.plan .floor {
-  fill: var(--wash);
-  transition: fill 140ms ease-out;
-}
-
-.plan .floor-plain {
-  fill: #e6eaee;
-}
-
-.plan .pool {
-  fill: #bfe4e7;
-  stroke: var(--aqua);
-  stroke-width: 2.5;
-}
-
-.plan .road {
-  fill: #1f1020;
-}
-
-.plan .rift-line {
-  fill: none;
-  stroke: #e9b44c;
-  stroke-width: 3;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.plan .lane {
-  stroke: #6b4a63;
-  stroke-width: 2;
-  stroke-dasharray: 14 12;
-}
-
-.plan .here {
-  fill: var(--mark);
-}
-
-.plan text {
+.world-label {
   font-family: var(--display);
   font-weight: 800;
-  fill: var(--room);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--light);
+  margin-right: 0.5rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.plan .label {
-  font-size: 31px;
-}
-
-.plan .label-sm {
-  font-size: 26px;
-  fill: var(--ink);
-}
-
-.plan .sub {
-  font-family: var(--voice);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 15px;
-  fill: var(--soft);
-}
-
-.plan .road-label {
-  fill: #e9b44c;
-}
-
-.plan .road-sub {
-  fill: #c9b1c1;
-}
-
-.plan .here-label {
-  font-family: var(--text);
-  font-weight: 700;
-  font-size: 13px;
-  fill: var(--mark);
-}
-
-.plan a {
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.plan a:hover .floor,
-.plan a:focus-visible .floor {
-  fill: color-mix(in srgb, var(--room) 24%, var(--wash));
-}
-
-.plan a:hover .floor-plain,
-.plan a:focus-visible .floor-plain {
-  fill: #d3dae1;
-}
-
-.plan a:hover .pool,
-.plan a:focus-visible .pool {
-  fill: #9ed6db;
-}
-
-.plan a:hover .road,
-.plan a:focus-visible .road {
-  fill: #33193a;
-}
-
-.plan a:focus-visible {
-  outline: none;
-}
-
-.plan a:focus-visible .focus-ring {
-  stroke: var(--mark);
-  stroke-width: 5;
-}
-
-.plan .focus-ring {
-  fill: none;
-  stroke: transparent;
-}
-
-.plan-note {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0.6rem 0 0;
+.world button,
+.plain-toggle {
+  font: inherit;
   font-size: 0.9375rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.world button:hover,
+.plain-toggle:hover {
+  border-color: var(--ink);
+}
+
+.plain-toggle[hidden] {
+  display: none;
+}
+
+.masthead nav {
+  align-items: center;
+}
+
+/* ---------- The doors ---------- */
+
+.doors {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.6rem, 2.4vw, 2rem);
+  padding: clamp(0.5rem, 2vw, 1.5rem) var(--gutter) clamp(3rem, 8vw, 6rem);
+  perspective: 1100px;
+}
+
+.door {
+  --glow: var(--wash);
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1.75;
+  background: var(--glow);
+  box-shadow: 0 0 2.5rem -0.5rem var(--glow);
+  text-decoration: none;
+  color: #ece8df;
+}
+
+.door[data-room="retractbench"] { --glow: #b9c3f5; }
+.door[data-room="storygecko"] { --glow: #b5e0bf; }
+.door[data-room="aquainspection"] { --glow: #a8e2e6; }
+.door[data-room="riftforge"] { --glow: #e9b44c; }
+
+.door .panel {
+  position: absolute;
+  inset: 0;
+  background: #171b2c;
+  border: 1px solid #343a5a;
+  transform-origin: 0 50%;
+  transform: rotateY(-11deg);
+  transition: transform 380ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(0.5rem, 1.6vw, 1.25rem);
+  overflow: hidden;
+}
+
+/* The handle. */
+.door .panel::after {
+  content: "";
+  position: absolute;
+  right: 9%;
+  top: 52%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--glow);
+}
+
+.door:hover .panel,
+.door:focus-visible .panel {
+  transform: rotateY(-46deg);
+}
+
+.door:hover {
+  color: #ece8df;
+}
+
+.door-name {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4.4vw, 3.75rem);
+  line-height: 0.9;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.door-kind {
+  margin-top: 0.6rem;
+  font-size: 0.9375rem;
+  color: #a2a8bd;
+}
+
+/* ---------- Hire, beliefs ---------- */
+
+.offers,
+.beliefs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.offers li,
+.beliefs li {
+  border-top: 3px solid var(--ink);
+  padding: 1rem 0 1.75rem;
+}
+
+.offers h3,
+.beliefs h3 {
+  font-size: clamp(1.9rem, 3.6vw, 2.75rem);
+  margin-bottom: 0.6rem;
+}
+
+.offers p,
+.beliefs p {
+  margin: 0;
+}
+
+.practised {
+  max-width: var(--measure);
   color: var(--soft);
+  margin: 0.5rem 0 0;
+}
+
+.sdg {
+  margin-left: 1rem;
+  letter-spacing: 0.08em;
+  cursor: default;
 }
 
 /* ---------- Front page: the rooms ---------- */
@@ -577,6 +637,7 @@ kbd {
   font-weight: var(--w-head, 750);
   font-size: clamp(2.25rem, 7vw, 4.75rem);
   line-height: 0.9;
+  letter-spacing: calc(var(--ls, 0) * 0.01em);
   margin: 0 0 0.9rem;
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -690,6 +751,69 @@ kbd {
   background: var(--retract);
   border-color: var(--retract);
   color: var(--paper);
+}
+
+.bench-verdict {
+  grid-column: 1 / -1;
+  margin: 0.25rem 0 0;
+  font-family: var(--voice);
+  font-style: italic;
+  color: var(--soft);
+  min-height: 3em;
+}
+
+.bench-map {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--rule);
+  padding-top: 1.25rem;
+}
+
+.bench-map-title {
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.branches-scroll {
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
+.branches {
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+.branch-line {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: 1.5;
+}
+
+.branch-line.near {
+  stroke-dasharray: 3 4;
+}
+
+.branch-node {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.branch-node.here {
+  fill: var(--mark);
+  stroke: var(--mark);
+}
+
+.branch-label {
+  font-family: var(--text);
+  font-size: 13px;
+  fill: var(--soft);
+}
+
+.branch-label.here {
+  fill: var(--ink);
+  font-weight: 700;
 }
 
 .bench-say {
@@ -1149,21 +1273,25 @@ body[data-room="cellar"] .exits a:hover {
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 60rem) {
-  .hall {
+  .offers,
+  .beliefs {
     grid-template-columns: 1fr;
-  }
-
-  .hall h1 {
-    font-size: clamp(3.75rem, 15.5vw, 9rem);
-  }
-
-  .plan-wrap {
-    justify-self: start;
-    max-width: 30rem;
   }
 }
 
 @media (max-width: 46rem) {
+  .door {
+    aspect-ratio: 1 / 3.5;
+  }
+
+  .door-kind {
+    display: none;
+  }
+
+  .door .panel::after {
+    top: 12%;
+  }
+
   .band-body,
   .bench,
   .study,
@@ -1247,9 +1375,27 @@ body[data-room="cellar"] .exits a:hover {
 
 @media (prefers-reduced-motion: reduce) {
   * {
-    transition: none !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Plain view: the fast, ordinary route. No backdrops, no moving doors. */
+.plain .door .panel {
+  transform: none;
+  transition: none;
+}
+
+.plain .door {
+  box-shadow: none;
+  border-left: 0.4rem solid var(--glow);
+}
+
+.plain .box-hero h1::before,
+.plain .box-hero h1::after {
+  display: none;
 }
 
 @media print {
