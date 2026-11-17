@@ -1,18 +1,24 @@
 /* Richard Elliot — portfolio.
-   Plain CSS, no build step. Each project is a "room" with its own colour:
-   set data-room on <body> (project pages) or on a project row (home page). */
+   Plain CSS, no build step.
+
+   The site is a house. The front page is its floor plan and a walk through
+   the rooms; each project page is one room. A room's colour and mood come
+   from data-room, set on <body> (project pages) or on a .band (front page).
+
+   Type: Sofia Sans Extra Condensed for names and headlines, Sofia Sans for
+   reading, Literata italic for the narrator's voice. */
 
 @font-face {
-  font-family: "Bricolage Grotesque";
-  src: url("fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2");
-  font-weight: 200 800;
+  font-family: "Sofia Condensed";
+  src: url("fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2") format("woff2");
+  font-weight: 1 1000;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Literata";
-  src: url("fonts/literata-latin-wght-normal.woff2") format("woff2");
-  font-weight: 200 900;
+  font-family: "Sofia Sans";
+  src: url("fonts/sofia-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 1 1000;
   font-style: normal;
   font-display: swap;
 }
@@ -25,10 +31,11 @@
 }
 
 :root {
-  --paper: #f2f4f1;
-  --ink: #17212b;
-  --soft: #55626c;
-  --rule: #c7cfcb;
+  --paper: #f3f5f7;
+  --ink: #101820;
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+  --mark: #d93a1c;            /* "you are here": the one lobby accent */
 
   /* Room colours: a deep tone for type and a pale wash for ground. */
   --retract: #2b3fa0;
@@ -43,18 +50,39 @@
   --room: var(--ink);
   --wash: var(--paper);
 
-  --display: "Bricolage Grotesque", "Arial Narrow", Arial, sans-serif;
-  --text: "Literata", Georgia, "Times New Roman", serif;
+  --display: "Sofia Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --text: "Sofia Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --voice: "Literata", Georgia, "Times New Roman", serif;
   --mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
 
   --measure: 34rem;
-  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --gutter: clamp(1.125rem, 5vw, 4.5rem);
+  --bar: 2.875rem;            /* height of the docked command bar */
 }
 
 [data-room="retractbench"] { --room: var(--retract); --wash: var(--retract-wash); }
 [data-room="storygecko"] { --room: var(--gecko); --wash: var(--gecko-wash); }
 [data-room="aquainspection"] { --room: var(--aqua); --wash: var(--aqua-wash); }
 [data-room="riftforge"] { --room: var(--rift); --wash: var(--rift-wash); }
+
+/* Dark rooms. Scoped to whole pages and front-page bands only, so a link
+   that merely points at Riftforge keeps the light scheme. */
+body[data-room="riftforge"],
+.band[data-room="riftforge"] {
+  --wash: #1f1020;
+  --ink: #f3e6ee;
+  --room: #e9b44c;
+  --soft: #c9b1c1;
+  --rule: #4f3049;
+}
+
+body[data-room="cellar"] {
+  --wash: #1b1d1c;
+  --ink: #e9ece7;
+  --room: #d6c08a;
+  --soft: #a9b0aa;
+  --rule: #3a3f3c;
+}
 
 *,
 *::before,
@@ -65,6 +93,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-padding-bottom: calc(var(--bar) + 1rem);
 }
 
 body {
@@ -73,7 +102,13 @@ body {
   color: var(--ink);
   font-family: var(--text);
   font-size: 1.0625rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  padding-bottom: calc(var(--bar) + env(safe-area-inset-bottom, 0px));
+  overflow-wrap: break-word;
+}
+
+.no-js body {
+  padding-bottom: 0;
 }
 
 a {
@@ -87,7 +122,7 @@ a:hover {
 }
 
 :focus-visible {
-  outline: 3px solid var(--room);
+  outline: 3px solid var(--mark);
   outline-offset: 3px;
 }
 
@@ -95,7 +130,8 @@ h1,
 h2,
 h3 {
   font-family: var(--display);
-  line-height: 1.05;
+  font-weight: 800;
+  line-height: 0.92;
   margin: 0;
   text-wrap: balance;
 }
@@ -107,7 +143,16 @@ p {
 code,
 kbd {
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
+}
+
+.voice {
+  font-family: var(--voice);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  color: var(--soft);
+  margin: 0;
 }
 
 .skip {
@@ -117,11 +162,20 @@ kbd {
   background: var(--ink);
   color: var(--paper);
   padding: 0.5rem 0.9rem;
+  z-index: 30;
 }
 
 .skip:focus {
   left: var(--gutter);
-  z-index: 10;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* ---------- Masthead ---------- */
@@ -131,247 +185,338 @@ kbd {
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem 2rem;
-  padding: 1.5rem var(--gutter) 0;
-  font-family: var(--display);
+  gap: 0.25rem 2rem;
+  padding: 1.25rem var(--gutter) 0;
 }
 
 .masthead .name {
-  font-weight: 700;
-  font-size: 1.125rem;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.625rem;
+  letter-spacing: 0.01em;
   text-decoration: none;
 }
 
 .masthead nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
+  gap: 0 1.5rem;
   font-size: 1rem;
+  font-weight: 500;
 }
 
 .masthead nav a {
   text-decoration: none;
-  padding: 0.35rem 0;
-}
-
-.masthead nav a:hover,
-.masthead nav a[aria-current="page"] {
-  text-decoration: underline;
-}
-
-/* ---------- Home: opening ---------- */
-
-.opening {
-  padding: clamp(3rem, 11vw, 8rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
-}
-
-.opening h1 {
-  font-size: clamp(2.6rem, 9.2vw, 7.25rem);
-  font-weight: 750;
-  letter-spacing: -0.035em;
-  line-height: 0.94;
-  max-width: 12ch;
-}
-
-.opening .lede {
-  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
-  max-width: var(--measure);
-  font-size: clamp(1.125rem, 2.2vw, 1.375rem);
-  line-height: 1.5;
-}
-
-/* ---------- The prompt ---------- */
-
-.prompt {
-  margin: 0 var(--gutter);
-  border-top: 2px solid var(--ink);
-  padding-top: 1rem;
-  font-family: var(--mono);
-  font-size: 0.9375rem;
-}
-
-.prompt-log {
-  margin: 0 0 0.75rem;
-  max-width: 44rem;
-  white-space: pre-wrap;
-  color: var(--soft);
-  min-height: 1.5em;
-}
-
-.prompt-log .said {
-  color: var(--ink);
-}
-
-.prompt form {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  max-width: 44rem;
-}
-
-.prompt label {
-  font-weight: 700;
-  color: var(--room);
-}
-
-.prompt input {
-  flex: 1;
-  min-width: 0;
-  font: inherit;
-  /* 16px minimum stops iOS zooming the page on focus. */
-  font-size: 1rem;
-  color: var(--ink);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--rule);
-  border-radius: 0;
   padding: 0.5rem 0;
 }
 
-.prompt input::placeholder {
-  color: var(--soft);
-  opacity: 1;
+.masthead nav a:hover {
+  text-decoration: underline;
 }
 
-.prompt input:focus {
-  outline: none;
-  border-bottom: 2px solid var(--room);
+/* ---------- Front page: the hall ---------- */
+
+.hall {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+  padding: clamp(2rem, 6vw, 4.5rem) var(--gutter) clamp(2.5rem, 7vw, 5rem);
 }
 
-.no-js .prompt {
-  display: none;
+.hall h1 {
+  font-size: clamp(3.75rem, 10.2vw, 10.5rem);
+  line-height: 0.84;
+  letter-spacing: -0.005em;
+  margin: 0.75rem 0 0;
 }
 
-/* ---------- Home: project list ---------- */
+.hall .lede {
+  margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+  max-width: 30rem;
+  font-size: clamp(1.125rem, 2vw, 1.3125rem);
+  line-height: 1.45;
+}
 
-.section-head {
-  padding: clamp(3rem, 8vw, 5.5rem) var(--gutter) 1rem;
-  font-size: 1.125rem;
+.hall-jump {
+  margin: 1.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
   font-weight: 600;
 }
 
-.rooms {
-  list-style: none;
+/* ---------- The floor plan ---------- */
+
+.plan-wrap {
   margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--rule);
+  max-width: 34rem;
+  width: 100%;
+  justify-self: end;
 }
 
-.rooms li {
-  border-bottom: 1px solid var(--rule);
+.plan {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
-.rooms a {
-  display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr) minmax(0, 3fr);
-  gap: 0.5rem 2rem;
-  align-items: baseline;
-  padding: clamp(1.25rem, 3vw, 2rem) var(--gutter);
+.plan .wall {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-linejoin: miter;
+}
+
+.plan .fence {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+}
+
+.plan .gap {
+  stroke: var(--paper);
+  stroke-width: 7;
+}
+
+.plan .swing,
+.plan .thin {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.plan .floor {
+  fill: var(--wash);
+  transition: fill 140ms ease-out;
+}
+
+.plan .floor-plain {
+  fill: #e6eaee;
+}
+
+.plan .pool {
+  fill: #bfe4e7;
+  stroke: var(--aqua);
+  stroke-width: 2.5;
+}
+
+.plan .road {
+  fill: #1f1020;
+}
+
+.plan .rift-line {
+  fill: none;
+  stroke: #e9b44c;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.plan .lane {
+  stroke: #6b4a63;
+  stroke-width: 2;
+  stroke-dasharray: 14 12;
+}
+
+.plan .here {
+  fill: var(--mark);
+}
+
+.plan text {
+  font-family: var(--display);
+  font-weight: 800;
+  fill: var(--room);
+}
+
+.plan .label {
+  font-size: 31px;
+}
+
+.plan .label-sm {
+  font-size: 26px;
+  fill: var(--ink);
+}
+
+.plan .sub {
+  font-family: var(--voice);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  fill: var(--soft);
+}
+
+.plan .road-label {
+  fill: #e9b44c;
+}
+
+.plan .road-sub {
+  fill: #c9b1c1;
+}
+
+.plan .here-label {
+  font-family: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  fill: var(--mark);
+}
+
+.plan a {
+  cursor: pointer;
   text-decoration: none;
-  transition: background-color 120ms ease-out;
 }
 
-.rooms a:hover,
-.rooms a:focus-visible {
+.plan a:hover .floor,
+.plan a:focus-visible .floor {
+  fill: color-mix(in srgb, var(--room) 24%, var(--wash));
+}
+
+.plan a:hover .floor-plain,
+.plan a:focus-visible .floor-plain {
+  fill: #d3dae1;
+}
+
+.plan a:hover .pool,
+.plan a:focus-visible .pool {
+  fill: #9ed6db;
+}
+
+.plan a:hover .road,
+.plan a:focus-visible .road {
+  fill: #33193a;
+}
+
+.plan a:focus-visible {
+  outline: none;
+}
+
+.plan a:focus-visible .focus-ring {
+  stroke: var(--mark);
+  stroke-width: 5;
+}
+
+.plan .focus-ring {
+  fill: none;
+  stroke: transparent;
+}
+
+.plan-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--soft);
+}
+
+/* ---------- Front page: the rooms ---------- */
+
+.walk-head {
+  padding: 0 var(--gutter) 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 2rem;
+}
+
+.walk-head h2,
+.part h2 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+
+.band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background: var(--wash);
   color: var(--ink);
+  padding: clamp(2.5rem, 8vw, 6rem) var(--gutter) clamp(2.5rem, 7vw, 5rem);
 }
 
-.rooms .title {
-  font-family: var(--display);
-  font-size: clamp(1.9rem, 4.2vw, 3.25rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
+.band-title {
+  font-size: clamp(3.5rem, 17.5vw, 14rem);
+  font-weight: var(--w-title, 800);
+  line-height: 0.8;
   color: var(--room);
+  margin: 0.5rem 0 0 -0.03em;
   overflow-wrap: anywhere;
 }
 
-.rooms .what {
+.band-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.band-body {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 1.5rem clamp(2rem, 6vw, 5rem);
+  margin-top: clamp(1.5rem, 4vw, 2.75rem);
+  align-items: start;
+}
+
+.band-pitch {
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  line-height: 1.3;
+  font-weight: 500;
+  margin: 0;
+  max-width: 28rem;
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 1.25rem;
   max-width: 30rem;
 }
 
-.rooms .state {
-  font-family: var(--display);
-  font-size: 0.9375rem;
-  color: var(--soft);
-  justify-self: end;
+/* A veil of the room's own colour keeps the facts readable over the backdrop. */
+.band .facts {
+  background: color-mix(in srgb, var(--wash) 84%, transparent);
+  padding: 0 0.9rem;
+  margin-left: -0.9rem;
+}
+
+.facts dt,
+.facts dd {
+  margin: 0;
+  padding: 0.6rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+.facts dt:first-of-type,
+.facts dt:first-of-type + dd {
+  border-top: 0;
+}
+
+.facts dt {
+  font-weight: 700;
+}
+
+/* Alternate rooms hang their name from the right-hand wall. */
+.band:nth-of-type(even) .band-title,
+.band:nth-of-type(even) > .voice {
   text-align: right;
 }
 
-/* ---------- Home: about and other work ---------- */
-
-.plain {
-  padding: 0 var(--gutter);
-  max-width: calc(var(--measure) + 2 * var(--gutter));
+.band:nth-of-type(even) .band-title {
+  margin-left: 0;
+  margin-right: -0.03em;
 }
 
-.plain h2,
-.section-head {
-  font-family: var(--display);
-}
-
-.plain h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  padding-top: clamp(3rem, 8vw, 5.5rem);
-  margin-bottom: 1rem;
-}
-
-.also {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.also li {
-  margin-bottom: 1em;
-}
-
-.also a {
-  font-family: var(--display);
-  font-weight: 650;
-}
-
-/* ---------- Project pages ---------- */
-
-.room-head {
-  padding: clamp(2.5rem, 9vw, 6.5rem) var(--gutter) clamp(2rem, 5vw, 3rem);
-}
-
-.room-head .state {
-  font-family: var(--display);
-  font-size: 1rem;
-  color: var(--room);
-  margin: 0 0 1rem;
-}
-
-.room-head h1 {
-  font-size: clamp(2.6rem, 11vw, 8rem);
-  font-weight: 750;
-  letter-spacing: -0.04em;
-  line-height: 0.92;
-  color: var(--room);
-  overflow-wrap: anywhere;
-}
-
-.room-head .lede {
-  margin: clamp(1.25rem, 3.5vw, 2rem) 0 0;
-  max-width: 22ch;
-  font-family: var(--display);
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.015em;
-}
+/* ---------- Buttons ---------- */
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: clamp(1.5rem, 4vw, 2.5rem);
-  font-family: var(--display);
-  font-weight: 600;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+  font-weight: 700;
 }
 
 .actions a {
@@ -399,9 +544,319 @@ kbd {
   color: var(--soft);
 }
 
+/* ---------- Front page: lower parts ---------- */
+
+.part {
+  padding: clamp(3rem, 9vw, 6.5rem) var(--gutter) 0;
+}
+
+.part > .voice {
+  margin-bottom: 0.4rem;
+}
+
+.part h2 {
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* The workshop */
+
+.bench {
+  border: 3px solid var(--ink);
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 1.5rem clamp(1.5rem, 5vw, 4rem);
+}
+
+.bench-intro {
+  grid-column: 1 / -1;
+}
+
+.bench-line {
+  font-family: var(--display);
+  font-weight: var(--w-head, 750);
+  font-size: clamp(2.25rem, 7vw, 4.75rem);
+  line-height: 0.9;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.bench-intro p:last-child {
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.bench-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  align-content: start;
+}
+
+.bench-controls label {
+  font-weight: 700;
+}
+
+.bench-controls input[type="text"] {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--ink);
+  border-radius: 0;
+  padding: 0.5rem 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.bench-controls input[type="text"]::placeholder {
+  color: var(--soft);
+  opacity: 1;
+}
+
+.bench-controls input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--ink);
+  height: 2.25rem;
+}
+
+.bench-count {
+  font-size: 1.125rem;
+  margin: 0 0 0.75rem;
+}
+
+.bench-count output {
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 6vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-right: 0.4rem;
+}
+
+.probes {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.probes li {
+  padding: 0.2rem 0.55rem;
+  border: 1.5px solid var(--ink);
+}
+
+.probes li.ok {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.probes li.off {
+  border-style: dashed;
+}
+
+.bench-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+
+.bench-actions button {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.bench-actions button[data-undo="blind"] {
+  background: transparent;
+  color: var(--ink);
+}
+
+.bench-actions button:hover {
+  background: var(--retract);
+  border-color: var(--retract);
+  color: var(--paper);
+}
+
+.bench-say {
+  min-height: 3.1em;
+  margin: 0 0 0.5rem;
+  max-width: var(--measure);
+}
+
+.no-js .workshop {
+  display: none;
+}
+
+/* House rules */
+
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(2rem, 6vw, 5rem);
+}
+
+.rules li {
+  border-top: 3px solid var(--ink);
+  padding: 1rem 0 2rem;
+}
+
+.rules h3 {
+  font-size: clamp(2rem, 4.6vw, 3.25rem);
+  margin-bottom: 0.6rem;
+}
+
+.rules p {
+  margin: 0;
+  max-width: 28rem;
+}
+
+.rules .from {
+  margin-top: 0.5rem;
+  color: var(--soft);
+  font-size: 0.9375rem;
+}
+
+/* The record */
+
+.record {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.record th,
+.record td {
+  text-align: left;
+  vertical-align: baseline;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--rule);
+  font-weight: 400;
+}
+
+.record th {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+  white-space: nowrap;
+  padding-right: clamp(1rem, 4vw, 3rem);
+  width: 1%;
+}
+
+.record td strong {
+  font-weight: 700;
+}
+
+/* The study */
+
+.study {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 2rem clamp(2rem, 6vw, 5rem);
+  align-items: start;
+}
+
+.study-text {
+  max-width: var(--measure);
+}
+
+.carrying {
+  border: 3px solid var(--ink);
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.carrying h3 {
+  font-size: 2rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.carrying ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carrying li {
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.carrying li span {
+  color: var(--soft);
+}
+
+.also {
+  max-width: var(--measure);
+}
+
+.also a {
+  font-weight: 700;
+}
+
+/* ---------- Project pages ---------- */
+
+.room-head {
+  padding: clamp(2rem, 8vw, 5.5rem) var(--gutter) clamp(2rem, 5vw, 3rem);
+}
+
+.room-head .state {
+  font-weight: 600;
+  color: var(--room);
+  margin: 0 0 0.75rem;
+}
+
+.room-head h1 {
+  font-size: clamp(3.75rem, 19vw, 15rem);
+  line-height: 0.8;
+  color: var(--room);
+  margin-left: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.room-head .lede {
+  margin: clamp(1.25rem, 3.5vw, 2rem) 0 0;
+  max-width: 24ch;
+  font-size: clamp(1.5rem, 3.6vw, 2.375rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
 .sheet {
   background: var(--paper);
   padding: clamp(2rem, 6vw, 4rem) var(--gutter) clamp(3rem, 8vw, 5rem);
+}
+
+body[data-room="riftforge"] .sheet {
+  --ink: #101820;
+  --room: var(--rift);
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+  color: var(--ink);
+}
+
+body[data-room="cellar"] .sheet {
+  --ink: #101820;
+  --room: #5d4a12;
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+  color: var(--ink);
 }
 
 .sheet section {
@@ -418,9 +873,7 @@ kbd {
 }
 
 .sheet h2 {
-  font-size: clamp(1.375rem, 3vw, 1.75rem);
-  font-weight: 650;
-  letter-spacing: -0.015em;
+  font-size: clamp(2rem, 4.4vw, 3rem);
 }
 
 .sheet .body {
@@ -443,20 +896,17 @@ kbd {
 
 .sheet li::marker {
   color: var(--room);
-  font-family: var(--display);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .figures {
   width: 100%;
   border-collapse: collapse;
   margin: 0.25rem 0 1em;
-  font-family: var(--display);
 }
 
 .figures caption {
   text-align: left;
-  font-family: var(--text);
   font-size: 0.9375rem;
   color: var(--soft);
   padding-bottom: 0.75rem;
@@ -466,15 +916,17 @@ kbd {
 .figures td {
   text-align: left;
   vertical-align: baseline;
-  padding: 0.7rem 0;
+  padding: 0.6rem 0;
   border-top: 1px solid var(--rule);
   font-weight: 400;
 }
 
 .figures td {
   text-align: right;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--room);
   white-space: nowrap;
@@ -482,6 +934,7 @@ kbd {
 }
 
 .figures td small {
+  font-family: var(--text);
   font-size: 1rem;
   font-weight: 400;
   color: var(--soft);
@@ -492,17 +945,22 @@ kbd {
   color: var(--soft);
 }
 
-/* ---------- Exits (bottom of project pages) and footer ---------- */
+.bench .fine {
+  margin: 0;
+}
+
+/* ---------- Exits (project pages) ---------- */
 
 .exits {
-  padding: clamp(2rem, 6vw, 3.5rem) var(--gutter);
-  font-family: var(--display);
+  padding: clamp(2rem, 6vw, 3.5rem) var(--gutter) clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .exits h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  font-family: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
 }
 
 .exits ul {
@@ -511,127 +969,20 @@ kbd {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 2rem;
+  gap: 0 2rem;
 }
 
 .exits a {
   display: inline-block;
-  padding: 0.35rem 0;
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  padding: 0.3rem 0;
+  font-family: var(--display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
   color: var(--room);
 }
 
 .exits a:hover {
-  color: var(--ink);
-}
-
-.exits + .prompt {
-  margin-bottom: 0;
-}
-
-.colophon {
-  margin-top: clamp(3rem, 8vw, 5rem);
-  padding: 1.5rem var(--gutter) 2.5rem;
-  border-top: 1px solid var(--rule);
-  font-size: 0.9375rem;
-  color: var(--soft);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem 2rem;
-}
-
-.colophon p {
-  margin: 0;
-}
-
-/* ---------- Not found ---------- */
-
-.lost {
-  padding: clamp(4rem, 16vw, 10rem) var(--gutter);
-}
-
-.lost h1 {
-  font-size: clamp(2.6rem, 9vw, 6rem);
-  font-weight: 750;
-  letter-spacing: -0.035em;
-}
-
-.lost p {
-  margin-top: 1.5rem;
-  max-width: var(--measure);
-  font-size: 1.25rem;
-}
-
-/* ---------- Small screens ---------- */
-
-@media (max-width: 46rem) {
-  .rooms a {
-    grid-template-columns: 1fr;
-  }
-
-  .rooms .state {
-    justify-self: start;
-    text-align: left;
-  }
-
-  .sheet section {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-@media print {
-  .prompt,
-  .skip {
-    display: none;
-  }
-}
-
-/* =====================================================================
-   Second pass: rooms with their own mood, the workbench, page transitions
-   ===================================================================== */
-
-/* ---------- Riftforge and the cellar are dark rooms ---------- */
-
-body[data-room="riftforge"] {
-  --wash: #1f1020;
-  --ink: #f3e6ee;
-  --room: #e9b44c;
-  --soft: #c4aabb;
-  --rule: #4f3049;
-}
-
-body[data-room="cellar"] {
-  --wash: #1b1d1c;
-  --ink: #e9ece7;
-  --room: #d6c08a;
-  --soft: #a9b0aa;
-  --rule: #3a3f3c;
-}
-
-/* The reading sheet stays paper in every room. */
-body[data-room="riftforge"] .sheet {
-  --ink: #17212b;
-  --room: var(--rift);
-  --soft: #55626c;
-  --rule: #c7cfcb;
-  color: var(--ink);
-}
-
-body[data-room="cellar"] .sheet {
-  --ink: #17212b;
-  --room: #5d4a12;
-  --soft: #55626c;
-  --rule: #c7cfcb;
   color: var(--ink);
 }
 
@@ -645,6 +996,125 @@ body[data-room="cellar"] .exits a:hover {
   color: var(--room);
 }
 
+/* ---------- Footer ---------- */
+
+.colophon {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding: 1.5rem var(--gutter) 2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  color: var(--soft);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+}
+
+.colophon p {
+  margin: 0;
+}
+
+/* ---------- The command bar, docked at the bottom of every page ---------- */
+
+.prompt {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: #101820;
+  color: #f3f5f7;
+  font-family: var(--mono);
+  font-size: 0.9375rem;
+  padding: 0 var(--gutter) env(safe-area-inset-bottom, 0px);
+  border-top: 1px solid #2c3742;
+}
+
+.prompt-log {
+  margin: 0;
+  padding: 0.9rem 0 0.4rem;
+  max-height: min(40vh, 18rem);
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #b7c2cc;
+  border-bottom: 1px solid #2c3742;
+}
+
+.prompt-log:empty {
+  display: none;
+}
+
+.prompt-log .entry {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.prompt-log .said {
+  color: #f3f5f7;
+}
+
+.prompt form {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: var(--bar);
+}
+
+.prompt label {
+  font-weight: 700;
+  color: #ff9478;
+}
+
+.prompt input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  font: inherit;
+  /* 16px minimum stops iOS zooming the page on focus. */
+  font-size: 1rem;
+  color: #f3f5f7;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+.prompt input::placeholder {
+  color: #8696a5;
+  opacity: 1;
+}
+
+.prompt input:focus {
+  outline: none;
+}
+
+.prompt form:focus-within {
+  box-shadow: inset 0 -3px 0 #ff9478;
+}
+
+.prompt button {
+  font: inherit;
+  color: #b7c2cc;
+  background: transparent;
+  border: 1px solid #3b4855;
+  border-radius: 0;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+}
+
+.prompt button:hover {
+  color: #f3f5f7;
+  border-color: #f3f5f7;
+}
+
+.prompt button[hidden] {
+  display: none;
+}
+
+.no-js .prompt {
+  display: none;
+}
+
 /* ---------- Living backdrops ---------- */
 
 .backdrop {
@@ -656,239 +1126,89 @@ body[data-room="cellar"] .exits a:hover {
   display: block;
 }
 
-.backdrop-peek {
-  position: absolute;
-  inset: 0;
-  width: 100%;
+.band .backdrop {
   height: 100%;
-  z-index: -1;
-  display: block;
 }
 
-.rooms a {
-  position: relative;
-  isolation: isolate;
+/* ---------- Not found ---------- */
+
+.lost {
+  padding: clamp(4rem, 16vw, 10rem) var(--gutter);
 }
 
-/* A glimpse of Riftforge is dark, so its row flips to light type. */
-.rooms li[data-room="riftforge"].peeking a {
-  color: #f3e6ee;
+.lost h1 {
+  font-size: clamp(3.75rem, 14vw, 10rem);
 }
 
-.rooms li[data-room="riftforge"].peeking .title {
-  color: #e9b44c;
-}
-
-.rooms li[data-room="riftforge"].peeking .state {
-  color: #c4aabb;
-}
-
-/* ---------- Editable weights (the workbench drives these) ---------- */
-
-.opening h1 {
-  font-weight: var(--w-head, 750);
-}
-
-.rooms .title {
-  font-weight: var(--w-title, 700);
-}
-
-/* ---------- The workbench ---------- */
-
-.bench {
-  margin: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) 0;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 2px solid var(--ink);
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 1.5rem clamp(1.5rem, 5vw, 4rem);
-}
-
-.bench-intro {
-  grid-column: 1 / -1;
-  max-width: 44rem;
-}
-
-.bench-intro h2 {
-  font-size: clamp(1.6rem, 4vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  margin-bottom: 0.75rem;
-}
-
-.bench-intro p {
-  margin: 0;
+.lost p {
+  margin-top: 1.5rem;
   max-width: var(--measure);
+  font-size: 1.25rem;
 }
 
-.bench-controls {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem 1rem;
-  align-items: center;
-  align-content: start;
-  font-family: var(--display);
-}
+/* ---------- Narrower screens ---------- */
 
-.bench-controls label {
-  font-weight: 600;
-}
-
-.bench-controls input[type="text"] {
-  font: inherit;
-  font-size: 1rem;
-  color: var(--ink);
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid var(--ink);
-  border-radius: 0;
-  padding: 0.45rem 0;
-  min-width: 0;
-  width: 100%;
-}
-
-.bench-controls input[type="text"]::placeholder {
-  color: var(--soft);
-  opacity: 1;
-}
-
-.bench-controls input[type="range"] {
-  width: 100%;
-  min-width: 0;
-  accent-color: var(--ink);
-  height: 2rem;
-}
-
-.bench-count {
-  font-family: var(--display);
-  font-size: 1.125rem;
-  margin: 0 0 0.75rem;
-}
-
-.bench-count output {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  margin-right: 0.35rem;
-}
-
-.probes {
-  list-style: none;
-  margin: 0 0 1.25rem;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  font-family: var(--display);
-  font-size: 0.875rem;
-}
-
-.probes li {
-  padding: 0.2rem 0.55rem;
-  border: 1.5px solid var(--ink);
-}
-
-.probes li.ok {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.probes li.off {
-  border-style: dashed;
-}
-
-.sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.bench-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 0 0 1rem;
-}
-
-.bench-actions button {
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.65rem 1rem;
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  background: var(--ink);
-  color: var(--paper);
-  cursor: pointer;
-}
-
-.bench-actions button[data-undo="blind"] {
-  background: transparent;
-  color: var(--ink);
-}
-
-.bench-actions button:hover {
-  background: var(--retract);
-  border-color: var(--retract);
-  color: var(--paper);
-}
-
-.bench-say {
-  min-height: 3.2em;
-  margin: 0 0 0.5rem;
-  max-width: var(--measure);
-}
-
-.bench .fine {
-  margin: 0;
-}
-
-.no-js .bench {
-  display: none;
-}
-
-@media (max-width: 46rem) {
-  .bench {
+@media (max-width: 60rem) {
+  .hall {
     grid-template-columns: 1fr;
+  }
+
+  .hall h1 {
+    font-size: clamp(3.75rem, 15.5vw, 9rem);
+  }
+
+  .plan-wrap {
+    justify-self: start;
+    max-width: 30rem;
   }
 }
 
-/* ---------- Prompt scrollback ---------- */
+@media (max-width: 46rem) {
+  .band-body,
+  .bench,
+  .study,
+  .rules,
+  .sheet section {
+    grid-template-columns: 1fr;
+  }
 
-.prompt-log {
-  max-height: 14rem;
-  overflow-y: auto;
-}
+  .band:nth-of-type(even) .band-title,
+  .band:nth-of-type(even) > .voice {
+    text-align: left;
+  }
 
-.prompt-log .entry {
-  display: block;
-  margin-bottom: 0.5rem;
+  .band:nth-of-type(even) .band-title {
+    margin-left: -0.03em;
+    margin-right: 0;
+  }
+
+  .record th {
+    font-size: 1.25rem;
+  }
 }
 
 /* ---------- Page-to-page transitions ----------
-   The project's name travels from the list on the front page to the top of
-   its own page. Browsers without view transitions just load the page. */
+   A room's name travels from the front page to the top of its own page.
+   Browsers without view transitions just load the page. */
 
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
   }
 
-  li[data-room="retractbench"] .title,
+  .band[data-room="retractbench"] .band-title,
   body[data-room="retractbench"] .room-head h1 { view-transition-name: room-retractbench; }
-  li[data-room="storygecko"] .title,
+  .band[data-room="storygecko"] .band-title,
   body[data-room="storygecko"] .room-head h1 { view-transition-name: room-storygecko; }
-  li[data-room="aquainspection"] .title,
+  .band[data-room="aquainspection"] .band-title,
   body[data-room="aquainspection"] .room-head h1 { view-transition-name: room-aquainspection; }
-  li[data-room="riftforge"] .title,
+  .band[data-room="riftforge"] .band-title,
   body[data-room="riftforge"] .room-head h1 { view-transition-name: room-riftforge; }
 
+  .prompt { view-transition-name: command-bar; }
+
   ::view-transition-group(*) {
-    animation-duration: 320ms;
+    animation-duration: 340ms;
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
@@ -922,5 +1242,24 @@ body[data-room="cellar"] .exits a:hover {
 @keyframes read-along {
   to {
     transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .prompt,
+  .skip,
+  .backdrop {
+    display: none;
+  }
+
+  body {
+    padding-bottom: 0;
   }
 }

@@ -1,5 +1,5 @@
-Bricolage Grotesque
-Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
+Sofia Sans and Sofia Sans Extra Condensed
+Copyright 2019 The Sofia Sans Project Authors (https://github.com/lettersoup/Sofia-Sans) SofiaSans-Italic[wght].ttf: Copyright 2019 The Sofia Sans Project Authors (https://github.com/lettersoup/Sofia-Sans)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

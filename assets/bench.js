@@ -6,7 +6,7 @@
    - "without the record" has nothing saved to go on, so it gets close and
      stops: colours come back a hair off, the headline weight lands on the
      nearest hundred, and the
-     visitor's headline is left behind in the browser tab's title.
+     visitor's line is left behind in the browser tab's title.
    The second one is a simulation, written to behave the way approximate undo
    methods do in the real measurements: near, and not the same. */
 (function () {
@@ -16,9 +16,9 @@
   if (!bench) return;
 
   var root = document.documentElement;
-  var h1 = document.querySelector(".opening h1");
-  var lede = document.querySelector(".opening .lede");
-  var firstTitle = document.querySelector(".rooms .title");
+  var h1 = bench.querySelector("[data-bench-line]");
+  var lede = document.querySelector(".hall .lede");
+  var firstTitle = document.querySelector(".band-title");
 
   var text = bench.querySelector("[data-edit='headline']");
   var hue = bench.querySelector("[data-edit='hue']");
@@ -79,10 +79,10 @@
   PROBED.concat(WASHES).forEach(function (name) { base.colours[name] = cssVar(name); });
 
   var PROBES = [
-    { name: "headline", read: function () { return h1.textContent; } },
+    { name: "the line", read: function () { return h1.textContent; } },
     { name: "tab title", read: function () { return document.title; } },
-    { name: "headline weight", read: function () { return getComputedStyle(h1).fontWeight; } },
-    { name: "project weight", read: function () { return getComputedStyle(firstTitle).fontWeight; } },
+    { name: "line weight", read: function () { return getComputedStyle(h1).fontWeight; } },
+    { name: "room-name weight", read: function () { return getComputedStyle(firstTitle).fontWeight; } },
     { name: "paper", read: function () { return cssVar("--paper"); } },
     { name: "ink", read: function () { return cssVar("--ink"); } },
     { name: "blue", read: function () { return cssVar("--retract"); } },
@@ -146,7 +146,7 @@
     var w = parseInt(weight.value, 10);
     touched.weight = true;
     root.style.setProperty("--w-head", w);
-    root.style.setProperty("--w-title", Math.max(200, w - 50));
+    root.style.setProperty("--w-title", Math.min(900, w + 50));
     say.textContent = "";
     measure();
   });
@@ -168,7 +168,7 @@
 
   function withoutRecord() {
     if (!touched.headline && !touched.hue && !touched.weight) {
-      say.textContent = "Nothing to undo yet. Change the headline, the colour or the weight first.";
+      say.textContent = "Nothing to undo yet. Change the line, the colour or the weight first.";
       return;
     }
     if (touched.headline) {

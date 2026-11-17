@@ -4,7 +4,8 @@
    so adding a project to the HTML adds it to the prompt with no change here.
    Rooms also hold a few things to examine, and the front page has a way down
    that is not listed until you find it.
-   Without JavaScript the prompt is hidden and the links work as usual. */
+   The prompt is docked at the bottom of every page, like the input line of a
+   game client. Without JavaScript it is hidden and the links work as usual. */
 (function () {
   "use strict";
 
@@ -21,9 +22,12 @@
   /* Things to examine, by room. Several names can point at one thing. */
   var THINGS = {
     home: {
-      "doors,door": "Four doors, each painted a different colour. Their names are on the list below.",
-      "workbench,bench,controls,probes": "A workbench with three controls and eleven probes. Change the page, then try both ways of taking it back.",
-      "floor,draught,draft,boards": "One board is not quite flush. A trapdoor. You could go down.",
+      "doors,door,rooms": "Doors to a lab, a writing room, a workshop and a study. The plan on the wall shows where each one is.",
+      "plan,map,floor plan": "A floor plan, drawn in ink. A red dot marks where you are standing. Someone has drawn a small crossed square in the hall.",
+      "workshop,workbench,bench,controls,probes": "A workbench with three controls and eleven probes. Change the page, then try both ways of taking it back.",
+      "yard,pool": "Through the back door: a pool, and an equipment pad humming in the sun.",
+      "road,rift": "Out the front, a road. Something gold flickers at the far end of it.",
+      "floor,draught,draft,boards,square": "One board is not quite flush. A trapdoor. You could go down.",
       "trapdoor,hatch": "It lifts easily. Stairs lead down."
     },
     retractbench: {
@@ -139,7 +143,7 @@
     var rest = parts.slice(1).join(" ").replace(/^(at|the|to) /, "").replace(/^the /, "");
 
     if (verb === "help" || verb === "?") {
-      say(raw, "look           describe this page\nexamine <it>   look closer at something\nexits          list where you can go\ngo <name>      go there (a name on its own works too)\ninventory      what you are carrying\nback           return to the front page");
+      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.");
       return;
     }
     if ((verb === "look" || verb === "l") && !rest) {
@@ -188,6 +192,37 @@
     }
     go(raw, target);
   }
+
+  /* A clear button, shown only while there is something to clear. */
+  var clear = document.createElement("button");
+  clear.type = "button";
+  clear.textContent = "clear";
+  clear.hidden = true;
+  form.appendChild(clear);
+  function wipe() {
+    log.textContent = "";
+    clear.hidden = true;
+  }
+  clear.addEventListener("click", function () {
+    wipe();
+    input.focus();
+  });
+  new MutationObserver(function () {
+    clear.hidden = !log.children.length;
+  }).observe(log, { childList: true });
+
+  /* "/" jumps to the command bar from anywhere; Escape clears and leaves it. */
+  document.addEventListener("keydown", function (event) {
+    var el = document.activeElement;
+    var typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+    if (event.key === "/" && !typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      input.focus();
+    } else if (event.key === "Escape" && el === input) {
+      wipe();
+      input.blur();
+    }
+  });
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
