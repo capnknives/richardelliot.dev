@@ -23,7 +23,7 @@
   var THINGS = {
     home: {
       "doors,door": "Doors down both walls, as far as you can see. Through the nearest four: a lab, a writing room, daylight on water, and a road at dusk.",
-      "corridor,box,walls,dark": "The inside of the box. The corridor has no colour of its own. It goes on further than it should.",
+      "corridor,box,walls,dark": "The inside of the box. The corridor has no color of its own. It goes on further than it should.",
       "light,lamp": "It comes from behind the doors, and from a little overhead. The darkness has not overcome it.",
       "stars,sky": "They are different every time the box is opened. The number on the wall says which sky this is.",
       "workbench,bench,workshop,laws,dials,probes": "A workbench with four dials and eleven probes. Change the laws, then try both ways of getting home.",
@@ -50,7 +50,7 @@
       "town,towns": "Ordinary American towns. Mostly."
     },
     cellar: {
-      "shelves,shelf,jars": "Fonts in jars, shaders in a crate, one benchmark carefully labelled, and a single mustard seed in a jar of its own.",
+      "shelves,shelf,jars": "Fonts in jars, shaders in a crate, one benchmark carefully labeled, and a single mustard seed in a jar of its own.",
       "seed,mustard seed,mustard": "The smallest thing on the shelf.",
       "stairs,trapdoor": "Light comes down from the corridor. You can go up."
     }
@@ -144,7 +144,7 @@
     var rest = parts.slice(1).join(" ").replace(/^(at|the|to) /, "").replace(/^the /, "");
 
     if (verb === "help" || verb === "?") {
-      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.");
+      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
       return;
     }
     if ((verb === "look" || verb === "l") && !rest) {
@@ -175,6 +175,79 @@
     }
     if (line === "xyzzy" || line === "plugh") {
       say(raw, "Nothing happens.");
+      return;
+    }
+
+    /* ---- Not in the help. Found by people who try things. ---- */
+    var box = window.RE && window.RE.info ? window.RE : null;
+    if (verb === "jump" || line === "open box" || line === "open the box" || verb === "fork") {
+      if (here !== "home" || !box) say(raw, "There is nowhere to jump from in here. Go back to the corridor first.");
+      else { box.jump(); say(raw, "The corridor folds. You are somewhere else."); }
+      return;
+    }
+    if (verb === "origin" || line === "go home" || line === "home world") {
+      if (here !== "home" || !box) say(raw, "The origin is back through the corridor.");
+      else { box.toOrigin(); say(raw, "World 0000. Everything is where it started."); }
+      return;
+    }
+    if (verb === "world" || verb === "constants" || verb === "where" || verb === "whereami") {
+      say(raw, here === "home" && box ? box.info() : "You are inside one of the worlds. The corridor knows which.");
+      return;
+    }
+    if (verb === "score" || verb === "stats") {
+      say(raw, "Worlds visited this session: " + (box ? box.visited() : 1) + ". Trapdoor: " + (recalls("trapdoor") ? "found" : "not found") + ".");
+      return;
+    }
+    if (verb === "observe" || verb === "measure") {
+      say(raw, "You look closely. The world holds still for you.");
+      return;
+    }
+    if (verb === "who") {
+      say(raw, "You are alone in here. Probably.");
+      return;
+    }
+    if (/^(n|s|e|w|north|south|east|west)$/.test(line)) {
+      say(raw, "You walk for a while. The corridor brings you back to where you started.");
+      return;
+    }
+    if (verb === "say" && rest) {
+      say(raw, "You say, \u201c" + raw.trim().slice(4) + "\u201d. Nothing answers.");
+      return;
+    }
+    if (verb === "hail") {
+      say(raw, "Hail, traveler. The doors are that way.");
+      return;
+    }
+    if ((verb === "consider" || verb === "con") && rest) {
+      say(raw, "You size up the " + rest + ". It looks like an even fight.");
+      return;
+    }
+    if (verb === "camp" || verb === "sit" || verb === "rest") {
+      say(raw, "You sit down and wait. Old habits.");
+      return;
+    }
+    if (verb === "dance") {
+      say(raw, "You dance. In this world, nobody is watching.");
+      return;
+    }
+    if (verb === "sudo") {
+      say(raw, "Nice try.");
+      return;
+    }
+    if (verb === "rm" || verb === "delete" || verb === "forget") {
+      say(raw, "Gone. An undo that kept the record could bring it back. One that did not, could only get close.");
+      return;
+    }
+    if (verb === "hello" || verb === "hi" || verb === "hey") {
+      say(raw, "Hello. Type help if you are lost.");
+      return;
+    }
+    if (line === "42") {
+      say(raw, "That is the answer. Nobody here remembers the question.");
+      return;
+    }
+    if (verb === "quit" || verb === "exit" || verb === "logout") {
+      say(raw, "The box has no outside. Try a door.");
       return;
     }
     if (verb === "back" || verb === "up" || verb === "u") {

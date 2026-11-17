@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#10131f">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/site.css?v=7">
+  <link rel="stylesheet" href="assets/site.css?v=8">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body>
@@ -30,7 +30,7 @@
 
   <main id="main">
     <div class="box-hero" data-backdrop="box">
-      <p class="voice">You are inside the box. Every door opens on a world I built.</p>
+      <p class="voice" data-world-voice>You are inside the box. Every door opens on a world I built.</p>
       <h1 data-text="I build apps and AI tools. I research how to make AI forget.">I build apps and AI tools. I research how to make AI forget.</h1>
       <p class="lede">I'm Richard Elliot, an AI software engineering student in Texas. I take on app and AI work for hire, and I run open research on machine unlearning: whether a change to a model can truly be taken back.</p>
       <p class="actions">
@@ -50,21 +50,23 @@
         <div><dt>Gravity</dt><dd data-const="g">×1.00</dd></div>
         <div><dt>Fine structure</dt><dd data-const="a">1/137</dd></div>
       </dl>
-      <p class="fine">Every world has its own constants. Here they set the pace of the corridor, the weight of the headings and the spacing of their letters.</p>
+      <p class="world-note voice" data-world-note aria-live="polite">Field note, world 0000. This is the world as built. Everything else is a variation.</p>
+      <p class="fine">Every world has its own constants. Here they set the pace of the corridor, the weight of the headings and the spacing of their letters. The doors trade places, and now and then there is one too many.</p>
     </div>
 
     <section class="corridor" data-corridor aria-label="The corridor">
       <nav class="door-tags" aria-label="Doors to the projects">
-        <a href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench">retractbench <span>research</span></a>
-        <a href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko">StoryGecko <span>writing tool</span></a>
-        <a href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection">Aquainspection <span>field app</span></a>
-        <a href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge">Riftforge <span>game engine</span></a>
+        <a href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench" data-wash="#e3e7f7">retractbench <span>research</span></a>
+        <a href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko" data-wash="#e0efe3">StoryGecko <span>writing tool</span></a>
+        <a href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection" data-wash="#cdebec">Aquainspection <span>field app</span></a>
+        <a href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge" data-wash="#1f1020">Riftforge <span>game engine</span></a>
+        <a href="cellar.html" data-egg data-wash="#1b1d1c" hidden>? <span>this door is not on the plan</span></a>
       </nav>
     </section>
 
     <div class="walk-head" id="worlds">
       <h2>Four worlds</h2>
-      <p class="voice">Each one a working project, with its own laws and its own weather.</p>
+      <p class="voice" data-world-voice2>Each one a working project, with its own laws and its own weather.</p>
     </div>
 
     <section class="band" data-room="retractbench" aria-labelledby="t-retractbench">
@@ -196,7 +198,7 @@
           <p>If a model can be changed, people will ask for proof that a change can be reversed, and that their information is truly gone. Unlearning is how we live with AI with less fear, and I expect the law to require it.</p>
         </li>
       </ol>
-      <p class="practised">This site tries to practise the second one: no trackers, no cookies, no framework, fonts served from here, and every script short enough to read.</p>
+      <p class="practiced">This site tries to practice the second one: no trackers, no cookies, no framework, fonts served from here, and every script short enough to read.</p>
     </section>
 
     <section class="part" aria-labelledby="rules-title">
@@ -276,9 +278,9 @@
     </form>
   </div>
 
-  <script src="assets/box.js?v=7"></script>
-  <script src="assets/prompt.js?v=7"></script>
-  <script src="assets/bench.js?v=7"></script>
-  <script src="assets/backdrop.js?v=7"></script>
+  <script src="assets/box.js?v=8"></script>
+  <script src="assets/prompt.js?v=8"></script>
+  <script src="assets/bench.js?v=8"></script>
+  <script src="assets/backdrop.js?v=8"></script>
 </body>
 </html>
