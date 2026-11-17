@@ -208,39 +208,33 @@
     }
   }
 
-  /* Front page: hovering a project shows a glimpse of its room. One canvas,
-     moved to whichever row is under the pointer. Skipped on touch screens. */
-  var rows = document.querySelectorAll(".rooms li[data-room]");
-  if (rows.length && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    var peek = make("backdrop-peek");
-    var pb = null;
-    var failed = false;
-    Array.prototype.forEach.call(rows, function (li) {
-      var link = li.querySelector("a");
-      function enter() {
-        if (failed) return;
-        link.insertBefore(peek, link.firstChild);
-        if (!pb) {
-          pb = new Backdrop(peek);
-          if (!pb || !pb.setRoom) {
-            failed = true;
-            peek.remove();
-            return;
-          }
-        }
-        pb.setRoom(li.getAttribute("data-room"));
-        li.classList.add("peeking");
-        pb.play();
-      }
-      function leave() {
-        li.classList.remove("peeking");
-        if (pb && pb.pause) pb.pause();
-        if (peek.parentNode) peek.remove();
-      }
-      link.addEventListener("pointerenter", enter);
-      link.addEventListener("pointerleave", leave);
-      link.addEventListener("focus", enter);
-      link.addEventListener("blur", leave);
+  /* Front page: each room's band gets its own backdrop, running only while
+     that band is on screen. */
+  var bands = document.querySelectorAll(".band[data-room]");
+  Array.prototype.forEach.call(bands, function (band) {
+    var name = band.getAttribute("data-room");
+    if (!ROOMS[name]) return;
+    var c = make("backdrop");
+    band.insertBefore(c, band.firstChild);
+    var b = new Backdrop(c);
+    if (!b || !b.setRoom) {
+      c.remove();
+      return;
+    }
+    b.setRoom(name);
+    b.resize();
+    b.draw();
+    window.addEventListener("resize", function () {
+      b.resize();
+      b.draw();
     });
-  }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) b.play();
+        else b.pause();
+      }, { rootMargin: "80px" }).observe(band);
+    } else {
+      b.play();
+    }
+  });
 })();

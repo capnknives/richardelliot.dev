@@ -9,7 +9,7 @@
   <meta property="og:description" content="retractbench: an open benchmark that tests whether edits to a language model can be fully undone.">
   <meta property="og:type" content="website">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="../assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/site.css">
   <script>document.documentElement.className = "";</script>
 </head>
@@ -18,7 +18,7 @@
   <header class="masthead">
     <a class="name" href="../index.html">Richard Elliot</a>
     <nav aria-label="Site">
-      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#rooms">Projects</a>
       <a href="../index.html#about">About</a>
       <a href="https://github.com/capnknives">GitHub</a>
     </nav>
@@ -95,6 +95,13 @@
       </ul>
     </nav>
 
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
   <div class="prompt" data-prompt data-room-text="retractbench. A lab bench: probes laid out in rows, one model edited, one never touched.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
@@ -102,12 +109,7 @@
       <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
     </form>
   </div>
-  </main>
 
-  <footer class="colophon">
-    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
-    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
-  </footer>
   <script src="../assets/prompt.js"></script>
   <script src="../assets/backdrop.js"></script>
 </body>

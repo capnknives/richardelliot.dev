@@ -10,7 +10,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="assets/fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/site.css">
   <script>document.documentElement.className = "";</script>
 </head>
@@ -19,96 +19,254 @@
   <header class="masthead">
     <a class="name" href="index.html">Richard Elliot</a>
     <nav aria-label="Site">
-      <a href="index.html#projects">Projects</a>
-      <a href="index.html#about">About</a>
-      <a href="https://github.com/capnknives">GitHub</a>
+      <a href="#rooms">Projects</a>
+      <a href="#about" data-exit="study">About</a>
+      <a href="https://github.com/capnknives" data-exit="github">GitHub</a>
     </nav>
   </header>
 
   <main id="main">
-    <div class="opening">
-      <h1>Software that listens, remembers, and can take it back.</h1>
-      <p class="lede">I'm Richard Elliot, an AI software engineering student in Texas. I build tools around language models, and I study what happens when you try to undo a change to one.</p>
+    <div class="hall">
+      <div class="hall-text">
+        <p class="voice">You are in the front hall. Every room is something I built.</p>
+        <h1>Software that listens, remembers, and can take it back.</h1>
+        <p class="lede">I'm Richard Elliot, an AI software engineering student in Texas. I build tools around language models, and I study what happens when you try to undo a change to one.</p>
+      </div>
+
+      <figure class="plan-wrap">
+        <svg class="plan" viewBox="0 0 400 596" role="group" aria-label="Floor plan of this site. Each room is a link.">
+          <!-- The yard and the pool: Aquainspection -->
+          <a href="projects/aquainspection.html" data-room="aquainspection" aria-label="Aquainspection, the yard">
+            <rect class="floor-yard" x="14" y="10" width="372" height="160" fill="transparent"/>
+            <rect class="fence" x="14" y="10" width="372" height="160"/>
+            <rect class="pool" x="150" y="34" width="216" height="104" rx="46"/>
+            <rect class="thin" x="34" y="44" width="54" height="38"/>
+            <circle class="thin" cx="52" cy="63" r="9"/>
+            <circle class="thin" cx="73" cy="63" r="6"/>
+            <text class="label" x="258" y="86" text-anchor="middle">Aquainspection</text>
+            <text class="sub" x="258" y="108" text-anchor="middle">the yard</text>
+            <rect class="focus-ring" x="14" y="10" width="372" height="160"/>
+          </a>
+
+          <!-- The lab: retractbench -->
+          <a href="projects/retractbench.html" data-room="retractbench" aria-label="retractbench, the lab">
+            <rect class="floor" x="20" y="184" width="200" height="140"/>
+            <text class="label" x="36" y="252">retractbench</text>
+            <text class="sub" x="36" y="274">the lab</text>
+            <rect class="focus-ring" x="24" y="188" width="192" height="132"/>
+          </a>
+
+          <!-- The writing room: StoryGecko -->
+          <a href="projects/storygecko.html" data-room="storygecko" aria-label="StoryGecko, the writing room">
+            <rect class="floor" x="220" y="184" width="160" height="140"/>
+            <text class="label" x="236" y="252">StoryGecko</text>
+            <text class="sub" x="236" y="274">the writing room</text>
+            <rect class="focus-ring" x="224" y="188" width="152" height="132"/>
+          </a>
+
+          <!-- The workshop: edit and undo -->
+          <a href="#workshop" data-exit="workshop" aria-label="The workshop: edit this page and undo it">
+            <rect class="floor-plain" x="20" y="324" width="130" height="150"/>
+            <text class="label-sm" x="34" y="392">Workshop</text>
+            <text class="sub" x="34" y="412">edit, then undo</text>
+            <rect class="focus-ring" x="24" y="328" width="122" height="142"/>
+          </a>
+
+          <!-- The study: about -->
+          <a href="#about" aria-label="The study: about me">
+            <rect class="floor-plain" x="260" y="324" width="120" height="150"/>
+            <text class="label-sm" x="274" y="392">Study</text>
+            <text class="sub" x="274" y="412">about me</text>
+            <rect class="focus-ring" x="264" y="328" width="112" height="142"/>
+          </a>
+
+          <!-- The hall -->
+          <rect x="150" y="324" width="110" height="150" fill="none"/>
+          <rect class="thin" x="196" y="340" width="18" height="18"/>
+          <path class="thin" d="M196 340l18 18M214 340l-18 18"/>
+          <circle class="here" cx="205" cy="418" r="7"/>
+          <text class="here-label" x="205" y="444" text-anchor="middle">You are here</text>
+
+          <!-- Walls -->
+          <rect class="wall" x="20" y="184" width="360" height="290"/>
+          <path class="wall" d="M20 324H380M220 184V324M150 324V474M260 324V474"/>
+
+          <!-- Doorways: a gap in the wall and the swing of the door -->
+          <path class="gap" d="M96 184h34M166 324h32M224 324h30M150 380v34M260 380v34M188 474h34"/>
+          <path class="swing" d="M96 184v-34a34 34 0 0 1 34 34M166 324v32a32 32 0 0 0 32-32M254 324v30a30 30 0 0 1-30-30M150 380h34a34 34 0 0 1-34 34M260 380h-34a34 34 0 0 0 34 34M188 474v34a34 34 0 0 0 34-34"/>
+
+          <!-- The path and the road: Riftforge -->
+          <path class="thin" d="M196 508v20M214 508v20"/>
+          <a href="projects/riftforge.html" data-room="riftforge" aria-label="Riftforge, the road">
+            <rect class="road" x="0" y="528" width="400" height="68"/>
+            <path class="lane" d="M0 562H290"/>
+            <path class="rift-line" d="M338 520l-9 16 12 12-10 14 11 12-8 22"/>
+            <text class="label road-label" x="20" y="560">Riftforge</text>
+            <text class="sub road-sub" x="20" y="582">the road out front</text>
+            <rect class="focus-ring" x="4" y="532" width="392" height="60"/>
+          </a>
+        </svg>
+        <figcaption class="plan-note"><span>Pick a room.</span><span>Not to scale.</span></figcaption>
+      </figure>
     </div>
 
-  <div class="prompt" data-prompt data-room-text="The front page. A plain room with four doors, each a different colour. A workbench stands against one wall. There is a draught from somewhere under the floor.">
-    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
-    <form autocomplete="off">
-      <label for="cmd" aria-label="Command">&gt;</label>
-      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or help">
-    </form>
-  </div>
+    <div class="walk-head" id="rooms">
+      <h2>Four rooms</h2>
+      <p class="voice">Each one a working project, with its own weather.</p>
+    </div>
 
+    <section class="band" data-room="retractbench" aria-labelledby="t-retractbench">
+      <p class="voice">The lab. Rows of probes, one model edited, one never touched.</p>
+      <h3 class="band-title" id="t-retractbench"><a href="projects/retractbench.html" data-exit="retractbench">retractbench</a></h3>
+      <div class="band-body">
+        <p class="band-pitch">A benchmark that asks whether an edit to a language model can be fully taken back, with one protocol for every editing method.</p>
+        <dl class="facts">
+          <dt>Stage</dt><dd>Research, open source</dd>
+          <dt>Made with</dt><dd>Python and PyTorch, on local and rented GPUs</dd>
+          <dt>So far</dt><dd>A published undo method was exact for 0 of 100 edits. Restoring from a record was exact for 100.</dd>
+        </dl>
+      </div>
+      <p class="actions"><a class="primary" href="projects/retractbench.html">Enter the lab</a><a href="https://github.com/capnknives/retractbench">Code on GitHub</a></p>
+    </section>
 
-    <section class="bench" data-bench aria-labelledby="bench-title">
-      <div class="bench-intro">
-        <h2 id="bench-title">Edit this page, then try to take it back.</h2>
-        <p>My research asks whether a change to an AI model can be fully undone. Here is the same question, asked of this page. Change something, then choose an undo.</p>
+    <section class="band" data-room="storygecko" aria-labelledby="t-storygecko">
+      <p class="voice">The writing room. A manuscript on the desk, and an index that grows as it is read.</p>
+      <h3 class="band-title" id="t-storygecko"><a href="projects/storygecko.html" data-exit="storygecko">StoryGecko</a></h3>
+      <div class="band-body">
+        <p class="band-pitch">Upload a manuscript and get a story bible: who is who, what happened, and what you have not resolved yet.</p>
+        <dl class="facts">
+          <dt>Stage</dt><dd>In development, private testing</dd>
+          <dt>Made with</dt><dd>Python and FastAPI</dd>
+          <dt>Its rule</dt><dd>Nothing in the bible changes until the writer says yes.</dd>
+        </dl>
       </div>
-      <div class="bench-controls">
-        <label for="edit-headline">Headline</label>
-        <input id="edit-headline" data-edit="headline" type="text" maxlength="70" autocomplete="off" placeholder="Write your own">
-        <label for="edit-hue">Colour</label>
-        <input id="edit-hue" data-edit="hue" type="range" min="0" max="330" step="5" value="0">
-        <label for="edit-weight">Weight</label>
-        <input id="edit-weight" data-edit="weight" type="range" min="250" max="800" step="10" value="750">
+      <p class="actions"><a class="primary" href="projects/storygecko.html">Enter the writing room</a></p>
+    </section>
+
+    <section class="band" data-room="aquainspection" aria-labelledby="t-aquainspection">
+      <p class="voice">The yard. An equipment pad in the Texas sun, and a phone that is listening.</p>
+      <h3 class="band-title" id="t-aquainspection"><a href="projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></h3>
+      <div class="band-body">
+        <p class="band-pitch">Pool inspection reports, filled out by talking. A technician walks the equipment pad and the report writes itself.</p>
+        <dl class="facts">
+          <dt>Stage</dt><dd>Alpha, private demo</dd>
+          <dt>Made for</dt><dd>A phone, outdoors, with wet hands</dd>
+          <dt>It does</dt><dd>Turns a spoken walk-through into a structured report.</dd>
+        </dl>
       </div>
-      <div class="bench-read">
-        <p class="bench-count"><output data-count for="edit-headline edit-hue edit-weight">11 of 11</output> probes match the original</p>
-        <ul class="probes" data-probes aria-label="Probes"></ul>
-        <p class="bench-actions">
-          <button type="button" data-undo="record">Revoke from the record</button>
-          <button type="button" data-undo="blind">Undo without the record</button>
-        </p>
-        <p class="bench-say" data-say aria-live="polite"></p>
-        <p class="fine">A toy, with made-up losses. The real measurements are on the <a href="projects/retractbench.html">retractbench page</a>.</p>
+      <p class="actions"><a class="primary" href="projects/aquainspection.html">Step into the yard</a></p>
+    </section>
+
+    <section class="band" data-room="riftforge" aria-labelledby="t-riftforge">
+      <p class="voice">The road out front. At dusk it leads somewhere else.</p>
+      <h3 class="band-title" id="t-riftforge"><a href="projects/riftforge.html" data-exit="riftforge">Riftforge</a></h3>
+      <div class="band-body">
+        <p class="band-pitch">A text-game engine in pure Python, and Mortals and Monsters, the persistent online world that runs on it.</p>
+        <dl class="facts">
+          <dt>Stage</dt><dd>Live alpha, engine open source</dd>
+          <dt>Made with</dt><dd>Python and asyncio, standard library only</dd>
+          <dt>Play it</dt><dd>In a browser or over telnet</dd>
+        </dl>
+      </div>
+      <p class="actions"><a class="primary" href="projects/riftforge.html">Take the road</a><a href="https://play.riftforge.me/client/">Play now</a></p>
+    </section>
+
+    <section class="part workshop" id="workshop" aria-labelledby="workshop-title">
+      <p class="voice">The workshop. Three controls, eleven probes, two ways to undo.</p>
+      <h2 id="workshop-title">Try the question yourself</h2>
+      <div class="bench" data-bench>
+        <div class="bench-intro">
+          <p class="bench-line" data-bench-line>Edit this line, then try to take it back.</p>
+          <p>My research asks whether a change to an AI model can be fully undone. Here is the same question, asked of this page. Change something, then choose an undo.</p>
+        </div>
+        <div class="bench-controls">
+          <label for="edit-headline">The line</label>
+          <input id="edit-headline" data-edit="headline" type="text" maxlength="70" autocomplete="off" placeholder="Write your own">
+          <label for="edit-hue">Colour</label>
+          <input id="edit-hue" data-edit="hue" type="range" min="0" max="330" step="5" value="0">
+          <label for="edit-weight">Weight</label>
+          <input id="edit-weight" data-edit="weight" type="range" min="250" max="900" step="10" value="750">
+        </div>
+        <div class="bench-read">
+          <p class="bench-count"><output data-count for="edit-headline edit-hue edit-weight">11 of 11</output> probes match the original</p>
+          <ul class="probes" data-probes aria-label="Probes"></ul>
+          <p class="bench-actions">
+            <button type="button" data-undo="record">Revoke from the record</button>
+            <button type="button" data-undo="blind">Undo without the record</button>
+          </p>
+          <p class="bench-say" data-say aria-live="polite"></p>
+          <p class="fine">A toy, with made-up losses. The real measurements are in <a href="projects/retractbench.html">the lab</a>.</p>
+        </div>
       </div>
     </section>
 
-    <h2 class="section-head" id="projects">Projects</h2>
-    <ul class="rooms">
-      <li data-room="retractbench">
-        <a href="projects/retractbench.html" data-exit="retractbench">
-          <span class="title">retractbench</span>
-          <span class="what">A benchmark that asks whether an edit to a language model can be fully taken back, with one protocol for every editing method.</span>
-          <span class="state">Research, open source</span>
-        </a>
-      </li>
-      <li data-room="storygecko">
-        <a href="projects/storygecko.html" data-exit="storygecko">
-          <span class="title">StoryGecko</span>
-          <span class="what">Upload a manuscript and get a story bible: who is who, what happened, and what you have not resolved yet.</span>
-          <span class="state">In development, private testing</span>
-        </a>
-      </li>
-      <li data-room="aquainspection">
-        <a href="projects/aquainspection.html" data-exit="aquainspection">
-          <span class="title">Aquainspection</span>
-          <span class="what">Pool inspection reports for Texas, filled out by talking. A technician walks the equipment pad and the report writes itself.</span>
-          <span class="state">Alpha, private demo</span>
-        </a>
-      </li>
-      <li data-room="riftforge">
-        <a href="projects/riftforge.html" data-exit="riftforge">
-          <span class="title">Riftforge</span>
-          <span class="what">A text-game engine in pure Python, and Mortals and Monsters, the persistent online world that runs on it.</span>
-          <span class="state">Live alpha, engine open source</span>
-        </a>
-      </li>
-    </ul>
-
-    <section class="plain" id="about">
-      <h2>About</h2>
-      <p>I have read code for most of my life and write scripts as a hobby. For the last four years I have studied AI ethics and how models are made, with one stubborn focus: changing the model itself, in modular and inspectable ways, instead of wrapping it in more context.</p>
-      <p>I am studying AI software engineering, and I plan to continue on to a computer science degree. The projects here are how I practise: each one is a working system with real users or real measurements behind it.</p>
-      <p>The best place to reach me is <a href="https://github.com/capnknives" data-exit="github">GitHub, as capnknives</a>.</p>
-    </section>
-
-    <section class="plain">
-      <h2>Also</h2>
-      <ul class="also">
-        <li><a href="https://github.com/capnknives/WitsV3">WitsV3</a><br>A local-first assistant that runs on your own machine. It plans, calls tools, keeps memory, and edits its own code through a pipeline that runs the tests and either commits the change or puts the original back.</li>
+    <section class="part" aria-labelledby="rules-title">
+      <p class="voice">Pinned by the door.</p>
+      <h2 id="rules-title">House rules</h2>
+      <ul class="rules">
+        <li>
+          <h3>Keep the record.</h3>
+          <p>An undo is only exact if someone saved what was there before. Everything else is a good guess.</p>
+          <p class="from">Learned in the lab, on retractbench.</p>
+        </li>
+        <li>
+          <h3>Run the control.</h3>
+          <p>Before blaming the edit, apply the same undo to a model nobody touched, and see what the undo does by itself.</p>
+          <p class="from">Learned in the lab, on retractbench.</p>
+        </li>
+        <li>
+          <h3>The person stays the author.</h3>
+          <p>Software can suggest. It does not get to change someone's record of their own work without being asked.</p>
+          <p class="from">Learned in the writing room, on StoryGecko.</p>
+        </li>
+        <li>
+          <h3>Say what was not tested.</h3>
+          <p>Every change states what was checked and what was not. A gap you name is one somebody can close.</p>
+          <p class="from">Learned in the yard, on Aquainspection.</p>
+        </li>
       </ul>
+    </section>
+
+    <section class="part" aria-labelledby="record-title">
+      <p class="voice">What changed, and when.</p>
+      <h2 id="record-title">The record</h2>
+      <table class="record">
+        <tr><th scope="row">Nov 2026</th><td><strong>retractbench.</strong> First results against a published reversal method, on two model sizes, using the authors' own code for the edits.</td></tr>
+        <tr><th scope="row">Nov 2026</th><td><strong>Aquainspection.</strong> Alpha built, with a private demo.</td></tr>
+        <tr><th scope="row">Nov 2026</th><td><strong>StoryGecko.</strong> First outside tester.</td></tr>
+        <tr><th scope="row">Sep 2026</th><td><strong>Riftforge.</strong> Engine release v0.8.0.</td></tr>
+        <tr><th scope="row">Jul 2026</th><td><strong>WitsV3.</strong> Test suite at 677 passing.</td></tr>
+      </table>
+    </section>
+
+    <section class="part" id="about" aria-labelledby="about-title">
+      <p class="voice">The study. A desk, a lamp, a lot of open tabs.</p>
+      <h2 id="about-title">About</h2>
+      <div class="study">
+        <div class="study-text">
+          <p>I have read code for most of my life and write scripts as a hobby. For the last four years I have studied AI ethics and how models are made, with one stubborn focus: changing the model itself, in modular and inspectable ways, instead of wrapping it in more context.</p>
+          <p>I am studying AI software engineering, and I plan to continue on to a computer science degree. The projects here are how I practise: each one is a working system with real users or real measurements behind it.</p>
+          <p>The best place to reach me is <a href="https://github.com/capnknives">GitHub, as capnknives</a>.</p>
+        </div>
+        <div class="carrying">
+          <p class="voice">You are carrying:</p>
+          <h3>Inventory</h3>
+          <ul>
+            <li>Python <span>in every room</span></li>
+            <li>PyTorch <span>for editing and probing models</span></li>
+            <li>FastAPI <span>for StoryGecko</span></li>
+            <li>asyncio <span>for a world that never pauses</span></li>
+            <li>pytest <span>before anything ships</span></li>
+            <li>HTML, CSS and WebGL <span>for this house</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="part" aria-labelledby="also-title">
+      <p class="voice">On a shelf in the hall.</p>
+      <h2 id="also-title">Also</h2>
+      <p class="also"><a href="https://github.com/capnknives/WitsV3">WitsV3</a> is a local-first assistant that runs on your own machine. It plans, calls tools, keeps memory, and edits its own code through a pipeline that runs the tests and either commits the change or puts the original back.</p>
     </section>
   </main>
 
@@ -116,6 +274,15 @@
     <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
+
+  <div class="prompt" data-prompt data-room-text="The front hall. Doors lead to a lab, a writing room, a workshop and a study. A yard with a pool is out the back, and a road runs past the front. There is a draught from somewhere under the floor.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or help">
+    </form>
+  </div>
+
   <script src="assets/prompt.js"></script>
   <script src="assets/bench.js"></script>
   <script src="assets/backdrop.js"></script>
