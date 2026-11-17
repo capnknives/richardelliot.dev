@@ -25,7 +25,7 @@
       "doors,door": "Doors down both walls, as far as you can see. Through the nearest four: a lab, a writing room, daylight on water, and a road at dusk.",
       "corridor,box,walls,dark": "The inside of the box. The corridor has no color of its own. It goes on further than it should.",
       "light,lamp": "It comes from behind the doors, and from a little overhead. The darkness has not overcome it.",
-      "stars,sky": "They are different every time the box is opened. The number on the wall says which sky this is.",
+      "stars,sky,star": "They are different every time the box is opened. All but one. That one has not moved in any world you have seen.",
       "workbench,bench,workshop,laws,dials,probes": "A workbench with four dials and eleven probes. Change the laws, then try both ways of getting home.",
       "floor,draught,draft,boards": "One board is not quite flush. A trapdoor. You could go down.",
       "trapdoor,hatch": "It lifts easily. Stairs lead down."
@@ -56,7 +56,7 @@
     }
   };
 
-  var CARRYING = "You are carrying nothing. Richard is carrying Python, PyTorch, FastAPI, asyncio and one benchmark.";
+  var CARRYING = "You are carrying nothing. Richard is carrying Python, PyTorch, FastAPI, asyncio, one benchmark and a mustard seed.";
 
   function remember(key) {
     try { window.sessionStorage.setItem(key, "1"); } catch (e) { /* storage is optional */ }
@@ -188,6 +188,11 @@
     if (verb === "origin" || line === "go home" || line === "home world") {
       if (here !== "home" || !box) say(raw, "The origin is back through the corridor.");
       else { box.toOrigin(); say(raw, "World 0000. Everything is where it started."); }
+      return;
+    }
+    if (verb === "world" && /^\d{1,4}$/.test(rest)) {
+      if (here !== "home" || !box) say(raw, "You can only change worlds from the corridor.");
+      else { box.goWorld(parseInt(rest, 10)); say(raw, "The corridor folds. " + box.info()); }
       return;
     }
     if (verb === "world" || verb === "constants" || verb === "where" || verb === "whereami") {

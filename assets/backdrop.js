@@ -100,7 +100,10 @@
     "vec3 sky(vec2 uv){",
     " vec3 col=gA+gB*.55*smoothstep(.42,.95,fbm(uv*1.25+uSeed*3.7));",
     " col+=gB*.25*smoothstep(.5,1.,fbm(uv*3.1-uSeed*1.9));",
-    " return col+stars(uv,1.);}",
+    " col+=stars(uv,1.);",
+    " vec2 f=uv-vec2(gAsp*.82,.8);",                    /* one star that is in the same place in every world */
+    " col+=vec3(1.,.97,.9)*(1.1*exp(-length(f)*70.)+.5*exp(-abs(f.x)*400.-abs(f.y)*22.)+.5*exp(-abs(f.y)*400.-abs(f.x)*22.));",
+    " return col;}",
 
     /* ---- the corridor ---- */
     "const float W=1.1;const float H=1.25;const float D=3.;const float DW=.75;const float DH=2.;const float Z0=1.1;",
@@ -160,6 +163,8 @@
     " float fog=1.-exp(-t*uFog);",
     " vec2 v=rd.xy/rd.z;",
     " vec3 far=gA+gC*.22*exp(-length(v)*9.)+stars(v*2.2,.8*smoothstep(.5,1.,fog));",
+    " vec2 fs=v-vec2(.012,.028);",                      /* the same fixed star, at the end of every corridor */
+    " far+=vec3(1.,.97,.9)*(1.4*exp(-length(fs)*260.)+.5*exp(-abs(fs.x)*1500.-abs(fs.y)*90.)+.5*exp(-abs(fs.y)*1500.-abs(fs.x)*90.));",
     " return mix(col,far,fog);}",
 
     "void main(){",
