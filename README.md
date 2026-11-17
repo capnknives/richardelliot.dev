@@ -60,9 +60,9 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=4`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=5`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=4' --include='*.html' . | xargs sed -i 's/?v=4/?v=5/g'
+grep -rl '?v=5' --include='*.html' . | xargs sed -i 's/?v=5/?v=6/g'
 ```
