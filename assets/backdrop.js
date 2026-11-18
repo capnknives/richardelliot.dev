@@ -13,8 +13,8 @@
    are named. Walking on (the buttons, a click on a far door, or "walk" at the
    prompt) brings the next stretch up close. What is seen through door number i is drawn
    by world(i) in the shader: 0 to 3 are modes 0 to 3, 4 is the pool wall of
-   the water balance tool, 5 is the wall of weights from Forget me, and 9 is
-   the door that is not on the plan.
+   the water balance tool, 5 is the wall of weights from Forget me, 6 is the bars of
+   ticks from Cadence, and 9 is the door that is not on the plan.
 
    The corridor is not ray-marched. Walls, floor and ceiling are flat, so each
    pixel's ray is intersected with them directly, which is cheap and exact.
@@ -134,13 +134,26 @@
     " vec3 hue=hash(id+11.)>.45?vec3(1.,.62,.75):vec3(.49,.77,1.);",
     " return gA+cell*(vec3(.93,.93,.98)*(.07+.09*hash(id))+hue*lit*(.55+.45*hash(id+5.)));}",
 
+    /* Lyric lines as bars of ticks, some crowded, with a playhead sweeping across. */
+    "vec3 bars(vec2 uv){",
+    " float row=floor(uv.y*9.);float fy=fract(uv.y*9.);",
+    " float n=4.+floor(hash(vec2(row,3.))*11.);",
+    " float tick=smoothstep(.16,.1,abs(fract(uv.x*n)-.5))*step(.3,fy)*step(fy,.72);",
+    " float beat=smoothstep(.012,.004,abs(fract(uv.x*4.+.5)-.5))*step(.18,fy)*step(fy,.84);",
+    " vec3 ink=n>11.5?vec3(.76,.19,.10):gC;",
+    " vec3 col=mix(gA,gB,step(.18,fy)*step(fy,.84));",
+    " col=mix(col,vec3(.06,.09,.13),beat*.55);col=mix(col,ink,tick);",
+    " float head=fract(uTime*.22);",
+    " col=mix(col,vec3(.06,.09,.13),.16*step(uv.x,head)*step(.18,fy)*step(fy,.84));",
+    " return col;}",
+
     /* ---- the corridor ---- */
     "const float W=1.1;const float H=1.25;const float D=3.;const float DW=.75;const float DH=2.;const float Z0=1.1;",
 
     "vec3 tintOf(float i){",
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
     " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);",
-    " if(i<4.5)return vec3(.70,.88,1.);if(i<5.5)return vec3(1.,.62,.75);",
+    " if(i<4.5)return vec3(.70,.88,1.);if(i<5.5)return vec3(1.,.62,.75);if(i<6.5)return vec3(1.,.60,.36);",
     " return uEgg<1.5?vec3(1.,.96,.86):uEgg<2.5?vec3(.95,.62,.34):vec3(.72,.58,1.);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
@@ -153,6 +166,7 @@
     " else if(i<3.5){gA=vec3(.12,.06,.13);gB=vec3(.29,.13,.27);gC=vec3(.91,.71,.30);col=rift(uv);}",
     " else if(i<4.5){gA=vec3(.86,.93,.95);gB=vec3(.39,.73,.76);gC=vec3(.04,.35,.45);col=tank(uv/vec2(.75,1.));}",
     " else if(i<5.5){gA=vec3(.08,.09,.18);col=stain(uv/vec2(.75,1.));}",
+    " else if(i<6.5){gA=vec3(.98,.93,.83);gB=vec3(1.,.98,.94);gC=vec3(.56,.25,.0);col=bars(uv/vec2(.75,1.));}",
     " else{gA=vec3(.02,.02,.06);gB=vec3(.22,.24,.5);gC=vec3(1.,.97,.9);",          /* the door that should not be there */
     "  col=sky(uv*1.6+uTime*.01)+gC*(.9*exp(-length(uv-vec2(.375,.62))*16.)+.25*exp(-length(uv-vec2(.375,.62))*4.));}",
     " gA=sa;gB=sb;gC=sc;gAsp=sasp;return col;}",
@@ -445,7 +459,7 @@
       cor.setRoom("corridor");
       hall.classList.add("live");
 
-      var widths = {}, heights = {};
+      var widths = {}, heights = {}, sized = {};
       /* What the door that is not on the plan can be. The third kind goes nowhere on
          the site: walk through it and you come out in another world. */
       var EGGS = [
@@ -585,8 +599,14 @@
         var top = project(side * G.W, -G.H + G.DH + 0.1, z);
         var size = Math.round(Math.max(15, Math.min(64, cc.clientHeight * 0.3 * view.focal / top.depth)));
         if (tag.style.fontSize !== size + "px") tag.style.fontSize = size + "px";
-        var wk = key + ":" + size;
-        if (!widths[wk]) { widths[wk] = tag.offsetWidth; heights[wk] = tag.offsetHeight; }
+        /* Measure the name when its size changes, and again every half second or so in case
+           the typeface arrived late. A stale width is what lets a name run off the edge. */
+        var wk = key;
+        var seen = sized[wk];
+        if (!seen || seen.size !== size || ++seen.age > 30 || !widths[wk]) {
+          widths[wk] = tag.offsetWidth; heights[wk] = tag.offsetHeight;
+          sized[wk] = { size: size, age: 0 };
+        }
         var w = widths[wk];
         /* Left-wall names hang to the left of their door, right-wall names to the right,
            so the two far ones never run into each other. Both stay inside the view. */
@@ -601,7 +621,7 @@
       };
 
       /* Names are measured once per size. Measure again when the typeface arrives or the window changes. */
-      var remeasure = function () { widths = {}; heights = {}; };
+      var remeasure = function () { widths = {}; heights = {}; sized = {}; };
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
       window.addEventListener("resize", remeasure);
 

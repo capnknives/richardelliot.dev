@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadence — Richard Elliot</title>
+  <meta name="description" content="Paste lyrics and see how many syllables each line asks you to fit in a bar at your tempo. It flags the lines that are too fast or out of step with the rest.">
+  <meta property="og:title" content="Cadence — Richard Elliot">
+  <meta property="og:description" content="Paste lyrics and see how many syllables each line asks you to fit in a bar at your tempo.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/cadence.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=13">
+  <link rel="stylesheet" href="../assets/cadence.css?v=13">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="cadence">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main" class="cadence">
+    <div class="room-head">
+      <p class="state">A small tool for songwriters. Your lyrics stay in this page and are gone when you close it.</p>
+      <h1>Cadence</h1>
+      <p class="lede">How many syllables is each line asking you to fit in the bar?</p>
+    </div>
+
+    <noscript><p style="padding: 0 var(--gutter)">This tool counts syllables in your browser, so it needs JavaScript.</p></noscript>
+
+    <div class="desk">
+      <form class="sheet-in" id="cd-form" autocomplete="off">
+        <h2><label for="cd-text">Your lyrics</label></h2>
+        <textarea id="cd-text" rows="11" spellcheck="false" autocapitalize="sentences" aria-describedby="cd-help"></textarea>
+        <p class="tools">
+          <button type="button" class="link" id="cd-clear">Clear the sheet</button>
+          <button type="button" class="link" id="cd-example">Put the example back</button>
+        </p>
+        <p class="fine" id="cd-help">One line of the song per line. A blank line starts a new section. A line like [Verse] or Hook: names the section and is not counted.</p>
+        <div class="dials">
+          <label for="cd-bpm" class="wide">Tempo <output id="cd-bpm-out" for="cd-bpm">150</output> <small>beats a minute</small>
+            <input id="cd-bpm" type="range" min="60" max="220" step="1" value="150">
+          </label>
+          <label for="cd-beats">Each line gets
+            <select id="cd-beats">
+              <option value="2">2 beats</option>
+              <option value="4" selected>4 beats, one bar</option>
+              <option value="8">8 beats, two bars</option>
+            </select>
+          </label>
+          <label for="cd-ceiling">Flag lines over <output id="cd-ceiling-out" for="cd-ceiling">8</output> <small>syllables a second</small>
+            <input id="cd-ceiling" type="range" min="3" max="14" step="0.5" value="8">
+          </label>
+          <label for="cd-parens" class="wide check">
+            <input id="cd-parens" type="checkbox" checked> Leave out words in (parentheses), like backing vocals
+          </label>
+        </div>
+      </form>
+
+      <section class="read" aria-labelledby="read-h">
+        <h2 id="read-h">Line by line</h2>
+        <p class="sum" id="cd-sum" aria-live="polite"></p>
+        <div id="cd-lines"></div>
+      </section>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>How to read it</h2>
+        <div class="body">
+<p>The big number is the syllables in the line. The bar under the words is the time the line gets: the divisions are beats and each tick is one syllable. Ticks are spread evenly, which a real delivery never is, so treat the bar as how crowded the line is and not where the words land.</p>
+<p>A line is flagged when it asks for more syllables a second than the limit you set, or when it is well out of step with the other lines in its section.</p>
+        </div>
+      </section>
+      <section>
+        <h2>When the count is wrong</h2>
+        <div class="body">
+<p>Tap any word to change how many syllables it counts as. Your count applies everywhere that word appears. Some words really do go both ways: fire, every, family. Sing it the way you sing it.</p>
+<p>The counting is spelling rules first. Tested against a pronunciation dictionary, the rules alone were right for about 92 in 100 of the 30,000 most common English words. A table of about 2,400 exceptions corrects the rest of those. Rarer words, names and made-up words go by the rules alone.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What it does not do</h2>
+        <div class="body">
+<p>It does not know where the stresses fall, and it does not check rhyme. It only reads English spelling. The rules and the page are in <a href="../assets/cadence.js">one script</a>; the exceptions are derived from the <a href="../assets/cadence-words.LICENSE.txt">CMU Pronouncing Dictionary</a>.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="poolbalance"><a href="pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
+        <li data-room="forgetme"><a href="forget-me.html" data-exit="forgetme">Forget me</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" data-prompt data-room-text="A practice room with egg-crate foam on one wall. A lyric sheet is taped to a music stand, and a metronome on the amp is ticking at a hundred and fifty.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=13"></script>
+  <script src="../assets/prompt.js?v=13"></script>
+  <script src="../assets/backdrop.js?v=13"></script>
+  <script src="../assets/cadence-words.js?v=13"></script>
+  <script src="../assets/cadence.js?v=13"></script>
+</body>
+</html>

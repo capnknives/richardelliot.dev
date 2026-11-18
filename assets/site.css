@@ -51,6 +51,8 @@
   --pool-wash: #dceef2;
   --forget: #8a2a55;
   --forget-wash: #f6e4ec;
+  --cadence: #8f3f00;
+  --cadence-wash: #fbeed3;
 
   --room: var(--ink);
   --wash: var(--paper);
@@ -74,6 +76,7 @@
 [data-room="riftforge"] { --room: var(--rift); --wash: var(--rift-wash); }
 [data-room="poolbalance"] { --room: var(--pool); --wash: var(--pool-wash); }
 [data-room="forgetme"] { --room: var(--forget); --wash: var(--forget-wash); }
+[data-room="cadence"] { --room: var(--cadence); --wash: var(--cadence-wash); --rule: #dcc59a; --soft: #5a4f40; }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -562,6 +565,7 @@ html.box {
 .door-tags a[data-room="riftforge"] { --door: #e9b44c; }
 .door-tags a[data-room="poolbalance"] { --door: #b3dcff; }
 .door-tags a[data-room="forgetme"] { --door: #ff9ebe; }
+.door-tags a[data-room="cadence"] { --door: #ff9a5c; }
 
 .world-bar {
   padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
