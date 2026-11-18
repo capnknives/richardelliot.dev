@@ -55,6 +55,8 @@
   --cadence-wash: #fbeed3;
   --trace: #4d5a00;
   --trace-wash: #eef2cf;
+  --feeder: #a12c1a;
+  --feeder-wash: #fbe7e0;
 
   --room: var(--ink);
   --wash: var(--paper);
@@ -80,6 +82,7 @@
 [data-room="forgetme"] { --room: var(--forget); --wash: var(--forget-wash); }
 [data-room="cadence"] { --room: var(--cadence); --wash: var(--cadence-wash); --rule: #dcc59a; --soft: #5a4f40; }
 [data-room="trace"] { --room: var(--trace); --wash: var(--trace-wash); }
+[data-room="feeder"] { --room: var(--feeder); --wash: var(--feeder-wash); --rule: #e0c4ba; }
 [data-room="wits"] { --room: var(--trace); --wash: var(--trace-wash); }
 [data-room="tools"] { --room: #5d4a12; --wash: #efe9d8; }
 
@@ -582,6 +585,7 @@ html.box {
 .door-tags a[data-room="forgetme"] { --door: #ff9ebe; }
 .door-tags a[data-room="cadence"] { --door: #ff9a5c; }
 .door-tags a[data-room="trace"] { --door: #cfe35a; }
+.door-tags a[data-room="feeder"] { --door: #ff8f70; }
 .door-tags a[data-room="wits"] { --door: #cfe35a; }
 .door-tags a[data-room="tools"] { --door: #ff9ebe; }
 
@@ -1114,6 +1118,7 @@ html.box body::before {
 .no-js .forget .lab,
 .no-js .cadence .desk,
 .no-js .trace .console,
+.no-js .feeder .layout,
 .no-js .world-bar button,
 .no-js .world-bar .fine {
   display: none;
