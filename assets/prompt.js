@@ -62,7 +62,7 @@
     },
     poolbalance: {
       "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
-      "kit,test kit,vials,vial,reagents": "Six vials. Five of them take drops and turn a color. The sixth is a thermometer.",
+      "kit,test kit,vials,vial,reagents": "Five vials. Four of them take drops and turn a color. The fifth is a thermometer.",
       "water,pool,calcium": "It is never neutral about calcium. Move a reading and watch which way it leans."
     },
     riftforge: {

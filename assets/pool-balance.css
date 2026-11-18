@@ -101,6 +101,23 @@ body[data-room="poolbalance"] .room-head h1 {
 }
 .pool .ideal { font-size: 0.8125rem; color: var(--soft); }
 
+/* Pool type, standing in for a dissolved solids reading */
+.pool .kind { margin: 0; padding: 0.8rem 0 0.9rem; border: 0; border-top: 1px solid var(--rule); min-width: 0; }
+.pool .kind legend { float: left; width: 100%; padding: 0; margin-bottom: 0.5rem; font-weight: 600; }
+.pool .kinds { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.pool .kinds label {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.1rem 0.5rem;
+  min-height: 2.75rem; padding: 0.5rem 0.7rem; font-weight: 700; cursor: pointer;
+  border: 1.5px solid var(--rule); border-radius: 0.3rem; background: var(--paper);
+}
+.pool .kinds label:has(input:checked) { border-color: var(--room); color: var(--room); }
+.pool .kinds small { grid-column: 2; font-weight: 400; font-size: 0.8125rem; color: var(--soft); }
+.pool .kinds input { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--room); }
+.pool .kind details { margin-top: 0.6rem; }
+.pool .kind summary { min-height: 2rem; font-size: 0.875rem; color: var(--room); cursor: pointer; text-decoration: underline; }
+.pool .kind details .row-head { margin: 0.4rem 0 0.3rem; }
+.pool .kinds input:focus-visible, .pool .kind summary:focus-visible { outline: 3px solid var(--room); outline-offset: 2px; }
+
 /* Plan */
 .pool .plan ol { counter-reset: step; display: grid; gap: 1rem; }
 .pool .plan li { counter-increment: step; display: grid; grid-template-columns: 2rem 1fr; column-gap: 0.5rem; }

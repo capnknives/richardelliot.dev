@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pool water balance — Richard Elliot</title>
-  <meta name="description" content="Enter six pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
+  <meta name="description" content="Enter five pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
   <meta property="og:title" content="Pool water balance — Richard Elliot">
-  <meta property="og:description" content="Enter six pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
+  <meta property="og:description" content="Enter five pool test readings. See whether the water eats plaster or grows scale, and what to add to fix it.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/tools/pool-balance.html">
   <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
@@ -18,8 +18,8 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=16">
-  <link rel="stylesheet" href="../assets/pool-balance.css?v=16">
+  <link rel="stylesheet" href="../assets/site.css?v=17">
+  <link rel="stylesheet" href="../assets/pool-balance.css?v=17">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="poolbalance">
@@ -38,7 +38,7 @@
     <div class="room-head">
       <p class="state">A small tool. It runs in your browser and sends nothing anywhere.</p>
       <h1>Pool water balance</h1>
-      <p class="lede">Six test readings in, a dosing plan out.</p>
+      <p class="lede">Five test readings in, a dosing plan out.</p>
     </div>
 
     <noscript><p style="padding: 0 var(--gutter)">This calculator needs JavaScript to run.</p></noscript>
@@ -80,7 +80,8 @@
       <section>
         <h2>How it is worked out</h2>
         <div class="body">
-<p>The saturation index is the Langelier index: pH minus the pH at which this water would be exactly saturated with calcium carbonate. That saturation pH comes from temperature, dissolved solids, calcium hardness and carbonate alkalinity. Between −0.3 and +0.3 counts as balanced.</p>
+<p>The saturation index is the Langelier index in the form the pool trade uses: pH, plus factors for temperature, calcium hardness and carbonate alkalinity, minus a constant that rises with dissolved solids. It is the same sum as the chart in a service manual, with the factors worked out instead of read from rounded rows, so it can differ from a hand calculation by a few hundredths. Between −0.3 and +0.3 counts as balanced.</p>
+<p>Hardly anyone carries a dissolved solids meter, so the pool type stands in for that reading: about 1,000 ppm for a chlorine pool and about 3,200 for a salt pool. If you do have a reading, there is a place to enter it.</p>
 <p>Stabilizer shows up in an alkalinity test, so the part that belongs to cyanurate is taken out first. Acid and soda ash doses come from the carbonate and cyanurate equilibria instead of a lookup chart, so they account for how well your water is buffered. Baking soda, calcium chloride and stabilizer doses are plain stoichiometry.</p>
 <p>The arithmetic is in <a href="../assets/pool-balance.js">one short script</a> you can read.</p>
         </div>
@@ -114,7 +115,7 @@
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
-  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A pool at noon. A test kit sits open on the coping, six vials in a row. Below the waterline, the wall keeps a record of everything the water has done to it.">
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A pool at noon. A test kit sits open on the coping, five vials in a row. Below the waterline, the wall keeps a record of everything the water has done to it.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
       <label for="cmd" aria-label="Command">&gt;</label>
@@ -122,9 +123,9 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=16"></script>
-  <script src="../assets/prompt.js?v=16"></script>
-  <script src="../assets/backdrop.js?v=16"></script>
-  <script src="../assets/pool-balance.js?v=16"></script>
+  <script src="../assets/box.js?v=17"></script>
+  <script src="../assets/prompt.js?v=17"></script>
+  <script src="../assets/backdrop.js?v=17"></script>
+  <script src="../assets/pool-balance.js?v=17"></script>
 </body>
 </html>
