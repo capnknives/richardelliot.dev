@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feeder match — Richard Elliot</title>
+  <meta name="description" content="Pick a snake species and enter its weight. See which feeder size to buy, how often to feed, and how many to pick up for the month.">
+  <meta property="og:title" content="Feeder match — Richard Elliot">
+  <meta property="og:description" content="Pick a snake species and enter its weight. See which feeder size to buy, how often to feed, and how many to pick up for the month.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/feeder-match.html">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/tools/feeder-match.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/touch-icon.png">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=20">
+  <link rel="stylesheet" href="../assets/feeder-match.css?v=20">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="feeder">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main" class="feeder">
+    <div class="room-head">
+      <p class="state">A small tool, in its first version. It runs in your browser and sends nothing anywhere.</p>
+      <h1>Feeder match</h1>
+      <p class="lede">A snake's weight in, a feeding ticket out.</p>
+    </div>
+
+    <noscript><p style="padding: 0 var(--gutter)">This tool needs JavaScript to run.</p></noscript>
+
+    <div class="layout">
+      <form class="ask" id="fm-ask" aria-label="About the snake" novalidate onsubmit="return false">
+        <div class="step">
+          <span class="step-label" id="fm-l-species">Species</span>
+          <div class="picks" id="fm-species" role="group" aria-labelledby="fm-l-species"></div>
+        </div>
+        <div class="step" id="fm-sex-step" hidden>
+          <span class="step-label" id="fm-l-sex">Sex</span>
+          <div class="picks" id="fm-sex" role="group" aria-labelledby="fm-l-sex"></div>
+          <p class="hint">Female hognoses grow two to three times heavier than males, so they stay on a growing schedule longer.</p>
+        </div>
+        <div class="step">
+          <label class="step-label" for="fm-weight">Snake weight</label>
+          <div class="weight">
+            <input class="num" id="fm-weight" type="number" inputmode="decimal" min="1" max="3000" step="1" value="80" aria-describedby="fm-weight-hint">
+            <span>grams</span>
+          </div>
+          <div class="picks" id="fm-presets" role="group" aria-label="Typical weights"></div>
+          <p class="hint" id="fm-weight-hint">No scale? Tap the closest stage. A kitchen scale and a deli cup gets you the real number.</p>
+        </div>
+        <div class="step" id="fm-type-step">
+          <span class="step-label" id="fm-l-type">Feeder</span>
+          <div class="picks" id="fm-type" role="group" aria-labelledby="fm-l-type"></div>
+        </div>
+        <div class="step">
+          <span class="step-label" id="fm-l-shape">Body shape</span>
+          <div class="picks" id="fm-shape" role="group" aria-labelledby="fm-l-shape"></div>
+          <p class="hint" id="fm-shape-hint"></p>
+        </div>
+      </form>
+
+      <section class="ticket" aria-labelledby="fm-ticket-h">
+        <h2 id="fm-ticket-h">The ticket</h2>
+        <div class="ticket-card" id="fm-ticket" aria-live="polite">
+          <div class="ticket-head"><span id="fm-who"></span><span id="fm-stage"></span></div>
+          <div class="ticket-main">
+            <p class="kicker">Each meal</p>
+            <p class="meal" id="fm-meal"></p>
+            <p class="sub" id="fm-sub"></p>
+          </div>
+          <dl class="facts">
+            <div><dt>How often</dt><dd id="fm-often"></dd></div>
+            <div><dt>For 30 days</dt><dd id="fm-month"></dd></div>
+          </dl>
+          <ul class="notes" id="fm-notes"></ul>
+        </div>
+      </section>
+
+      <section class="ladder" aria-labelledby="fm-ladder-title">
+        <h2 id="fm-ladder-title">Sizes</h2>
+        <ol class="rungs" id="fm-rungs"></ol>
+      </section>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>Before and after the meal</h2>
+        <div class="body">
+<p>Thaw frozen feeders in the fridge, or in a sealed bag in cool water. Then warm them in warm water to about body temperature, 98 to 100°F. Never microwave one, and never refreeze one.</p>
+<p>Leave the snake alone for 48 hours after it eats. Handling too soon is a common reason a meal comes back up.</p>
+<p>If a meal does come back up, wait 14 days before feeding again, then offer one size smaller. Twice in a month means a visit to a reptile vet.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it is worked out</h2>
+        <div class="body">
+<p>Every snake is an individual, so treat the ticket as a starting point and compare the feeder to the snake. It should be about as wide as the snake at its widest point. For a hognose, no wider than the head.</p>
+<p>For corn snakes and kingsnakes the meal is a share of body weight that tapers as the snake grows: about 15% for a hatchling, 10% for a juvenile, and 6% for an adult. A flat 10% for life is the common rule, and it overfeeds adults. Adults are also held to a largest mouse size, because past that point a bigger meal mostly adds fat.</p>
+<p>Hognoses use the weight ladder that two breeders publish (<a href="https://www.ectothermempire.com/care-information/western-hognose-prey-size-frequency-guide">Ectotherm Empire</a> and <a href="https://www.sandiegoreptile.com/breeding-info-caresheets/hognose-snakes/western-plains-hognose-care">San Diego Reptile</a>) instead of a percentage. Corn snake schedules follow <a href="https://reptifiles.com/corn-snake/care-guide/corn-snake-food">ReptiFiles</a>. Nobody publishes a veterinary chart for Florida kingsnakes, so those numbers are general kingsnake care and keeper practice, and the ticket says so.</p>
+<p>The feeder names and gram ranges are a placeholder: <a href="https://rodentpro.com/informationcenter/resources/the-guide-to-different-sizes-of-frozen-feeder-mice">one large supplier's chart</a>. Suppliers do not agree on what a "small" is, so the match is done in grams first and named second.</p>
+<p>The arithmetic is in <a href="../assets/feeder-match.js">one short script</a> you can read.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Why it is here</h2>
+        <div class="body">
+<p>A friend breeds snakes and the mice and rats they eat. Every buyer asks him the same question: what size, and how many. This is that answer as a tool, and the next version runs on his own size chart and prices.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="wits"><a href="../projects/wits.html" data-exit="wits">WITS</a></li>
+        <li data-room="tools"><a href="index.html" data-exit="tools">Side doors</a></li>
+        <li data-room="forgetme"><a href="forget-me.html" data-exit="forgetme">Forget me</a></li>
+        <li data-room="cadence"><a href="cadence.html" data-exit="cadence">Cadence</a></li>
+        <li data-room="trace"><a href="trace.html" data-exit="trace">Trace</a></li>
+        <li data-room="poolbalance"><a href="pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A back room lined with racks of tubs. A kitchen scale and a deli cup on the bench, a chest freezer humming in the corner. Something in the third tub is watching you decide.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=20"></script>
+  <script src="../assets/prompt.js?v=20"></script>
+  <script src="../assets/backdrop.js?v=20"></script>
+  <script src="../assets/feeder-match.js?v=20"></script>
+</body>
+</html>
