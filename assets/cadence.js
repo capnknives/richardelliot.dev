@@ -69,24 +69,30 @@ function countToken(token, fixes) {
   return n;
 }
 
-/* Lyrics into sections of lines of words. A blank line starts a new section. A line that is
-   only [a label] or ends in a colon names the section and is not counted. */
+/* Lyrics into sections of lines of words. A blank line starts a new section. Anything in
+   [square brackets] is never counted, wherever it appears. A line that is nothing but brackets,
+   or a short label ending in a colon, names the section. */
 function parse(text, opt) {
   var sections = [], cur = null, lines = text.replace(/\r/g, "").split("\n");
   function open(label) { cur = { label: label || "", lines: [] }; sections.push(cur); }
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
     if (!line) { cur = null; continue; }
-    var label = line.match(/^\[(.+)\]$/) || line.match(/^([A-Za-z][\w #-]{0,24}):$/);
+    var label = null;
+    if (/\[/.test(line) && !line.replace(/\[[^\]]*\]?/g, "").trim()) label = line.match(/\[([^\]]*)\]?/);
+    else label = line.match(/^([A-Za-z][\w #-]{0,24}):$/);
     if (label) { open(label[1].trim()); continue; }
     if (!cur) open("");
-    var tokens = line.split(/\s+/), words = [], total = 0, inside = false;
+    /* Put spaces around brackets so a tag pressed against a word, like [whispered]never, still splits. */
+    var tokens = line.replace(/\[/g, " [").replace(/\]/g, "] ").trim().split(/\s+/), words = [], total = 0, inside = false, tagged = false;
     for (var t = 0; t < tokens.length; t++) {
       var tok = tokens[t];
       if (tok.indexOf("(") !== -1) inside = true;
-      var skipped = !!(opt && opt.skipParens && inside);
+      if (tok.indexOf("[") !== -1) tagged = true;
+      var skipped = tagged || !!(opt && opt.skipParens && inside);
       var n = skipped ? 0 : countToken(tok, opt && opt.fixes);
       if (tok.indexOf(")") !== -1) inside = false;
+      if (tok.indexOf("]") !== -1) tagged = false;
       words.push({ text: tok, key: keyOf(tok), n: n, skipped: skipped });
       total += n;
     }
@@ -133,7 +139,7 @@ var EXAMPLE = [
   "[Verse]",
   "Woke up late with the porch light on",
   "Coffee gone cold and the morning half gone",
-  "Phone face down so the day can't call",
+  "[quieter] Phone face down so the day can't call",
   "Every single thing I said I'd do is still up on the wall and I know it",
   "",
   "[Hook]",

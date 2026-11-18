@@ -11,7 +11,7 @@ file, push to `main`, and it is live.
 | `index.html` | Front page: the inside of the box (headline), the 3D corridor whose doors are links, the world bar (number, constants, jump), a band per project, side doors (small tools), hire me, the workshop, beliefs, working rules, the record, about. |
 | `projects/*.html` | One landing page per project. |
 | `tools/*.html` | One page per small tool. Each is a door in the corridor and an entry under "Side doors". |
-| `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback; `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
+| `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback (anything in square brackets is never counted, and the page's instructions say so); `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
 | `assets/forget-me.css`, `assets/forget-me.js` | The Forget me tool (`tools/forget-me.html`): a small neural network and its training written out by hand, the weight field, and the two ways of taking a fact back. Loaded on that page only. The top half of the script also runs in Node (`require` it) for checking the numbers. |
 | `assets/pool-balance.css`, `assets/pool-balance.js` | The pool water balance tool (`tools/pool-balance.html`): its layout, the water chemistry, the dosing plan and the drawn pool wall. Loaded on that page only. |
 | `assets/site.css` | All styling. The front page is dark (`html.box`); each project is a world with its own color and mood, set by `data-room` on `<body>`, a `.band` or a `.door`. |
@@ -81,11 +81,11 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=13`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=14`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=13' --include='*.html' . | xargs sed -i 's/?v=13/?v=14/g'
+grep -rl '?v=14' --include='*.html' . | xargs sed -i 's/?v=14/?v=15/g'
 ```
 
 ## Screen sizes
