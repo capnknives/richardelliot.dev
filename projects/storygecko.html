@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>StoryGecko — Richard Elliot</title>
-  <meta name="description" content="StoryGecko: a writing tool that builds and maintains a story bible from your manuscript.">
+  <meta name="description" content="StoryGecko: a writing tool that builds a story bible from your manuscript. How it works, what was decided, and what testing found.">
   <meta property="og:title" content="StoryGecko — Richard Elliot">
-  <meta property="og:description" content="StoryGecko: a writing tool that builds and maintains a story bible from your manuscript.">
+  <meta property="og:description" content="StoryGecko: a writing tool that builds a story bible from your manuscript. How it works, what was decided, and what testing found.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/projects/storygecko.html">
   <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
@@ -18,7 +18,7 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=17">
+  <link rel="stylesheet" href="../assets/site.css?v=18">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="storygecko">
@@ -35,7 +35,7 @@
 
   <main id="main">
     <div class="room-head">
-      <p class="state">In development, private testing</p>
+      <p class="state">In development, private testing. A case study.</p>
       <h1>StoryGecko</h1>
       <p class="lede">A story bible that keeps up with your manuscript.</p>
       <p class="actions"><span class="note">The code is private while testing is under way.</span></p>
@@ -49,30 +49,92 @@
         </div>
       </section>
       <section>
+        <h2>Where it came from</h2>
+        <div class="body">
+<p>The idea is older than the app. In May 2025 I built a first attempt called Storyforge. It had the screens: a dashboard, an upload page, outlines and character lists. What it did not have was anything behind them that could read a whole book and get the facts right. I did not know how to build that yet, so I shelved it and kept learning.</p>
+<p>I came back in November 2026 and started over as StoryGecko. The first thing built was the part the prototype never had: the pipeline that reads a real manuscript, tested on my own novella from the first day.</p>
+        </div>
+      </section>
+      <section>
         <h2>What it does</h2>
         <div class="body">
 <ul>
-  <li>Reads an uploaded manuscript and drafts the story bible from it: characters, places, events and open threads.</li>
-  <li>Puts anything uncertain or contradictory into a review queue instead of guessing.</li>
-  <li>Offers &ldquo;what happens next&rdquo; suggestions grounded in what the story has already established.</li>
-  <li>A built-in writing editor is in progress, so the manuscript and its bible live in the same place.</li>
+  <li><strong>Reads the book.</strong> Upload a manuscript or write in the built-in editor. It drafts the story bible: outline, characters and relationships.</li>
+  <li><strong>Asks instead of guessing.</strong> Anything uncertain or contradictory goes to a review queue for the writer to settle.</li>
+  <li><strong>Answers with quotes.</strong> Ask your book a question and the answer comes with the lines it rests on, each one clickable.</li>
+  <li><strong>Checks continuity.</strong> On request, it flags where a chapter contradicts what the rest of the book says.</li>
+  <li><strong>Suggests, from where you are.</strong> &ldquo;What happens next&rdquo; offers three directions from the cursor, using only what a reader would know by that page.</li>
+  <li><strong>Keeps your words safe.</strong> Autosave, revisions, a 30-day trash, offline writing, and export to .docx, .md, .txt or a full backup.</li>
 </ul>
         </div>
       </section>
       <section>
-        <h2>The rule it follows</h2>
+        <h2>How a book moves through it</h2>
         <div class="body">
-<p>The writer stays the author. The bible changes only when the writer agrees to the change. When a chapter has been edited, StoryGecko asks before updating anything, and never rewrites the record on its own.</p>
+<ol class="flow">
+  <li><b>Upload or write</b> The web app sends the text to the API.</li>
+  <li><b>Store and queue</b> The API saves it and queues a job. It never waits on a model.</li>
+  <li><b>Read</b> A background worker reads one chapter at a time and caches each reading.</li>
+  <li><b>Merge</b> Plain code, no model, merges the readings into one bible.</li>
+  <li><b>Review</b> What the merge could not settle goes to the writer.</li>
+  <li><b>Agree</b> The bible changes only when the writer says yes.</li>
+</ol>
+        </div>
+      </section>
+      <section>
+        <h2>Decisions and what they cost</h2>
+        <div class="body">
+<dl class="choices">
+  <dt>It reads your book. It never writes it.</dt>
+  <dd>No rewriting a selection, no generated scenes, no voice imitation. Critique drops any note that offers replacement wording. The cost is a feature most writing tools sell first. I decided the writer stays the author.</dd>
+  <dt>Nothing updates on its own.</dt>
+  <dd>The bible refreshes when the writer agrees, and checks run on request. The cost is a bible that can fall behind the text, so the app shows when it is stale instead of hiding it.</dd>
+  <dt>No quote, no answer.</dt>
+  <dd>An answer with no line from the book that checks out is replaced by &ldquo;couldn't find words in the book that answer this.&rdquo; In a blind review, the answers without quotes were the wrong ones.</dd>
+  <dt>Facts are stamped by chapter.</dt>
+  <dd>Every fact records where it becomes true. A suggestion at chapter 12 only sees chapters 1 to 12, so the tool cannot leak a twist the reader has not reached. It makes every query more work.</dd>
+  <dt>One database.</dt>
+  <dd>Postgres holds the data and the job queue, with room for embeddings when they are needed. There is no Redis, no graph database and no separate vector store to run. The page polls for finished work instead of getting it pushed.</dd>
+  <dt>Own sign-in, own model clients.</dt>
+  <dd>No hosted identity service and no orchestration framework. That keeps a writer's book in one place and the moving parts readable. It also means sessions, rate limits and retries were mine to get right.</dd>
+</dl>
+        </div>
+      </section>
+      <section>
+        <h2>What testing found</h2>
+        <div class="body">
+<table class="figures">
+  <caption>Story bible accuracy on a 13,000-word novella, scored against a 38-point answer key. Same prompts and same code for both models. November 9, 2026.</caption>
+  <tr><th scope="row">Small local model, 8 GB graphics card</th><td>22 <small>/ 38</small></td></tr>
+  <tr><th scope="row">Large cloud model</th><td>37 <small>/ 38</small></td></tr>
+</table>
+<p>The model, not the pipeline, is the main limit on accuracy. So the plan has two tiers: a free local model that keeps the book on your machine, and a stronger model for writers who want it, on a metered plan or their own key. The answer key stays as the regression test.</p>
+<ul>
+  <li><strong>A checker that runs is not a checker that works.</strong> The first continuity run on the local model raised six confident flags. All six were false. Flags now need an exact quote of four or more words and a problem that says more than the fact itself. That run dropped to zero.</li>
+  <li><strong>Recall is still low.</strong> With the stronger model, the checker caught 1 of 13 known issues in the test book. It is honest about what it finds and it misses a lot. That is the next thing to fix.</li>
+  <li><strong>A lost-update bug, found by writing a test.</strong> Two saves arriving together could both succeed, and the later one replaced the earlier one's words. One conditional update now claims the version. The test that found it stays in the suite.</li>
+</ul>
         </div>
       </section>
       <section>
         <h2>How it is built</h2>
         <div class="body">
 <ul>
-  <li>Python and FastAPI on the server, with per-writer accounts and data.</li>
-  <li>Sign-in is built into the app, with no third-party identity service.</li>
-  <li>Developed against my own novella as the test manuscript, now with a first outside tester.</li>
+  <li><strong>Web:</strong> Next.js and TypeScript, with a Tiptap editor. Installable, and it keeps working offline.</li>
+  <li><strong>API:</strong> Python and FastAPI. Accounts, uploads, the editor and the assistant routes.</li>
+  <li><strong>Worker:</strong> a Python process that claims jobs from the Postgres queue and calls the model.</li>
+  <li><strong>Data:</strong> Postgres with pgvector, SQLite for local runs, schema changes as Alembic migrations.</li>
+  <li><strong>Models:</strong> a local model through Ollama, or Anthropic's API, behind one small interface.</li>
+  <li><strong>Tests:</strong> more than 300, in pytest and in a real browser with Playwright, run by GitHub Actions on every change. A rule-based fake model lets the browser tests run the real pipeline.</li>
 </ul>
+<p>The first eight days were 36 pull requests, each with its notes in a build log: what was built, how long it took, and what broke. I work with AI coding agents and direct them. I set the rules above, test on my own book, and decide what ships.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Where it is going</h2>
+        <div class="body">
+<p>The bible is one document while its shape settles. It will be split into tables for entities, facts and relationships once the continuity checker needs to query them. After that: a desktop app, billing, branching stories, and writer essentials like focus mode, word goals and EPUB export.</p>
+<p class="fine">The code is private while testing is under way. Screenshots will follow when the app is ready to be shown.</p>
         </div>
       </section>
     </div>
@@ -84,10 +146,8 @@
         <li data-room="retractbench"><a href="retractbench.html" data-exit="retractbench">retractbench</a></li>
         <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
         <li data-room="riftforge"><a href="riftforge.html" data-exit="riftforge">Riftforge</a></li>
-        <li data-room="poolbalance"><a href="../tools/pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
-        <li data-room="forgetme"><a href="../tools/forget-me.html" data-exit="forgetme">Forget me</a></li>
-        <li data-room="cadence"><a href="../tools/cadence.html" data-exit="cadence">Cadence</a></li>
-        <li data-room="trace"><a href="../tools/trace.html" data-exit="trace">Trace</a></li>
+        <li data-room="wits"><a href="wits.html" data-exit="wits">WITS</a></li>
+        <li data-room="tools"><a href="../tools/index.html" data-exit="tools">Side doors</a></li>
       </ul>
     </nav>
 
@@ -106,8 +166,8 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=17"></script>
-  <script src="../assets/prompt.js?v=17"></script>
-  <script src="../assets/backdrop.js?v=17"></script>
+  <script src="../assets/box.js?v=18"></script>
+  <script src="../assets/prompt.js?v=18"></script>
+  <script src="../assets/backdrop.js?v=18"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/touch-icon.png">
   <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/site.css?v=17">
+  <link rel="stylesheet" href="assets/site.css?v=18">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body>
@@ -63,14 +63,12 @@
 
     <section class="corridor" data-corridor aria-label="The corridor">
       <nav class="door-tags" aria-label="Doors to the projects">
-        <a href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench" data-wash="#e3e7f7">retractbench <span>research</span></a>
-        <a href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko" data-wash="#e0efe3">StoryGecko <span>writing tool</span></a>
-        <a href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection" data-wash="#cdebec">Aquainspection <span>field app</span></a>
-        <a href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge" data-wash="#1f1020">Riftforge <span>game engine</span></a>
-        <a href="tools/pool-balance.html" data-room="poolbalance" data-exit="poolbalance" data-wash="#dceef2">Pool balance <span>small tool</span></a>
-        <a href="tools/forget-me.html" data-room="forgetme" data-exit="forgetme" data-wash="#15172e">Forget me <span>unlearning demo</span></a>
-        <a href="tools/cadence.html" data-room="cadence" data-exit="cadence" data-wash="#fbeed3">Cadence <span>syllable linter</span></a>
-        <a href="tools/trace.html" data-room="trace" data-exit="trace" data-wash="#14170c">Trace <span>agent router</span></a>
+        <a href="projects/retractbench.html" data-room="retractbench" data-exit="retractbench" data-world="0" data-kind="ai research" data-wash="#e3e7f7">retractbench <span>research</span></a>
+        <a href="projects/storygecko.html" data-room="storygecko" data-exit="storygecko" data-world="1" data-kind="apps ai writing" data-wash="#e0efe3">StoryGecko <span>writing tool</span></a>
+        <a href="projects/aquainspection.html" data-room="aquainspection" data-exit="aquainspection" data-world="2" data-kind="apps ai" data-wash="#cdebec">Aquainspection <span>field app</span></a>
+        <a href="projects/riftforge.html" data-room="riftforge" data-exit="riftforge" data-world="3" data-kind="games" data-wash="#1f1020">Riftforge <span>game engine</span></a>
+        <a href="projects/wits.html" data-room="wits" data-exit="wits" data-world="7" data-kind="ai agents" data-wash="#14170c">WITS <span>local assistant</span></a>
+        <a href="tools/" data-room="tools" data-exit="tools" data-world="5" data-kind="tools" data-wash="#1b1d1c">Side doors <span>small tools</span></a>
         <a href="words.html" data-egg data-wash="#1b1d1c" hidden>? <span data-egg-sub>a quiet room</span></a>
       </nav>
     </section>
@@ -81,11 +79,11 @@
     </figure>
 
     <div class="walk-head" id="worlds">
-      <h2>Four worlds</h2>
+      <h2>Five worlds</h2>
       <p class="voice" data-world-voice2>Each one a working project, with its own laws and its own weather.</p>
     </div>
 
-    <section class="band" data-room="retractbench" aria-labelledby="t-retractbench">
+    <section class="band" data-room="retractbench" data-kind="ai research" aria-labelledby="t-retractbench">
       <p class="voice">Behind the first door, a lab. Rows of probes, one model edited, one never touched.</p>
       <h3 class="band-title" id="t-retractbench"><a href="projects/retractbench.html">retractbench</a></h3>
       <div class="band-body">
@@ -99,7 +97,7 @@
       <p class="actions"><a class="primary" href="projects/retractbench.html">Enter the lab</a><a href="https://github.com/capnknives/retractbench">Code on GitHub</a></p>
     </section>
 
-    <section class="band" data-room="storygecko" aria-labelledby="t-storygecko">
+    <section class="band" data-room="storygecko" data-kind="apps ai writing" aria-labelledby="t-storygecko">
       <p class="voice">Behind the second, a writing room. A manuscript on the desk, and an index that grows as it is read.</p>
       <h3 class="band-title" id="t-storygecko"><a href="projects/storygecko.html">StoryGecko</a></h3>
       <div class="band-body">
@@ -113,7 +111,7 @@
       <p class="actions"><a class="primary" href="projects/storygecko.html">Enter the writing room</a></p>
     </section>
 
-    <section class="band" data-room="aquainspection" aria-labelledby="t-aquainspection">
+    <section class="band" data-room="aquainspection" data-kind="apps ai" aria-labelledby="t-aquainspection">
       <p class="voice">Behind the third, daylight. An equipment pad in the Texas sun, and a phone that is listening.</p>
       <h3 class="band-title" id="t-aquainspection"><a href="projects/aquainspection.html">Aquainspection</a></h3>
       <div class="band-body">
@@ -127,8 +125,8 @@
       <p class="actions"><a class="primary" href="projects/aquainspection.html">Step outside</a></p>
     </section>
 
-    <section class="band" data-room="riftforge" aria-labelledby="t-riftforge">
-      <p class="voice">Behind the last, a road at dusk. It leads somewhere else entirely.</p>
+    <section class="band" data-room="riftforge" data-kind="games" aria-labelledby="t-riftforge">
+      <p class="voice">Behind the fourth, a road at dusk. It leads somewhere else entirely.</p>
       <h3 class="band-title" id="t-riftforge"><a href="projects/riftforge.html">Riftforge</a></h3>
       <div class="band-body">
         <p class="band-pitch">A text-game engine in pure Python, and Mortals and Monsters, the persistent online world that runs on it.</p>
@@ -141,27 +139,25 @@
       <p class="actions"><a class="primary" href="projects/riftforge.html">Take the road</a><a href="https://play.riftforge.me/client/">Play now</a></p>
     </section>
 
-    <section class="part" id="tools" aria-labelledby="tools-title">
-      <p class="voice">Further down the hall, the doors get smaller.</p>
+    <section class="band" data-room="wits" data-kind="ai agents" aria-labelledby="t-wits">
+      <p class="voice">Behind the last, a rack of relays and one cable in. A machine hums in the next room.</p>
+      <h3 class="band-title" id="t-wits"><a href="projects/wits.html">WITS</a></h3>
+      <div class="band-body">
+        <p class="band-pitch">An assistant that runs on my own machine: it plans, calls real tools, remembers, and asks before anything leaves the house.</p>
+        <dl class="facts">
+          <dt>Stage</dt><dd>Running at home, open source</dd>
+          <dt>Made with</dt><dd>Python, FastAPI and local models through Ollama</dd>
+          <dt>Its rule</dt><dd>Plain checks route a message before any model is asked.</dd>
+        </dl>
+      </div>
+      <p class="actions"><a class="primary" href="projects/wits.html">Enter the relay room</a><a href="tools/trace.html">Follow a message</a><a href="https://github.com/capnknives/WitsV3">Code on GitHub</a></p>
+    </section>
+
+    <section class="part" id="tools" data-kind="tools ai" aria-labelledby="tools-title">
+      <p class="voice">Off the corridor, a side passage. The doors there are smaller.</p>
       <h2 id="tools-title">Side doors</h2>
-      <ul class="offers">
-        <li>
-          <h3><a href="tools/trace.html">Trace</a></h3>
-          <p>Type a message and follow it through the assistant I run at home: which check routes it, what it costs in model calls, and which guard gets to stop it.</p>
-        </li>
-        <li>
-          <h3><a href="tools/forget-me.html">Forget me</a></h3>
-          <p>Teach a small neural network one fact about you, then try to take it back two ways. The model trains in your browser, and you can watch every weight it changes.</p>
-        </li>
-        <li>
-          <h3><a href="tools/cadence.html">Cadence</a></h3>
-          <p>Paste lyrics and see how many syllables each line asks you to fit in a bar at your tempo. It flags the crowded lines, and you can hear any line as clicks.</p>
-        </li>
-        <li>
-          <h3><a href="tools/pool-balance.html">Pool water balance</a></h3>
-          <p>Five test readings in, a dosing plan out. Drag a reading and watch the pool wall pit or crust over. It runs in your browser and sends nothing anywhere.</p>
-        </li>
-      </ul>
+      <p class="side-note">Four small tools, each working in your browser: <a href="tools/trace.html" data-exit="trace">Trace</a>, <a href="tools/forget-me.html" data-exit="forgetme">Forget me</a>, <a href="tools/cadence.html" data-exit="cadence">Cadence</a> and <a href="tools/pool-balance.html" data-exit="poolbalance">Pool water balance</a>.</p>
+      <p class="actions"><a class="primary" href="tools/">Take the side passage</a></p>
     </section>
 
     <section class="part" id="hire" aria-labelledby="hire-title">
@@ -272,6 +268,7 @@
       <h2 id="record-title">The record</h2>
       <table class="record">
         <tr><th scope="row">Nov 2026</th><td><strong>retractbench.</strong> First results against a published reversal method, on two model sizes, using the authors' own code for the edits.</td></tr>
+        <tr><th scope="row">Nov 2026</th><td><strong>WITS and the side passage.</strong> WITS has a door of its own, StoryGecko has a full case study, and the small tools moved to <a href="tools/">a room of their own</a>.</td></tr>
         <tr><th scope="row">Nov 2026</th><td><strong>Trace.</strong> The router from WITS, my local assistant, ported to the browser so one message can be followed through it, as the fourth side door. <a href="tools/trace.html">Open it</a>.</td></tr>
         <tr><th scope="row">Nov 2026</th><td><strong>Cadence.</strong> A syllable counter for lyrics that reads each line against a tempo, as the third side door. <a href="tools/cadence.html">Open it</a>.</td></tr>
         <tr><th scope="row">Nov 2026</th><td><strong>Forget me.</strong> A small model you can teach one fact and then try to make forget it, as the second side door. <a href="tools/forget-me.html">Open it</a>.</td></tr>
@@ -298,7 +295,8 @@
           <ul>
             <li>Python <span>in every world</span></li>
             <li>PyTorch <span>for editing and probing models</span></li>
-            <li>FastAPI <span>for StoryGecko</span></li>
+            <li>FastAPI <span>for StoryGecko and WITS</span></li>
+            <li>TypeScript and Next.js <span>for StoryGecko's editor</span></li>
             <li>asyncio <span>for a world that never pauses</span></li>
             <li>pytest <span>before anything ships</span></li>
             <li>HTML, CSS and WebGL <span>for this box</span></li>
@@ -314,7 +312,7 @@
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
-  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="Inside the box. A dark corridor runs on in both directions. Doors stand ajar down both walls, each leaking a different light. The nearest four have names. You could walk on. A workbench sits against one wall. There is a draught from somewhere under the floor.">
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="Inside the box. A dark corridor runs on in both directions. Doors stand ajar down both walls, each leaking a different light. The nearest four have names. You could walk on. One of them opens on a side passage. A workbench sits against one wall. There is a draught from somewhere under the floor.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
       <label for="cmd" aria-label="Command">&gt;</label>
@@ -322,9 +320,9 @@
     </form>
   </div>
 
-  <script src="assets/box.js?v=17"></script>
-  <script src="assets/prompt.js?v=17"></script>
-  <script src="assets/bench.js?v=17"></script>
-  <script src="assets/backdrop.js?v=17"></script>
+  <script src="assets/box.js?v=18"></script>
+  <script src="assets/prompt.js?v=18"></script>
+  <script src="assets/bench.js?v=18"></script>
+  <script src="assets/backdrop.js?v=18"></script>
 </body>
 </html>
