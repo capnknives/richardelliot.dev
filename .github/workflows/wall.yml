@@ -1,0 +1,52 @@
+# Deploys the cellar wall (worker/) to Cloudflare Workers.
+# Needs three repository secrets: CLOUDFLARE_API_TOKEN (the "Edit Cloudflare Workers"
+# token template), CLOUDFLARE_ACCOUNT_ID, and WALL_ADMIN_KEY (any long random string:
+# it is the key that removes a note). Without them the job stops at the first step.
+name: Cellar wall
+
+on:
+  push:
+    branches: [main]
+    paths: ["worker/**", ".github/workflows/wall.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      WALL_ADMIN_KEY: ${{ secrets.WALL_ADMIN_KEY }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          missing=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -n "$WALL_ADMIN_KEY" ] || missing="$missing WALL_ADMIN_KEY"
+          if [ -n "$missing" ]; then echo "::error::Missing repository secrets:$missing"; exit 1; fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test the wall's rules
+        run: node worker/test.mjs
+      - name: Find or create the KV namespace
+        working-directory: worker
+        run: |
+          npm install --no-save --silent wrangler@4
+          id=$(npx wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s.slice(s.indexOf("[")));const n=a.find(x=>x.title==="cellar-wall");console.log(n?n.id:"")})')
+          if [ -z "$id" ]; then
+            npx wrangler kv namespace create cellar-wall
+            id=$(npx wrangler kv namespace list | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s.slice(s.indexOf("[")));const n=a.find(x=>x.title==="cellar-wall");console.log(n?n.id:"")})')
+          fi
+          [ -n "$id" ] || { echo "::error::Could not find or create the KV namespace"; exit 1; }
+          sed -i "s/KV_ID_SET_BY_THE_WORKFLOW/$id/" wrangler.toml
+      - name: Deploy
+        working-directory: worker
+        run: |
+          npx wrangler deploy
+          printf '%s' "$WALL_ADMIN_KEY" | npx wrangler secret put ADMIN_KEY
