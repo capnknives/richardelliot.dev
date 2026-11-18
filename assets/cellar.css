@@ -1,0 +1,360 @@
+/* The cellar (cellar.html): shelves, the workbench, the tally and the wall. Loaded on that page only. */
+
+.cellar section {
+  padding: clamp(2rem, 6vw, 3.5rem) var(--gutter) 0;
+}
+
+.cellar section > .voice {
+  margin: 0 0 0.25rem;
+  color: var(--soft);
+}
+
+.cellar section h2 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  color: var(--room);
+  margin: 0 0 1rem;
+}
+
+.cellar .about {
+  max-width: var(--measure);
+  margin: 0 0 1.25rem;
+}
+
+.cellar .fine {
+  max-width: var(--measure);
+  color: var(--soft);
+}
+
+.cellar a {
+  color: var(--room);
+}
+
+/* ---- shelves ---- */
+
+.shelf {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  gap: 0 0.9rem;
+  border-bottom: 0.5rem solid #3a2e1c;          /* the shelf board */
+}
+
+.jar {
+  position: relative;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-top: 0.5rem solid #6f6a55;              /* the lid */
+  border-radius: 0.4rem 0.4rem 1.1rem 1.1rem;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015) 55%);
+}
+
+.jar .sample {
+  margin: 0 0 0.6rem;
+  height: 4.5rem;
+  display: flex;
+  align-items: flex-end;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.jar h3 {
+  margin: 0 0 0.3rem;
+  font-family: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--room);
+}
+
+.jar p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--soft);
+}
+
+.jar .sample small { font-size: 1.25rem; margin: 0 0 0.45rem 0.35rem; color: var(--soft); font-family: var(--text); font-weight: 400; }
+.jar-crate .sample { font-family: var(--mono); font-size: 2.75rem; color: #9fd0ff; }
+.jar-bench .sample { font-family: var(--display); font-weight: 800; font-size: 3rem; color: #aab4ff; }
+.jar-water .sample { font-family: var(--display); font-weight: 800; font-size: 3rem; color: #8fe0e6; }
+.jar-relay .sample { font-family: var(--mono); font-size: 2rem; color: #cfe35a; }
+.jar-tail .sample { font-family: var(--voice); font-style: italic; font-size: 5rem; line-height: 0.6; color: #7fd69a; }
+.jar-forgot { border-style: dashed; border-top-style: solid; }
+.jar-forgot .sample { border-bottom: 1px dashed var(--rule); }
+
+.jar-water { background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0 38%, rgba(111, 214, 221, 0.16) 38%); }
+
+.jar-shard .sample { justify-content: center; }
+.jar-shard .sample i {
+  display: block;
+  width: 0.3rem;
+  height: 3.6rem;
+  transform: rotate(14deg);
+  border-radius: 40%;
+  background: linear-gradient(180deg, transparent, #e9b44c 35%, #fff3cf 50%, #e9b44c 65%, transparent);
+  box-shadow: 0 0 1.1rem 0.2rem rgba(233, 180, 76, 0.4);
+}
+
+.jar-crate {
+  border-radius: 0.2rem;
+  border-top-width: 1px;
+  background: repeating-linear-gradient(90deg, rgba(214, 192, 138, 0.09) 0 1.5rem, rgba(214, 192, 138, 0.04) 1.5rem 1.6rem);
+}
+
+.jar-seed .sample {
+  justify-content: center;
+}
+
+.jar-seed .sample i {
+  display: block;
+  width: 0.45rem;
+  height: 0.4rem;
+  margin-bottom: 0.35rem;
+  border-radius: 50%;
+  background: #e2b64a;
+  box-shadow: 0 0 0.9rem 0.25rem rgba(226, 182, 74, 0.35);
+}
+
+/* ---- the workbench: code on tape ---- */
+
+.tapes {
+  max-width: 46rem;
+}
+
+.tape {
+  border-top: 1px solid var(--rule);
+}
+
+.tape:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.tape summary {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  list-style-position: outside;
+  margin-left: 1.1rem;
+}
+
+.tape summary b {
+  font-family: var(--display);
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.tape summary span {
+  color: var(--soft);
+  font-size: 0.9375rem;
+  margin-left: 0.4rem;
+}
+
+.tape pre {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  background: #101211;
+  border-left: 0.25rem solid var(--room);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: #dfe5dc;
+  tab-size: 2;
+}
+
+/* ---- the tally ---- */
+
+.marks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 46rem;
+}
+
+.marks li {
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.marks li.blank {
+  color: var(--soft);
+  border-style: dashed;
+  letter-spacing: 0.2em;
+}
+
+.marks li.new {
+  border-color: var(--room);
+  color: var(--room);
+}
+
+.tally output {
+  color: var(--room);
+  font-weight: 700;
+}
+
+/* ---- the wall ---- */
+
+.chalk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+  max-width: 26rem;
+  margin: 0 0 1.75rem;
+}
+
+.chalk label {
+  font-size: 0.875rem;
+  color: var(--soft);
+  margin-top: 0.5rem;
+}
+
+.chalk input {
+  font: inherit;
+  font-size: 1rem;                 /* 16px: no zoom on focus on a phone */
+  padding: 0.6rem 0.7rem;
+  color: var(--ink);
+  background: #101211;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+}
+
+.chalk input:focus-visible {
+  outline: 2px solid var(--room);
+  outline-offset: 1px;
+}
+
+.chalk button {
+  justify-self: start;
+  margin-top: 0.9rem;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.65rem 1.25rem;
+  color: #1b1d1c;
+  background: var(--room);
+  border: 0;
+  cursor: pointer;
+}
+
+.chalk button[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.chalk .trap {
+  position: absolute;
+  left: -200vw;
+}
+
+.chalk-say {
+  min-height: 1.5em;
+  margin: 0.25rem 0 0;
+  color: var(--room);
+}
+
+.scrawl {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 1.25rem 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.75rem;
+  align-items: baseline;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2.1rem, rgba(0, 0, 0, 0.28) 2.1rem 2.2rem),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 4.6rem, rgba(0, 0, 0, 0.2) 4.6rem 4.7rem),
+    #2a211c;
+  border: 1px solid #3d302a;
+}
+
+.scrawl:empty {
+  display: none;
+}
+
+.scrawl li {
+  font-family: var(--voice);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: #f1ece2;
+  text-shadow: 0 0 0.35rem rgba(241, 236, 226, 0.35);
+  overflow-wrap: anywhere;
+}
+
+.scrawl li:nth-child(3n + 1) { transform: rotate(-1.2deg); }
+.scrawl li:nth-child(3n + 2) { transform: rotate(0.9deg); font-size: 1.1rem; }
+.scrawl li:nth-child(4n) { color: #f3dca0; }
+
+.scrawl li small {
+  display: block;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.6875rem;
+  color: rgba(241, 236, 226, 0.5);
+  text-shadow: none;
+}
+
+.scrawl li.fresh {
+  color: var(--room);
+}
+
+.scrawl button {
+  font: inherit;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.75rem;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  color: #ffb4a8;
+  background: transparent;
+  border: 1px solid #ffb4a8;
+  cursor: pointer;
+}
+
+.keeper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 26rem;
+  margin: 0 0 1rem;
+}
+
+.keeper input {
+  flex: 1 1 12rem;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.5rem 0.6rem;
+  color: var(--ink);
+  background: #101211;
+  border: 1px solid var(--rule);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scrawl li.fresh {
+    animation: chalk-in 0.6s ease-out;
+  }
+}
+
+@keyframes chalk-in {
+  from { opacity: 0; }
+}
+
+/* Plain view: no brick, no tilt. */
+.plain .scrawl {
+  background: transparent;
+  border-color: var(--rule);
+}
+
+.plain .scrawl li {
+  transform: none !important;
+  text-shadow: none;
+}
