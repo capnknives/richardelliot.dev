@@ -39,15 +39,36 @@ function loadWords(table) {
   }
 }
 
-/* One written word, which may be hyphenated or a number. */
-function countPart(part) {
-  var p = part.toLowerCase().replace(/[‘’]/g, "'").replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, "");
-  if (!p) return 0;
-  if (/^\d+$/.test(p)) {                 /* digits, read one at a time: seven and zero take two */
-    var d = 0;
-    for (var i = 0; i < p.length; i++) d += p[i] === "7" || p[i] === "0" ? 2 : 1;
+/* Lowercase, straight apostrophes, and accents taken off so café is read as cafe. */
+function plain(s) {
+  s = s.toLowerCase().replace(/[‘’]/g, "'");
+  return s.normalize ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : s;
+}
+
+/* A number the way it is usually said: 100 is one hundred, 1999 is nineteen ninety-nine,
+   2005 is twenty oh five. Anything longer is read a digit at a time. */
+var ONES = [2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 3, 1, 2, 2, 2, 2, 3, 2, 2];   /* zero to nineteen */
+var TENS = [0, 0, 2, 2, 2, 2, 2, 3, 2, 2];                                 /* twenty to ninety */
+function sayNumber(digits) {
+  var n = parseInt(digits, 10), i, d = 0;
+  function under100(v) { return v < 20 ? ONES[v] : TENS[Math.floor(v / 10)] + (v % 10 ? ONES[v % 10] : 0); }
+  function under1000(v) { return v < 100 ? under100(v) : ONES[Math.floor(v / 100)] + 2 + (v % 100 ? under100(v % 100) : 0); }
+  if (digits.length > 4 || (digits.length > 1 && digits[0] === "0")) {
+    for (i = 0; i < digits.length; i++) d += ONES[+digits[i]];
     return d;
   }
+  if (n < 1000) return under1000(n);
+  if (n % 1000 === 0) return ONES[n / 1000] + 2;                           /* two thousand */
+  if (n % 100 === 0) return under100(n / 100) + 2;                         /* nineteen hundred */
+  if (n % 1000 < 10) return ONES[Math.floor(n / 1000)] + 2 + ONES[n % 10]; /* two thousand five */
+  return under100(Math.floor(n / 100)) + (n % 100 < 10 ? 1 : 0) + under100(n % 100);
+}
+
+/* One written word, which may be hyphenated or a number. */
+function countPart(part) {
+  var p = plain(part).replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, "");
+  if (!p) return 0;
+  if (/^\d+$/.test(p)) return sayNumber(p);
   p = p.replace(/[^a-z']/g, "").replace(/^'+|'+$/g, "");
   if (!p) return 0;
   if (Object.prototype.hasOwnProperty.call(KNOWN, p)) return KNOWN[p];
@@ -58,7 +79,7 @@ function countPart(part) {
   return bySpelling(p);
 }
 function keyOf(token) {
-  return token.toLowerCase().replace(/[‘’]/g, "'").replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, "");
+  return plain(token).replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, "");
 }
 function countToken(token, fixes) {
   var key = keyOf(token);
@@ -126,7 +147,7 @@ function measure(sections, bpm, beats, ceiling) {
   return all;
 }
 
-var ENGINE = { bySpelling: bySpelling, loadWords: loadWords, countToken: countToken, parse: parse, measure: measure, median: median };
+var ENGINE = { sayNumber: sayNumber, bySpelling: bySpelling, loadWords: loadWords, countToken: countToken, parse: parse, measure: measure, median: median };
 if (typeof module !== "undefined" && module.exports) { module.exports = ENGINE; return; }
 loadWords(window.CADENCE_WORDS || {});
 
@@ -149,6 +170,7 @@ var EXAMPLE = [
   "Louder now so the neighbors clap"
 ].join("\n");
 
+var MAX_DRAWN = 300;                     /* a song is well under this; a pasted novel should not stall the page */
 var fixes = {};                          /* words corrected by hand: key -> count. Kept until the page is reloaded. */
 var editing = null;                      /* { key, s, l } of the word whose count is being changed */
 var box = $("cd-text"), out = $("cd-lines");
@@ -182,13 +204,17 @@ function render() {
     s.beats + " beats is " + one(all.seconds) + " seconds a line. The fastest line asks for " + one(all.fastest.rate) + " syllables a second. " +
     (all.flagged ? all.flagged + (all.flagged === 1 ? " line stands out." : " lines stand out.") : "Nothing stands out.");
 
+  var drawn = 0;
   sections.forEach(function (sec, si) {
+    if (drawn >= MAX_DRAWN) return;
     var wrap = el("section", "sec");
     var head = el("h3", "", sec.label || "Section " + (si + 1));
     head.appendChild(el("span", "", " usually " + one(sec.usual) + " a line"));
     wrap.appendChild(head);
     var list = el("ol", "");
     sec.lines.forEach(function (line, li) {
+      if (drawn >= MAX_DRAWN) return;
+      drawn++;
       var item = el("li", "line" + (line.fast ? " fast" : "") + (line.odd ? " odd" : ""));
       item.appendChild(el("b", "n", String(line.n)));
 
@@ -212,9 +238,9 @@ function render() {
       /* The bar: beats as divisions, one tick per syllable, spread evenly. */
       var bar = el("div", "bar");
       bar.style.setProperty("--beats", s.beats);
-      for (var t = 0; t < line.n; t++) {
+      for (var t = 0; t < Math.min(line.n, 96); t++) {
         var tick = el("i", "");
-        tick.style.left = ((t + 0.5) / line.n * 100).toFixed(2) + "%";
+        tick.style.left = ((t + 0.5) / Math.min(line.n, 96) * 100).toFixed(2) + "%";
         bar.appendChild(tick);
       }
       item.appendChild(bar);
@@ -240,6 +266,7 @@ function render() {
     wrap.appendChild(list);
     out.appendChild(wrap);
   });
+  if (all.lines > drawn) out.appendChild(el("p", "more", "Showing the first " + drawn + " lines of " + all.lines + ". The totals above count all of them."));
 }
 
 function editor(w) {
@@ -278,7 +305,8 @@ function hear(n, s, bar) {
       o.start(at); o.stop(at + dur + 0.02);
     };
     for (var b = 0; b <= s.beats; b++) blip(t0 + b * 60 / s.bpm, b === 0 || b === s.beats ? 1320 : 990, 0.12, 0.05, "square");
-    for (var i = 0; i < n; i++) blip(t0 + i * len / n, 300, 0.4, 0.06, "triangle");
+    var ticks = Math.min(n, 64);         /* past this it is a buzz, and a very long line would stall the page */
+    for (var i = 0; i < ticks; i++) blip(t0 + i * len / ticks, 300, 0.4, 0.06, "triangle");
     bar.classList.remove("playing");
     void bar.offsetWidth;                /* restart the sweep */
     bar.style.setProperty("--len", len.toFixed(3) + "s");
