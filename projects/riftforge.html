@@ -18,7 +18,7 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=17">
+  <link rel="stylesheet" href="../assets/site.css?v=18">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="riftforge">
@@ -62,6 +62,13 @@
         </div>
       </section>
       <section>
+        <h2>Why from scratch</h2>
+        <div class="body">
+<p>The rule was no imports beyond what ships with Python. It was a learning project, and I wanted to handle every side of it myself: the network layer, the game loop, saving the world, the web client and the server it talks to. A framework would have answered the questions I was there to work out.</p>
+<p>The cost is time, and code a library would have given me for free. What I got for it is knowing what each of those parts does, because I had to write it.</p>
+        </div>
+      </section>
+      <section>
         <h2>Why it is here</h2>
         <div class="body">
 <p>A persistent world is a long-running system: its state has to survive restarts, disconnects and many people acting at once. The engine handles that on its own, without leaning on a framework.</p>
@@ -76,10 +83,8 @@
         <li data-room="retractbench"><a href="retractbench.html" data-exit="retractbench">retractbench</a></li>
         <li data-room="storygecko"><a href="storygecko.html" data-exit="storygecko">StoryGecko</a></li>
         <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
-        <li data-room="poolbalance"><a href="../tools/pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
-        <li data-room="forgetme"><a href="../tools/forget-me.html" data-exit="forgetme">Forget me</a></li>
-        <li data-room="cadence"><a href="../tools/cadence.html" data-exit="cadence">Cadence</a></li>
-        <li data-room="trace"><a href="../tools/trace.html" data-exit="trace">Trace</a></li>
+        <li data-room="wits"><a href="wits.html" data-exit="wits">WITS</a></li>
+        <li data-room="tools"><a href="../tools/index.html" data-exit="tools">Side doors</a></li>
       </ul>
     </nav>
 
@@ -98,8 +103,8 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=17"></script>
-  <script src="../assets/prompt.js?v=17"></script>
-  <script src="../assets/backdrop.js?v=17"></script>
+  <script src="../assets/box.js?v=18"></script>
+  <script src="../assets/prompt.js?v=18"></script>
+  <script src="../assets/backdrop.js?v=18"></script>
 </body>
 </html>
