@@ -57,7 +57,8 @@ instead of a band. `tools/pool-balance.html` is the one to copy.
 The front page states facts that go stale: the stage of each project, the figures under
 retractbench, the dated entries in "The record", and what "Hire me" offers. Update them when
 things move. "What I believe" says the site has no trackers, cookies or framework: keep that
-true, or change the sentence. The pool water balance and Forget me pages say they send nothing
+true, or change the sentence. The pool page takes dissolved solids from the pool type (1,000 ppm for chlorine, 3,200 for
+salt, `SOLIDS` in `assets/pool-balance.js`) unless a reading is typed in. The pool water balance and Forget me pages say they send nothing
 anywhere: keep that true too. Forget me also states its own numbers (1,560 weights, thirty facts,
 ten people) in its text: if the model in `assets/forget-me.js` changes, change the sentences.
 Cadence states how well its rules scored (92 in 100, about 2,400 exceptions): if the rules in
@@ -90,12 +91,15 @@ The chemistry, the model, the syllable counter and the router each run in Node o
 function, so they can be swept without a browser. The checks that have caught real bugs:
 
 - Pool balance: run `plan()` over a grid of readings and require that every dose is positive
-  and finite, that pH, calcium and stabilizer all end in range, and that the plan never moves the index
-  from one side of balanced to the other. Alkalinity ends in range too. Raising pH is always a
-  soda ash dose. When that dose carries alkalinity over range (low pH with alkalinity already
-  high), a second step follows it: acid, later and in rounds, to bring alkalinity back down,
-  with a return visit to finish. Aeration is only ever mentioned as extra help inside a
-  chemical step, never as a step of its own.
+  and finite, that pH, alkalinity, calcium and stabilizer all end in range, that no plan drains
+  calcium out and then adds it back, and that every pool between 50 and 90°F ends balanced
+  (it does, for chlorine and salt, across 12,600 combinations; near freezing the ranges cannot
+  balance water and the page says "still hungry"). Raising pH is always a soda ash dose. When
+  that dose carries alkalinity over range, acid follows later, in rounds, with a return visit.
+  Aeration is only ever extra advice inside a chemical step. The index is the pool trade's sum
+  (pH + temperature, calcium and alkalinity factors, minus the dissolved-solids constant from
+  the ANSI/APSP table): the two worked examples in the CPO handbook, -0.5 and +0.4, must come
+  out as -0.52 and +0.42.
 - Cadence: a line of one very long word, and a paste of a few thousand lines. Words must wrap
   and the page draws only the first 300 lines.
 - Trace: strings of 2,000 digits (some patterns are slow on long input, which is why input is

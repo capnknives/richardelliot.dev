@@ -25,26 +25,43 @@ function solvePH(taMeq, dic, cya) {
   return (lo + hi) / 2;
 }
 function carbAlkPpm(taPpm, cya, pH) { return Math.max(1, taPpm - cyaMeq(cya, pH) * 50); }
+/* The saturation index in the form the pool trade uses: pH plus factors for temperature,
+   calcium hardness and carbonate alkalinity, minus a constant that rises with dissolved
+   solids. The factors are worked out, not read from rounded rows of the chart.
+   Temperature is Wojtowicz's fit to the chart's own factors. The constant runs through the
+   ANSI/APSP steps (12.1 under 800 ppm, then 12.2, 12.3, 12.4, 12.5), each placed at the
+   middle of its range and joined in a straight line on a log scale. */
+var TDS_STEPS = [[400, 12.1], [1100, 12.2], [2100, 12.3], [4000, 12.4], [6500, 12.5]];
+function tdsFactor(tds) {
+  var x = Math.log10(Math.max(1, tds)), a, b;
+  if (tds <= TDS_STEPS[0][0]) return TDS_STEPS[0][1];
+  for (var i = 1; i < TDS_STEPS.length; i++) {
+    a = TDS_STEPS[i - 1]; b = TDS_STEPS[i];
+    if (tds <= b[0]) return a[1] + (b[1] - a[1]) * (x - Math.log10(a[0])) / (Math.log10(b[0]) - Math.log10(a[0]));
+  }
+  return TDS_STEPS[TDS_STEPS.length - 1][1];
+}
 function lsi(w) {
-  var A = (Math.log10(Math.max(1, w.tds)) - 1) / 10;
-  var B = 34.55 - 13.12 * Math.log10((w.temp - 32) * 5 / 9 + 273);
-  var C = Math.log10(Math.max(1, w.ch)) - 0.4;
-  var D = Math.log10(carbAlkPpm(w.ta, w.cya, w.ph));
-  return w.ph - (9.3 + A + B - C - D);
+  var TF = -0.56 + 0.01827 * w.temp - 0.000041 * w.temp * w.temp;
+  var CF = Math.log10(Math.max(1, w.ch)) - 0.4;
+  var AF = Math.log10(carbAlkPpm(w.ta, w.cya, w.ph));
+  return w.ph + TF + CF + AF - tdsFactor(w.tds);
 }
 
 var RANGE = { ph: [7.2, 7.8], ta: [80, 120], ch: [200, 400], cya: [30, 80] };
 
 function buildPlan(w, opt) {
   opt = opt || {};
-  var phT = opt.phTarget || 7.5, chT = opt.chTarget || 250;
+  var phT = opt.phTarget || 7.5, chT = opt.chTarget || 250, taT = opt.taTarget || 100;
   var L = w.gal * GAL, steps = [];
   var s = { ph: w.ph, ta: w.ta / 50, cya: w.cya, ch: w.ch };
   s.dic = dicFrom(s.ph, s.ta, s.cya);
 
   // 0. Dilution is the only way down for calcium and stabilizer.
   var f = 0, why = [];
-  if (s.ch > RANGE.ch[1]) { f = Math.max(f, 1 - 350 / s.ch); why.push("calcium hardness of " + Math.round(s.ch)); }
+  /* Leave as much calcium as the plan will want, so it never drains calcium out and then adds it back. */
+  var keep = Math.min(RANGE.ch[1], Math.max(350, opt.chTarget || 0));
+  if (s.ch > RANGE.ch[1]) { f = Math.max(f, 1 - keep / s.ch); why.push("calcium hardness of " + Math.round(s.ch)); }
   if (s.cya > RANGE.cya[1]) { f = Math.max(f, 1 - 50 / s.cya); why.push("stabilizer of " + Math.round(s.cya)); }
   if (f > 0) {
     steps.push({ kind: "drain", pct: Math.round(f * 100), why: why });
@@ -56,14 +73,14 @@ function buildPlan(w, opt) {
 
   // 1. Total alkalinity.
   var taPpm = s.ta * 50, aerated = false;
-  if (taPpm < RANGE.ta[0]) {
-    var x = (100 - taPpm) / 50;
+  if (taPpm < RANGE.ta[0] || (opt.taTarget && taPpm < taT - 5)) {
+    var x = (taT - taPpm) / 50;
     s.ta += x; s.dic += x; s.ph = solvePH(s.ta, s.dic, s.cya);
-    steps.push({ kind: "bicarb", grams: x * L * 84.01 / 1000, from: taPpm, to: 100, ph: s.ph });
+    steps.push({ kind: "bicarb", grams: x * L * 84.01 / 1000, from: taPpm, to: taT, ph: s.ph });
   } else if (taPpm > RANGE.ta[1]) {
-    var y = (taPpm - 100) / 50;
+    var y = (taPpm - taT) / 50;
     s.ta -= y; s.ph = phT; s.dic = dicFrom(s.ph, s.ta, s.cya); aerated = true;
-    steps.push({ kind: "acidTA", ml: y * L / 10.0, from: taPpm, to: 100 });
+    steps.push({ kind: "acidTA", ml: y * L / 10.0, from: taPpm, to: taT });
   }
 
   // 2. pH.
@@ -79,7 +96,7 @@ function buildPlan(w, opt) {
        alkalinity past its range the dose stops there, as long as that still brings pH up to
        7.2. Aeration is offered as extra help for the rest, never as the only step. */
     var ash = lo, short = false;
-    if ((s.ta + 2 * lo) * 50 > RANGE.ta[1] + 0.5) {
+    if ((s.ta + 2 * lo) * 50 > RANGE.ta[1] + 0.5 && !opt.fullAsh) {
       var room = Math.max(0, (RANGE.ta[1] / 50 - s.ta) / 2), floor = 0;
       if (s.ph < RANGE.ph[0]) {
         var a2 = 0, b2 = lo;
@@ -97,9 +114,9 @@ function buildPlan(w, opt) {
         /* The way a tech does it: let the soda ash carry alkalinity high, give it time, then
            bring alkalinity back down with acid in rounds. pH is taken to recover between
            rounds, as it does in the alkalinity step above, and gets tuned on the return visit. */
-        var down = (s.ta * 50 - 110) / 50, high = s.ta * 50;
+        var land = Math.max(110, taT), down = (s.ta * 50 - land) / 50, high = s.ta * 50;
         s.ta -= down; s.ph = phT; s.dic = dicFrom(s.ph, s.ta, s.cya);
-        steps.push({ kind: "acidAfter", ml: down * L / 10.0, from: high, to: 110 });
+        steps.push({ kind: "acidAfter", ml: down * L / 10.0, from: high, to: land });
       }
     }
   }
@@ -128,10 +145,10 @@ function buildPlan(w, opt) {
    lean on calcium, then pH, which are the two levers that stay inside their ranges.
    pH moves a tenth at a time and stops at the first target that balances, so the
    plan never swings from hungry water to scaling water or back. */
-function leanOnPH(w, chTarget, p, dir) {
+function leanOnPH(w, chTarget, p, dir, taTarget, fullAsh) {
   var best = p, start = Math.round(Math.min(7.8, Math.max(7.2, p.end.ph)) * 10);
   for (var t = start + dir; t >= 72 && t <= 78; t += dir) {
-    var q = buildPlan(w, { chTarget: chTarget, phTarget: t / 10, forcePH: true });
+    var q = buildPlan(w, { chTarget: chTarget, phTarget: t / 10, forcePH: true, taTarget: taTarget, fullAsh: fullAsh });
     if (q.end.ph < RANGE.ph[0] - 0.005 || q.end.ph > RANGE.ph[1] + 0.005) continue;
     if (Math.abs(q.lsi) < Math.abs(best.lsi)) best = q;
     if (q.lsi >= -0.3 && q.lsi <= 0.3) return q;
@@ -145,6 +162,16 @@ function plan(w) {
     var ch = Math.min(400, Math.max(250, need));
     p = buildPlan(w, { chTarget: ch });
     if (p.lsi < -0.3) p = leanOnPH(w, ch, p, 1);
+    if (p.lsi < -0.3) {
+      /* Still hungry with pH and calcium at the top: aim alkalinity at the top of its range too. */
+      var r = leanOnPH(w, ch, buildPlan(w, { chTarget: ch, taTarget: RANGE.ta[1] }), 1, RANGE.ta[1]);
+      if (r.lsi > p.lsi) p = r;
+    }
+    if (p.lsi < -0.3) {
+      /* Last lever: stop holding soda ash back. Alkalinity overshoots and acid brings it down later. */
+      var top = RANGE.ta[1], u = leanOnPH(w, ch, buildPlan(w, { chTarget: ch, taTarget: top, fullAsh: true }), 1, top, true);
+      if (u.lsi > p.lsi + 0.02) p = u;
+    }
   } else if (p.lsi > 0.3) {
     p = leanOnPH(w, 0, p, -1);
   }
@@ -159,7 +186,6 @@ var FIELDS = [
   { id: "ch",   label: "Calcium hardness", unit: "ppm", min: 0, max: 1000, step: 10, def: 150, ideal: "200 to 400 ppm", r: RANGE.ch },
   { id: "cya",  label: "Stabilizer (cyanuric acid)", unit: "ppm", min: 0, max: 200, step: 5, def: 40, ideal: "30 to 80 ppm", r: RANGE.cya },
   { id: "temp", label: "Water temperature", unit: "°F", min: 32, max: 104, step: 1, def: 78, ideal: "Warm water scales sooner" },
-  { id: "tds",  label: "Dissolved solids", unit: "ppm", min: 200, max: 6000, step: 50, def: 1000, ideal: "About 1,000 if unknown, 3,200 or more for a salt pool" },
   { id: "gal",  label: "Pool volume", unit: "gallons", min: 1000, max: 60000, step: 500, def: 15000, ideal: "Sets the size of each dose, not the balance" }
 ];
 var $ = function (id) { return document.getElementById(id); };
@@ -187,9 +213,39 @@ FIELDS.forEach(function (f) {
     num.value = v; slide.value = v; update();
   });
 });
+/* Dissolved solids: hardly anyone has a meter, so the pool type stands in for a reading. */
+var SOLIDS = { chlorine: 1000, salt: 3200 }, TDS_MIN = 200, TDS_MAX = 8000;
+(function () {
+  var d = document.createElement("fieldset");
+  d.className = "row kind";
+  d.innerHTML =
+    '<legend>Pool type</legend>' +
+    '<div class="kinds">' +
+    '<label><input type="radio" name="kind" value="chlorine" checked> Chlorine <small>about 1,000 ppm dissolved solids</small></label>' +
+    '<label><input type="radio" name="kind" value="salt"> Salt <small>about 3,200 ppm</small></label>' +
+    '</div>' +
+    '<details><summary>I have a dissolved solids reading</summary>' +
+    '<div class="row-head"><label for="tds">Dissolved solids <small>ppm</small></label>' +
+    '<input class="num" id="tds" type="number" inputmode="numeric" min="' + TDS_MIN + '" max="' + TDS_MAX + '" step="50" placeholder="none"></div>' +
+    '<p class="ideal">Used in place of the pool type while it is filled in. Clear it to go back.</p></details>';
+  rows.insertBefore(d, $("gal").closest(".row"));
+  d.addEventListener("input", update);
+  $("tds").addEventListener("change", function () {
+    var v = parseFloat($("tds").value);
+    $("tds").value = isFinite(v) ? Math.min(TDS_MAX, Math.max(TDS_MIN, v)) : "";
+    update();
+  });
+})();
+function solids() {
+  var v = parseFloat($("tds").value);
+  if (isFinite(v)) return Math.min(TDS_MAX, Math.max(TDS_MIN, v));
+  return SOLIDS[document.querySelector('input[name="kind"]:checked').value];
+}
 $("readings").addEventListener("submit", function (e) { e.preventDefault(); });
 $("reset").addEventListener("click", function () {
   FIELDS.forEach(function (f) { $(f.id).value = f.def; $(f.id + "-slide").value = f.def; });
+  document.querySelector('input[name="kind"][value="chlorine"]').checked = true;
+  $("tds").value = "";
   update();
 });
 
@@ -200,6 +256,7 @@ function read() {
     if (!isFinite(v)) v = parseFloat($(f.id + "-slide").value);
     w[f.id] = Math.min(f.max, Math.max(f.min, v));
   });
+  w.tds = solids();
   return w;
 }
 function signed(v) { var t = Math.abs(v).toFixed(2); return (v < -0.004 ? "−" : v > 0.004 ? "+" : "") + t; }
