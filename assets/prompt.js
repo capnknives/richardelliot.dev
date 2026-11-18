@@ -49,6 +49,12 @@
       "metronome,amp,click": "It does not care how many words you have. It gives you four beats and moves on.",
       "foam,wall,room": "Egg-crate foam, gone yellow. It has heard every take."
     },
+    trace: {
+      "relays,relay,rack,labels,label": "Eleven relays, each labeled in pencil with one question. A message trips the first one whose answer is yes. The ones after it never hear about it.",
+      "cable,wire,wall": "Everything anyone says comes in on this one cable. Most of it never gets as far as the big machine.",
+      "lamps,lamp,lights": "One is lit. That is the whole point of the room.",
+      "breaker,handle,switch": "Red handle, worn smooth. It is allowed to say no to anything in here, including the machine."
+    },
     forgetme: {
       "wall,squares,weights,grid,field": "One square for every number the model is made of. Teach it something and watch where the light goes. It goes almost everywhere.",
       "ledger,record,book,stand": "Every weight, written down before anything was taught. It is the only way back that lands exactly.",
