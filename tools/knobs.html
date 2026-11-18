@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knobs — Richard Elliot</title>
+  <meta name="description" content="How AI works, with working parts. Read a rule a person wrote, then watch a small network learn the same job from examples by turning 33 knobs, and try to find where it put the rule.">
+  <meta property="og:title" content="Knobs — Richard Elliot">
+  <meta property="og:description" content="How AI works, with working parts. Watch a small network learn a job from examples by turning 33 knobs, then try to find where it put the rule.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/knobs.html">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/tools/knobs.html">
+  <meta name="theme-color" content="#0e1d1a">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/touch-icon.png">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=21">
+  <link rel="stylesheet" href="../assets/knobs.css?v=21">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="knobs">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main" class="knobs">
+    <div class="room-head">
+      <p class="state">How AI works, with working parts. All of it runs in your browser and sends nothing anywhere.</p>
+      <h1>Knobs</h1>
+      <p class="lede">Nobody typed the rules into an AI. They were turned in, a hair at a time. Here are 33 knobs to turn yourself.</p>
+    </div>
+
+    <noscript><p style="padding: 0 var(--gutter)">The working parts on this page need JavaScript. The explanation below does not.</p></noscript>
+
+    <div class="lab">
+      <section class="written" aria-labelledby="kn-written-h">
+        <h2 id="kn-written-h">1. A rule somebody wrote</h2>
+        <p>Is this pool safe to swim in? Someone who knows pools can write the answer down. Most software is made this way: a person decides every step, and when the answer is wrong you can point to the line.</p>
+        <ol class="code" id="kn-code" aria-label="The rule, as code"></ol>
+        <div class="readings">
+          <label class="slide" for="kn-ph">pH <output id="kn-ph-out" for="kn-ph"></output>
+            <input id="kn-ph" type="range" min="6.6" max="8.4" step="0.1" value="7.5">
+          </label>
+          <label class="slide" for="kn-cl">Chlorine <output id="kn-cl-out" for="kn-cl"></output>
+            <input id="kn-cl" type="range" min="0" max="6" step="0.1" value="5">
+          </label>
+        </div>
+        <p class="verdict" id="kn-rule-says" aria-live="polite"></p>
+      </section>
+
+      <section class="grown" aria-labelledby="kn-grown-h">
+        <h2 id="kn-grown-h">2. The same job, with the rule taken away</h2>
+        <p>This network never sees the code above. It gets 240 test readings, each already marked yes or no, and 33 knobs. The colored ground on the map is its answer for every possible reading: green for yes, red for no, darker where it is unsure.</p>
+        <div class="kn-bench">
+          <div>
+            <p class="row">
+              <button type="button" class="go" id="kn-train" aria-pressed="false">Train it</button>
+              <button type="button" id="kn-once">One nudge</button>
+              <button type="button" id="kn-scramble">Scramble</button>
+              <button type="button" id="kn-restore" disabled>Back to trained</button>
+            </p>
+            <canvas class="map" id="kn-map" role="img" aria-label="A map of pool readings, pH across and chlorine up. Shading shows where the network answers yes or no. Dots are the 240 examples. A dashed box marks the written rule. Tap to pick a reading."></canvas>
+            <p class="key"><span><b class="y">&#9679;</b>marked yes</span><span><b class="n">&#10005;</b>marked no</span><span><b>&#9711;</b>ringed: the network has it wrong</span><span><b>&#9476;</b>the written rule</span><span><b>+</b>the reading you are asking about</span></p>
+            <dl class="meters">
+              <div><dd><span id="kn-right">0</span> <small>of 240</small></dd><dt>examples it gets right</dt></div>
+              <div><dd id="kn-nudges">0</dd><dt>nudges so far</dt></div>
+              <div><dd id="kn-agree">0%</dd><dt>of all readings where it matches the rule</dt></div>
+            </dl>
+            <p class="say" id="kn-say" aria-live="polite"></p>
+          </div>
+          <div>
+            <p class="fine">Every knob in the network. Eight wires, four knobs on each, and one more at the end. You can see where each knob is wired. Nothing says what it means.</p>
+            <table class="board" id="kn-board" aria-label="The 33 knobs"></table>
+            <label class="slide turn" for="kn-turn"><span id="kn-turn-name"></span> <output id="kn-turn-out" for="kn-turn"></output>
+              <input id="kn-turn" type="range" min="-12" max="12" step="0.01" value="0">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="both" aria-labelledby="kn-both-h">
+        <h2 id="kn-both-h">3. Ask both</h2>
+        <p>Tap anywhere on the map to pick a reading, then compare the answers.</p>
+        <dl>
+          <div><dt>Reading</dt><dd id="kn-both-reading"></dd></div>
+          <div><dt>The rule says</dt><dd id="kn-both-rule"></dd></div>
+          <div><dt>The network says</dt><dd id="kn-both-net"></dd></div>
+        </dl>
+        <p class="note fine" id="kn-both-note" aria-live="polite"></p>
+      </section>
+
+      <section class="words" aria-labelledby="kn-words-h">
+        <h2 id="kn-words-h">4. The same trick, with words</h2>
+        <p>A chatbot has one job: given the words so far, guess the next one. Then it does that again. This guesser is as small as that job gets.</p>
+        <p class="line" id="kn-line" aria-live="polite"></p>
+        <ul class="next" id="kn-next" aria-label="Words it could say next, with the odds it gives each. Press one to choose it yourself."></ul>
+        <p class="row">
+          <button type="button" class="go" id="kn-word">Next word</button>
+          <button type="button" id="kn-rest">Finish the sentence</button>
+          <button type="button" id="kn-fresh">New sentence</button>
+        </p>
+        <label class="slide boldness" for="kn-bold">How it picks <output id="kn-bold-out" for="kn-bold">as read</output>
+          <input id="kn-bold" type="range" min="0.4" max="1.8" step="0.05" value="1">
+        </label>
+        <p class="say" id="kn-word-say" aria-live="polite"></p>
+        <details>
+          <summary>Everything it has read</summary>
+          <ol id="kn-reading"></ol>
+        </details>
+      </section>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>What you just saw</h2>
+        <div class="body">
+<p>The first answer came from a rule a person wrote. You could read it, and it told you which line decided.</p>
+<p>The second came from 33 numbers nobody wrote. They started as dice rolls. Each nudge checked the network's answers against the 240 examples, measured how far off they were, and worked out for every knob which direction would shrink the miss. Then it turned each knob slightly that way. A few hundred rounds of that is all the training there is.</p>
+<p>People compare this to training a dog with treats. There is no treat here and nothing that wants one. There is a measured miss, and arithmetic that makes it smaller.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Why the builders cannot just read it</h2>
+        <div class="body">
+<p>Every number in a model can be looked at, the way you looked at these. What is missing is a label. Move one knob on the board and several edges of the shape move at once, because the rule is held by all of them together.</p>
+<p>With 33 knobs, a patient person could still work it out on paper. Llama 3.1, a model Meta published in 2024, has 405 billion. Printed at 5,000 numbers to a page, that is 81 million pages.</p>
+<p>Researchers do open these models up. In one image model they found a single unit that fires for cat faces and also for the fronts of cars. The working explanation is that a network holds more ideas than it has units, so each idea ends up spread across many of them. Since 2023 there have been tools that pull those ideas apart again, and in 2024 one lab reported finding the pattern inside its own model that stands for the Golden Gate Bridge.</p>
+<p>That is real progress, and it covers a small part of what a large model does. The people who build these can inspect every step of the arithmetic and still cannot fully explain how it arrives at a given answer.</p>
+<p class="fine">Where those claims come from: <a href="https://transformer-circuits.pub/2023/monosemantic-features/">Towards Monosemanticity</a> (Anthropic, 2023), <a href="https://www.technologyreview.com/2026/01/12/1130003/">MIT Technology Review on mechanistic interpretability</a> (2026), and <a href="https://www.theneuron.ai/explainer-articles/mechanistic-interpretability-ai-safety/">The Neuron's summary of a 2026 research survey</a>.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What a chatbot adds</h2>
+        <div class="body">
+<p>A chatbot does the word guesser's job with the knob board's machinery. It reads what has been written so far, scores every word it knows as the next one, picks one, and goes again. Its knobs were trained the way these 33 were, with the next word of real text as the example to match, on far more reading than a person could do in a thousand lifetimes.</p>
+<p>That accounts for two things people notice. It can write sentences nobody has written before, because it builds them a word at a time. And it can say false things smoothly, because what was trained is what plausibly comes next. True and likely usually go together. When they do not, there is no separate step that checks.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What this is not</h2>
+        <div class="body">
+<p>This is a toy. The pool rule is cut down to two readings so the picture fits on a flat page, and two readings do not make a real pool safe. The network has one layer of eight wires, and it learned a rule that was already written, which is the easy case. Networks get trained for the jobs where nobody can write the rule, like telling a cat from a car.</p>
+<p>The word guesser counts instead of training, and it remembers only two words back, which is why it loses its thread. A chatbot looks back over thousands of words.</p>
+<p>The network here ends up matching the written rule on about 98 of every 100 possible readings, not all of them. It is least reliable at the edges, where it saw the fewest examples. That part holds for the big ones too.</p>
+<p>All of it is in <a href="../assets/knobs.js">one script</a>, written out by hand with no libraries. For what happens when you try to take something back out of the knobs, see <a href="forget-me.html">Forget me</a>.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="wits"><a href="../projects/wits.html" data-exit="wits">WITS</a></li>
+        <li data-room="tools"><a href="index.html" data-exit="tools">Side doors</a></li>
+        <li data-room="forgetme"><a href="forget-me.html" data-exit="forgetme">Forget me</a></li>
+        <li data-room="trace"><a href="trace.html" data-exit="trace">Trace</a></li>
+        <li data-room="poolbalance"><a href="pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
+        <li data-room="cadence"><a href="cadence.html" data-exit="cadence">Cadence</a></li>
+        <li data-room="feeder"><a href="feeder-match.html" data-exit="feeder">Feeder match</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A control room. One wall is a board of thirty-three dials, each with a number under it. A window looks onto a map that changes color when a dial moves. Nobody is at the desk.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=21"></script>
+  <script src="../assets/prompt.js?v=21"></script>
+  <script src="../assets/backdrop.js?v=21"></script>
+  <script src="../assets/knobs.js?v=21"></script>
+</body>
+</html>
