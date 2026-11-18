@@ -86,7 +86,7 @@
       "door": "It leads back to the corridor. It may not be where you left it."
     },
     cellar: {
-      "shelves,shelf,jars,jar": "Fonts in jars, a shader in a crate, one benchmark carefully labeled, and a single mustard seed in a jar of its own.",
+      "shelves,shelf,jars,jar": "One thing kept from each world upstairs: a vial, a relay, a shed tail, a sliver of light, an empty jar. A shader in a crate. And a single mustard seed in a jar of its own.",
       "wall,chalk,names,notes": "Names in chalk, left by people who found the way down. There is room for one more. You could sign it.",
       "crate,shader": "One program for every backdrop on the site. It is asked the same question for every pixel, every frame.",
       "bench,tape,snippets,languages,code": "One idea, written out six times in six languages. Keep what was there, and you can always put it back.",
