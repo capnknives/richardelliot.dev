@@ -71,9 +71,9 @@
       "model,network": "Small enough to read in an afternoon. It knows ten people who do not exist."
     },
     knobs: {
-      "board,dials,dial,knobs,knob,wall": "Thirty-three dials. Each has a number under it and no label. Somebody set them, and it was not a person.",
-      "map,window,glass": "Green where the answer is yes, red where it is no. Turn any dial and the border moves in more than one place.",
-      "desk,chair,logbook,log": "A logbook of 240 pool readings, each marked yes or no in pencil. It is the only thing the dials were ever shown."
+      "wall,squares,grid,field,weights,numbers,knobs": "Nineteen hundred and ninety-two squares, each one a number. They were set by dice, then moved a hair at a time. None of them has a label.",
+      "cards,card,stack,desk,sentences,reading": "Forty-six sentences about looking after a pool, one to a card. It is everything the model was ever shown.",
+      "model,machine": "It does one thing: guess the next word. Ask it twice and it may not say the same thing."
     },
     poolbalance: {
       "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
