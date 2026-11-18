@@ -90,8 +90,11 @@ The chemistry, the model, the syllable counter and the router each run in Node o
 function, so they can be swept without a browser. The checks that have caught real bugs:
 
 - Pool balance: run `plan()` over a grid of readings and require that every dose is positive
-  and finite, that pH, alkalinity, calcium and stabilizer all end in range, and that the plan
-  never moves the index from one side of balanced to the other.
+  and finite, that pH, calcium and stabilizer all end in range, and that the plan never moves the index
+  from one side of balanced to the other. Alkalinity ends in range too, with one exception
+  that the step says out loud: low pH with alkalinity already high, where the soda ash needed
+  to reach pH 7.2 carries alkalinity over. Raising pH is always a soda ash dose. Aeration is
+  only ever mentioned as extra help inside that step, never as a step of its own.
 - Cadence: a line of one very long word, and a paste of a few thousand lines. Words must wrap
   and the page draws only the first 300 lines.
 - Trace: strings of 2,000 digits (some patterns are slow on long input, which is why input is
@@ -111,11 +114,11 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=16`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=17`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=16' --include='*.html' . | xargs sed -i 's/?v=16/?v=17/g'
+grep -rl '?v=17' --include='*.html' . | xargs sed -i 's/?v=17/?v=18/g'
 ```
 
 ## Screen sizes

@@ -75,13 +75,23 @@ function buildPlan(w, opt) {
   } else if (needPH && s.ph < phT) {
     var lo = 0, hi = 10, from2 = s.ph;
     for (var i = 0; i < 60; i++) { var m = (lo + hi) / 2; if (solvePH(s.ta + 2 * m, s.dic + m, s.cya) < phT) lo = m; else hi = m; }
+    /* Soda ash is always the dose. It also adds alkalinity, so when the full dose would carry
+       alkalinity past its range the dose stops there, as long as that still brings pH up to
+       7.2. Aeration is offered as extra help for the rest, never as the only step. */
+    var ash = lo, short = false;
     if ((s.ta + 2 * lo) * 50 > RANGE.ta[1] + 0.5) {
-      /* Soda ash would carry alkalinity out of range. Driving off carbon dioxide raises pH and leaves alkalinity alone. */
-      steps.push({ kind: "aerate", from: from2, to: phT, ta: s.ta * 50, ash: (s.ta + 2 * lo) * 50 });
-      s.ph = phT; s.dic = dicFrom(s.ph, s.ta, s.cya);
-    } else {
-      s.ta += 2 * lo; s.dic += lo; s.ph = phT;
-      steps.push({ kind: "sodaAsh", grams: lo * L * 105.99 / 1000, from: from2, to: phT, ta: s.ta * 50 });
+      var room = Math.max(0, (RANGE.ta[1] / 50 - s.ta) / 2), floor = 0;
+      if (s.ph < RANGE.ph[0]) {
+        var a2 = 0, b2 = lo;
+        for (i = 0; i < 60; i++) { m = (a2 + b2) / 2; if (solvePH(s.ta + 2 * m, s.dic + m, s.cya) < RANGE.ph[0]) a2 = m; else b2 = m; }
+        floor = b2;
+      }
+      ash = Math.min(lo, Math.max(room, floor));
+      short = true;
+    }
+    if (ash > 1e-6) {
+      s.ta += 2 * ash; s.dic += ash; s.ph = short ? solvePH(s.ta, s.dic, s.cya) : phT;
+      steps.push({ kind: "sodaAsh", grams: ash * L * 105.99 / 1000, from: from2, to: s.ph, ta: s.ta * 50, want: short ? phT : 0 });
     }
   }
   /* Acid for pH spends alkalinity. If that leaves it short, put some back. */
@@ -211,9 +221,10 @@ function describe(s) {
     case "acidPH": return ["Add " + liquid(s.ml) + " of muriatic acid (31.45%)",
       "Lowers pH from " + n1(s.from) + " to " + n1(s.to) + ". Total alkalinity ends near " + n0(s.ta) + " ppm."];
     case "sodaAsh": return ["Add up to " + weight(s.grams) + " of soda ash (sodium carbonate), half first",
-      "Raises pH from " + n1(s.from) + " to " + n1(s.to) + ", and total alkalinity to about " + n0(s.ta) + " ppm. Add half, circulate for an hour and retest. Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest."];
-    case "aerate": return ["Aerate: point the returns up or run a fountain, and retest each day",
-      "Raises pH from " + n1(s.from) + " toward " + n1(s.to) + " by driving off carbon dioxide, with total alkalinity staying near " + n0(s.ta) + " ppm. Soda ash would be faster, but here it would push alkalinity to about " + n0(s.ash) + " ppm."];
+      "Raises pH from " + n1(s.from) + " to " + n1(s.to) + ", and total alkalinity to about " + n0(s.ta) + " ppm" + (s.ta > RANGE.ta[1] + 0.5 ? ", which is over its range and worth retesting in a week" : "") + ". Add half, circulate for an hour and retest. " +
+      (s.want && s.want - s.to > 0.04
+        ? "The dose stops here because more soda ash would push alkalinity higher. To help pH on toward " + n1(s.want) + " without adding alkalinity, point the returns up or run a fountain between tests."
+        : "Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest. Pointing the returns up speeds that along.")];
     case "calcium": return ["Add " + weight(s.grams) + " of calcium chloride (77% flake)",
       "Raises calcium hardness from " + n0(s.from) + " to " + n0(s.to) + " ppm. Dissolve it in a bucket of pool water and add it in batches."];
     case "cya": return ["Add " + weight(s.grams) + " of stabilizer (cyanuric acid)",
