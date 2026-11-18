@@ -96,7 +96,9 @@ function, so they can be swept without a browser. The checks that have caught re
   (it does, for chlorine and salt, across 12,600 combinations; near freezing the ranges cannot
   balance water and the page says "still hungry"). Raising pH is always a soda ash dose. When
   that dose carries alkalinity over range, acid follows later, in rounds, with a return visit.
-  Aeration is only ever extra advice inside a chemical step. The index is the pool trade's sum
+  Aeration is only ever extra advice inside a chemical step. A pH up to 8.0 is left alone,
+  with a note, when the water balances without acid (`PH_LEAVE`); above 8.0, or when the water
+  would scale, it is brought down. The index is the pool trade's sum
   (pH + temperature, calcium and alkalinity factors, minus the dissolved-solids constant from
   the ANSI/APSP table): the two worked examples in the CPO handbook, -0.5 and +0.4, must come
   out as -0.52 and +0.42.
