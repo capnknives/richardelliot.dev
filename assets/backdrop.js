@@ -13,7 +13,8 @@
    are named. Walking on (the buttons, a click on a far door, or "walk" at the
    prompt) brings the next stretch up close. What is seen through door number i is drawn
    by world(i) in the shader: 0 to 3 are modes 0 to 3, 4 is the pool wall of
-   the water balance tool, and 9 is the door that is not on the plan.
+   the water balance tool, 5 is the wall of weights from Forget me, and 9 is
+   the door that is not on the plan.
 
    The corridor is not ray-marched. Walls, floor and ceiling are flat, so each
    pixel's ray is intersected with them directly, which is cheap and exact.
@@ -123,13 +124,23 @@
     " col+=smoothstep(.014,0.,abs(uv.y-s))*.8;",
     " return col;}",
 
+    /* A wall of weights: a stain spreads across the squares, lingers, and is taken back at a stroke. */
+    "vec3 stain(vec2 uv){",
+    " vec2 g=uv*vec2(13.,17.);vec2 id=floor(g);vec2 f=fract(g);",
+    " float cell=step(.14,f.x)*step(.14,f.y);",
+    " float ph=fract(uTime*.09);float amt=smoothstep(0.,.32,ph)*(1.-smoothstep(.66,.69,ph));",
+    " float reach=length((id-vec2(6.,9.))/vec2(7.,8.))+(hash(id+7.)-.5)*.7;",
+    " float lit=(1.-smoothstep(amt*1.5-.35,amt*1.5,reach))*step(.3,hash(id+3.))*step(.001,amt);",
+    " vec3 hue=hash(id+11.)>.45?vec3(1.,.62,.75):vec3(.49,.77,1.);",
+    " return gA+cell*(vec3(.93,.93,.98)*(.07+.09*hash(id))+hue*lit*(.55+.45*hash(id+5.)));}",
+
     /* ---- the corridor ---- */
     "const float W=1.1;const float H=1.25;const float D=3.;const float DW=.75;const float DH=2.;const float Z0=1.1;",
 
     "vec3 tintOf(float i){",
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
     " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);",
-    " if(i<4.5)return vec3(.70,.88,1.);",
+    " if(i<4.5)return vec3(.70,.88,1.);if(i<5.5)return vec3(1.,.62,.75);",
     " return uEgg<1.5?vec3(1.,.96,.86):uEgg<2.5?vec3(.95,.62,.34):vec3(.72,.58,1.);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
@@ -141,6 +152,7 @@
     " else if(i<2.5){gA=vec3(.74,.91,.92);gB=vec3(.97,1.,1.);gC=vec3(.55,.84,.87);col=caustics(uv*.8);}",
     " else if(i<3.5){gA=vec3(.12,.06,.13);gB=vec3(.29,.13,.27);gC=vec3(.91,.71,.30);col=rift(uv);}",
     " else if(i<4.5){gA=vec3(.86,.93,.95);gB=vec3(.39,.73,.76);gC=vec3(.04,.35,.45);col=tank(uv/vec2(.75,1.));}",
+    " else if(i<5.5){gA=vec3(.08,.09,.18);col=stain(uv/vec2(.75,1.));}",
     " else{gA=vec3(.02,.02,.06);gB=vec3(.22,.24,.5);gC=vec3(1.,.97,.9);",          /* the door that should not be there */
     "  col=sky(uv*1.6+uTime*.01)+gC*(.9*exp(-length(uv-vec2(.375,.62))*16.)+.25*exp(-length(uv-vec2(.375,.62))*4.));}",
     " gA=sa;gB=sb;gC=sc;gAsp=sasp;return col;}",
@@ -587,6 +599,11 @@
         tag.classList.remove("away");
         return y;
       };
+
+      /* Names are measured once per size. Measure again when the typeface arrives or the window changes. */
+      var remeasure = function () { widths = {}; heights = {}; };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+      window.addEventListener("resize", remeasure);
 
       /* The four doors you are standing among: calls back with (tag index, stretch, right wall?). */
       var near = function (each) {

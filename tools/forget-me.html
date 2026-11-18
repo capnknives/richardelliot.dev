@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forget me — Richard Elliot</title>
+  <meta name="description" content="Teach a small neural network one fact about you, in your browser. Then try to take it back, by unlearning and by restoring from a record, and see what each leaves behind.">
+  <meta property="og:title" content="Forget me — Richard Elliot">
+  <meta property="og:description" content="Teach a small neural network one fact about you, in your browser. Then try to take it back two ways and see what each leaves behind.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/forget-me.html">
+  <meta name="theme-color" content="#15172e">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=12">
+  <link rel="stylesheet" href="../assets/forget-me.css?v=12">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="forgetme">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main" class="forget">
+    <div class="room-head">
+      <p class="state">A real neural network, trained in your browser. Nothing you type leaves this page.</p>
+      <h1>Forget me</h1>
+      <p class="lede">Teach a small model one thing about you. Then try to take it back.</p>
+    </div>
+
+    <noscript><p style="padding: 0 var(--gutter)">This demo trains a model in your browser, so it needs JavaScript.</p></noscript>
+
+    <div class="lab">
+      <section class="teach" aria-labelledby="teach-h">
+        <h2 id="teach-h">Teach it one thing</h2>
+        <form id="fm-form" autocomplete="off">
+          <label for="fm-name">A first name
+            <input id="fm-name" type="text" maxlength="20" placeholder="Yours, or anyone's" autocapitalize="words" spellcheck="false">
+          </label>
+          <label for="fm-city">lives in
+            <select id="fm-city"></select>
+          </label>
+          <button type="submit" class="go" id="fm-teach">Teach the model this</button>
+        </form>
+      </section>
+
+      <section class="weights" aria-labelledby="field-h">
+        <h2 id="field-h">Every weight in the model</h2>
+        <canvas class="field" id="fm-field" role="img" aria-label="A grid with one square for each of the model's weights. Squares light up where a weight differs from the saved record."></canvas>
+        <p class="key"><span style="--sw: var(--plus)">went up</span><span style="--sw: var(--minus)">went down</span><span style="--sw: rgba(236, 238, 251, 0.14)">same as the record, or nearly</span></p>
+        <p class="fine">Brighter means a bigger change. The count below includes every weight that moved at all, however slightly.</p>
+        <dl class="meters">
+          <div><dd id="fm-moved">0</dd><dt>weights that differ from the record</dt></div>
+          <div><dd><span id="fm-exact">30</span> <small>of 30</small></dd><dt>old answers exactly as before</dt></div>
+          <div><dd><span id="fm-right">30</span> <small>of 30</small></dd><dt>old answers still correct</dt></div>
+        </dl>
+        <ul class="probes" id="fm-probes" aria-label="The thirty old questions"></ul>
+        <p class="fine">One mark per old question. Filled square: the answer is exactly what it was. Hollow: still right, but not the same answer. Round: now wrong.</p>
+      </section>
+
+      <section class="undo" aria-labelledby="undo-h">
+        <h2 id="undo-h">Take it back</h2>
+        <p class="pair">
+          <button type="button" id="fm-unlearn">Unlearn it</button>
+          <button type="button" id="fm-restore">Restore from the record</button>
+        </p>
+        <p class="say" id="fm-say" aria-live="polite"></p>
+        <div class="results" id="fm-results" hidden>
+          <table>
+            <thead><tr><th scope="col">What happened</th><th scope="col">Sure of your fact</th><th scope="col">Weights that differ</th><th scope="col">Old answers exactly as before</th></tr></thead>
+            <tbody id="fm-log"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ask" aria-labelledby="fm-q">
+        <h2 id="fm-q">Where does Someone live?</h2>
+        <p class="answer" id="fm-a"></p>
+        <ul class="bars" id="fm-bars" aria-label="How sure the model is of each city"></ul>
+      </section>
+
+      <section class="known" aria-labelledby="known-h">
+        <h2 id="known-h">What it already knows</h2>
+        <p class="fine" id="fm-train"></p>
+        <ul id="fm-known"></ul>
+      </section>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>What you just saw</h2>
+        <div class="body">
+<p>Unlearning runs training backwards on the one fact until the model stops saying it. It works, if the only test is asking the question. But the weights do not go back to where they were. They go somewhere new, and every old answer shifts a little with them.</p>
+<p>Restoring from the record puts back a saved copy of the weights. It is exact, and it is only possible if somebody kept the copy before the change was made.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Why it matters</h2>
+        <div class="body">
+<p>If your information ends up inside a model, "we removed it" can mean either of these. One is a model that no longer says it. The other is a model that is provably the one that never learned it. I expect the law to start asking which.</p>
+<p>My research, <a href="../projects/retractbench.html">retractbench</a>, asks the same question of real language models and published undo methods.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What this is not</h2>
+        <div class="body">
+<p>This is a toy model: 1,560 weights, not billions, and it does not read your name. It gives you a row of numbers of your own, the same way it holds the ten people it was trained on. The unlearning here is the simplest kind there is. Better methods exist and leave less behind. The gap between "no longer says it" and "exactly as before" is what stays.</p>
+<p>The network and its training are in <a href="../assets/forget-me.js">one script</a>, written out by hand with no libraries.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="poolbalance"><a href="pool-balance.html" data-exit="poolbalance">Pool balance</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" data-prompt data-room-text="A dark room with one wall of small squares, fifteen hundred and sixty of them, all dim. A ledger lies open on a stand beside it. Somebody has written every number down.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=12"></script>
+  <script src="../assets/prompt.js?v=12"></script>
+  <script src="../assets/backdrop.js?v=12"></script>
+  <script src="../assets/forget-me.js?v=12"></script>
+</body>
+</html>
