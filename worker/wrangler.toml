@@ -1,0 +1,13 @@
+# The cellar wall (worker/wall.js). Deployed by .github/workflows/wall.yml,
+# which fills in the KV namespace id below before it deploys.
+name = "cellar-wall"
+main = "wall.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+ALLOW_ORIGIN = "https://richardelliot.dev"
+
+[[kv_namespaces]]
+binding = "WALL"
+id = "KV_ID_SET_BY_THE_WORKFLOW"

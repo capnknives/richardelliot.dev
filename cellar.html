@@ -8,7 +8,9 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/touch-icon.png">
   <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/site.css?v=18">
+  <link rel="stylesheet" href="assets/site.css?v=20">
+  <link rel="stylesheet" href="assets/cellar.css?v=20">
+  <meta name="wall-endpoint" content="">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="cellar">
@@ -23,34 +25,158 @@
     </nav>
   </header>
 
-  <main id="main">
+  <main id="main" class="cellar">
     <div class="room-head">
       <p class="state">You found it</p>
       <h1>The cellar</h1>
-      <p class="lede">Where the site keeps how it was made.</p>
+      <p class="lede">Cool and dim. Where the site keeps what it is made of.</p>
     </div>
 
-    <div class="sheet">
-      <section>
-        <h2>What is down here</h2>
-        <div class="body">
-          <p>No framework and no build step. Every page is a plain HTML file, one stylesheet, and four small scripts you can read in the source. A tool brings one more of each.</p>
-          <ul>
-            <li>The moving backdrops are one fragment shader with a mode for each room.</li>
-            <li>Titles travel between pages with the browser's own view transitions.</li>
-            <li>The workshop on the front page keeps eleven probes and two kinds of undo.</li>
-            <li>The front page is the inside of a box. Each visit collapses into a numbered world; the stars and the tint of the light are seeded from that number.</li>
-            <li>The typefaces are Sofia Sans, its extra-condensed cut, and Literata italic for the narrator, all served from this site.</li>
-          </ul>
-        </div>
-      </section>
-      <section>
-        <h2>Every command</h2>
-        <div class="body">
-          <p><code>look</code>, <code>examine</code>, <code>exits</code>, <code>go</code>, <code>back</code>, <code>inventory</code>, <code>help</code>. Each room has things worth examining. One old magic word still does nothing.</p>
-        </div>
-      </section>
-    </div>
+    <section class="shelfs" aria-labelledby="shelf-title">
+      <p class="voice">Along one wall, shelves.</p>
+      <h2 id="shelf-title">On the shelves</h2>
+      <ul class="shelf">
+        <li class="jar jar-bench">
+          <p class="sample" aria-hidden="true">0 / 100</p>
+          <h3>One benchmark, labeled</h3>
+          <p>An undo that kept no record was exact for none of a hundred edits. <a href="projects/retractbench.html" data-exit="retractbench">The lab is upstairs</a>.</p>
+        </li>
+        <li class="jar jar-forgot">
+          <p class="sample" aria-hidden="true"></p>
+          <h3>A jar of forgotten things</h3>
+          <p>Empty. It held one fact about someone, once. <a href="tools/forget-me.html" data-exit="forgetme">Try to empty one yourself</a>.</p>
+        </li>
+        <li class="jar jar-tail">
+          <p class="sample" aria-hidden="true">~</p>
+          <h3>A gecko's shed tail</h3>
+          <p>It grows back. So does a chapter you cut. <a href="projects/storygecko.html" data-exit="storygecko">The writing room</a>.</p>
+        </li>
+        <li class="jar jar-water">
+          <p class="sample" aria-hidden="true">7.5 <small>pH</small></p>
+          <h3>A vial of pool water</h3>
+          <p>Balanced, for once. It will not stay that way. <a href="tools/pool-balance.html" data-exit="poolbalance">Test it</a>.</p>
+        </li>
+        <li class="jar jar-relay">
+          <p class="sample" aria-hidden="true">yes <small>/ no</small></p>
+          <h3>A spare relay</h3>
+          <p>Pulled from WITS. It asks one question of every message and trips on the first yes. <a href="tools/trace.html" data-exit="trace">Send one through</a>.</p>
+        </li>
+        <li class="jar jar-shard">
+          <p class="sample" aria-hidden="true"><i></i></p>
+          <h3>A sliver of the rift</h3>
+          <p>Still warm. Keep the lid on. <a href="projects/riftforge.html" data-exit="riftforge">Where it came from</a>.</p>
+        </li>
+        <li class="jar jar-crate">
+          <p class="sample" aria-hidden="true">{ }</p>
+          <h3>One shader, in a crate</h3>
+          <p>Every moving backdrop and the whole corridor are one small program. <a href="https://github.com/capnknives/richardelliot.dev/blob/main/assets/backdrop.js">Read it</a>.</p>
+        </li>
+        <li class="jar jar-seed">
+          <p class="sample" aria-hidden="true"><i></i></p>
+          <h3>One mustard seed</h3>
+          <p>In a jar of its own. The smallest thing on the shelf, and the one the mountains should worry about.</p>
+        </li>
+      </ul>
+      <p class="fine">No framework and no build step. Every page is a plain HTML file with one stylesheet and a few small scripts you can read in the source. The fonts are served from here. Nothing on this site follows you around.</p>
+    </section>
+
+    <section class="bench-tape" aria-labelledby="tape-title">
+      <p class="voice">On the workbench, six strips of tape.</p>
+      <h2 id="tape-title">One idea, six languages</h2>
+      <p class="about">Keep what was there before you change it, and you can always put it back exactly. It is the rule behind retractbench, written out in the languages these projects are made of.</p>
+      <div class="tapes">
+        <details class="tape" open>
+          <summary><b>Python</b> <span>where most of the work is</span></summary>
+          <pre tabindex="0"><code>GONE = object()
+
+def edit(model, key, value, ledger):
+    ledger.append((key, model.get(key, GONE)))
+    model[key] = value
+
+def undo(model, ledger):
+    key, before = ledger.pop()
+    if before is GONE:
+        del model[key]
+    else:
+        model[key] = before</code></pre>
+        </details>
+        <details class="tape">
+          <summary><b>TypeScript</b> <span>StoryGecko's editor</span></summary>
+          <pre tabindex="0"><code>type Entry&lt;K, V&gt; = { key: K; had: boolean; before?: V };
+
+function edit&lt;K, V&gt;(model: Map&lt;K, V&gt;, key: K, value: V, ledger: Entry&lt;K, V&gt;[]) {
+  ledger.push({ key, had: model.has(key), before: model.get(key) });
+  model.set(key, value);
+}
+
+function undo&lt;K, V&gt;(model: Map&lt;K, V&gt;, ledger: Entry&lt;K, V&gt;[]) {
+  const last = ledger.pop();
+  if (!last) return;
+  if (last.had) model.set(last.key, last.before as V);
+  else model.delete(last.key);
+}</code></pre>
+        </details>
+        <details class="tape">
+          <summary><b>SQL</b> <span>the ledger as a table</span></summary>
+          <pre tabindex="0"><code>BEGIN;
+INSERT INTO ledger (id, before)
+  SELECT id, body FROM notes WHERE id = 7;
+UPDATE notes SET body = &#x27;edited&#x27; WHERE id = 7;
+COMMIT;
+
+-- and back
+UPDATE notes
+   SET body = (SELECT before FROM ledger WHERE ledger.id = notes.id)
+ WHERE id = 7;</code></pre>
+        </details>
+        <details class="tape">
+          <summary><b>Bash</b> <span>the oldest version of the idea</span></summary>
+          <pre tabindex="0"><code>cp notes.txt notes.txt.record
+echo &quot;edited&quot; &gt; notes.txt
+
+# and back, byte for byte
+mv notes.txt.record notes.txt</code></pre>
+        </details>
+        <details class="tape">
+          <summary><b>PowerShell</b> <span>the same, on my own PC</span></summary>
+          <pre tabindex="0"><code>Copy-Item notes.txt notes.txt.record
+Set-Content notes.txt &#x27;edited&#x27;
+
+# and back
+Move-Item notes.txt.record notes.txt -Force</code></pre>
+        </details>
+        <details class="tape">
+          <summary><b>GLSL</b> <span>this site's backdrops</span></summary>
+          <pre tabindex="0"><code>// t = 0 is the world as built. t = 1 is the edit.
+// Nothing is overwritten, so the way back is t = 0.
+vec3 color = mix(original, edited, t);</code></pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="tally" aria-labelledby="tally-title" data-tally hidden>
+      <p class="voice">Scratched into a beam overhead, a tally.</p>
+      <h2 id="tally-title">Every command</h2>
+      <p class="about">The bar at the bottom of every page understands more than its help admits. The blank marks fill in as you find them. <output data-tally-count></output></p>
+      <ul class="marks" data-tally-list></ul>
+    </section>
+
+    <section class="wall" aria-labelledby="wall-title" data-wall hidden>
+      <p class="voice">The far wall is bare brick, covered in chalk.</p>
+      <h2 id="wall-title">Sign the wall</h2>
+      <p class="about">You found the way down. Leave a name. The wall keeps your name, your note and the day, and nothing else about you.</p>
+      <form class="chalk" data-wall-form autocomplete="off">
+        <label for="wall-name">Name</label>
+        <input id="wall-name" name="name" type="text" maxlength="24" required placeholder="Kilroy">
+        <label for="wall-note">Note <span>(optional)</span></label>
+        <input id="wall-note" name="note" type="text" maxlength="80" placeholder="was here">
+        <label class="trap" aria-hidden="true">Leave this empty <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+        <button type="submit">Sign it</button>
+        <p class="chalk-say" data-wall-say aria-live="polite"></p>
+      </form>
+      <ul class="scrawl" data-wall-list aria-label="Names on the wall"></ul>
+      <p class="fine">No links and nothing foul: those are wiped off. Notes can be removed.</p>
+    </section>
 
     <nav class="exits" aria-label="Way out">
       <h2>Exits</h2>
@@ -66,7 +192,7 @@
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
-  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="The cellar. Cool and dim. Shelves of jars, and stairs back up to the light.">
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="The cellar. Cool and dim. Shelves of jars along one wall, a workbench, a tally scratched into a beam, and chalk on the far wall. Stairs lead back up to the light.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
       <label for="cmd" aria-label="Command">&gt;</label>
@@ -74,7 +200,8 @@
     </form>
   </div>
 
-  <script src="assets/box.js?v=18"></script>
-  <script src="assets/prompt.js?v=18"></script>
+  <script src="assets/box.js?v=20"></script>
+  <script src="assets/prompt.js?v=20"></script>
+  <script src="assets/cellar.js?v=20"></script>
 </body>
 </html>

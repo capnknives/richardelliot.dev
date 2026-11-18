@@ -22,7 +22,8 @@ file, push to `main`, and it is live.
 | `assets/bench.js` | The workshop on the front page: one line and three constants to change, eleven probes, two ways home. The "without the record" undo is a simulation. |
 | `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. The corridor holds one door per link in `.door-tags` (up to eight), names the nearest four, and lets you walk on to bring the next ones close. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
 | `words.html` | The gallery: every quote, reached through the extra door that appears in about one world in six. The same list lives in `QUOTES` in `assets/box.js`, which shows one per world on the front page; change both together. Not linked from the navigation. |
-| `cellar.html` | A hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. |
+| `cellar.html`, `assets/cellar.css`, `assets/cellar.js` | The cellar: a hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. Shelves of jars (one keepsake from each project and tool, the shader, the mustard seed), one idea written in six languages (each sample was run before it went on the page, except the PowerShell and GLSL ones: rerun them if you change them), a tally of every prompt command that fills in as a visitor finds the hidden ones (kept in `sessionStorage`, gone when the tab closes), and the wall. |
+| `worker/`, `.github/workflows/wall.yml` | The cellar wall: a small Cloudflare Worker (`worker/wall.js`) that keeps the names and notes visitors leave, in one KV entry. It stores an id, the name, the note and the time, and nothing about the visitor. `node worker/test.mjs` runs its rules. See "The wall" below. |
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
 | `CNAME` | The custom domain, `richardelliot.dev`. |
@@ -56,12 +57,33 @@ from any page). Otherwise the same as a project: its own styles and
 script go in `assets/<name>.css` and `assets/<name>.js` (scope the styles under one class on
 `<main>`, as `.pool` does). `tools/pool-balance.html` is the one to copy.
 
+## The wall
+
+The wall in the cellar is hidden until it has a server to talk to.
+
+1. In the repository's settings, add three Actions secrets: `CLOUDFLARE_API_TOKEN` (create it in
+   Cloudflare with the "Edit Cloudflare Workers" template), `CLOUDFLARE_ACCOUNT_ID`, and
+   `WALL_ADMIN_KEY` (any long random string; keep a copy, it is the key that removes notes).
+2. Run the "Cellar wall" workflow (Actions tab, "Run workflow"). It tests the rules, finds or
+   creates the KV namespace, and deploys. The log ends with the Worker's address
+   (`https://cellar-wall.<your-subdomain>.workers.dev`).
+3. Put that address in `<meta name="wall-endpoint" content="">` in `cellar.html` and push.
+
+What is refused: links, addresses, phone numbers, and the words in `WHOLE` and `STEMS` at the
+top of `worker/wall.js` (edit the lists there; `worker/test.mjs` has the cases that must stay
+clean, such as Scunthorpe). The wall holds the newest 200 notes and takes at most 20 an hour in
+total. That limit is for the whole wall because nothing about a visitor is kept to count by.
+
+To remove a note: open `cellar.html#keeper`, type the admin key, and press "wipe" beside it.
+The key stays in that page's memory and is sent only with a wipe.
+
 ## Keep true
 
 The front page states facts that go stale: the stage of each project, the figures under
 retractbench, the dated entries in "The record", and what "Hire me" offers. Update them when
 things move. "What I believe" says the site has no trackers, cookies or framework: keep that
-true, or change the sentence. The pool page takes dissolved solids from the pool type (1,000 ppm for chlorine, 3,200 for
+true, or change the sentence. The wall in the cellar says it keeps a name, a note and the day and
+nothing else: keep `worker/wall.js` to that, or change the sentence in `cellar.html`. The pool page takes dissolved solids from the pool type (1,000 ppm for chlorine, 3,200 for
 salt, `SOLIDS` in `assets/pool-balance.js`) unless a reading is typed in. The pool water balance and Forget me pages say they send nothing
 anywhere: keep that true too. Forget me also states its own numbers (1,560 weights, thirty facts,
 ten people) in its text: if the model in `assets/forget-me.js` changes, change the sentences.
