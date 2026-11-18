@@ -12,6 +12,7 @@ file, push to `main`, and it is live.
 | `projects/*.html` | One landing page per project. |
 | `tools/*.html` | One page per small tool. Each is a door in the corridor and an entry under "Side doors". |
 | `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback (anything in square brackets is never counted, and the page's instructions say so); `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
+| `assets/trace.css`, `assets/trace.js` | The Trace tool (`tools/trace.html`): one message followed through the router of WITS (`capnknives/WitsV3`). `trace.js` ports the ordered checks of `classify_message()` in `agents/routing_classifier.py`, the tool gates of `agents/orchestrator_preflight.py`, the injection patterns and the PII patterns, with shortened phrase lists; it then draws the path. No model runs: where WITS would call one, the page says so and counts it. Loaded on that page only. The top half of `trace.js` also runs in Node. |
 | `assets/forget-me.css`, `assets/forget-me.js` | The Forget me tool (`tools/forget-me.html`): a small neural network and its training written out by hand, the weight field, and the two ways of taking a fact back. Loaded on that page only. The top half of the script also runs in Node (`require` it) for checking the numbers. |
 | `assets/pool-balance.css`, `assets/pool-balance.js` | The pool water balance tool (`tools/pool-balance.html`): its layout, the water chemistry, the dosing plan and the drawn pool wall. Loaded on that page only. |
 | `assets/site.css` | All styling. The front page is dark (`html.box`); each project is a world with its own color and mood, set by `data-room` on `<body>`, a `.band` or a `.door`. |
@@ -36,7 +37,7 @@ file, push to `main`, and it is live.
    itself: doors go two to a stretch of wall in the order of the links, the nearest four are
    named, and walking on brings up the rest, up to eight links. What is seen through the new door
    is the next number in the `world()` and `tintOf()` shader functions in `assets/backdrop.js`
-   (0 to 6 are taken, 9 is the hidden door). Without a branch there it shows the hidden door's sky.
+   (0 to 7 are taken, 9 is the hidden door). Without a branch there it shows the hidden door's sky.
 4. Add a link in the "Exits" list of the other project pages, also with `data-exit="key"`.
 5. Optional: a moving backdrop (an entry in `ROOMS` in `assets/backdrop.js` and a matching branch
    in the shader), a `view-transition-name` pair in `assets/site.css`, and things to examine in
@@ -59,7 +60,11 @@ anywhere: keep that true too. Forget me also states its own numbers (1,560 weigh
 ten people) in its text: if the model in `assets/forget-me.js` changes, change the sentences.
 Cadence states how well its rules scored (92 in 100, about 2,400 exceptions): if the rules in
 `assets/cadence.js` change, rebuild `assets/cadence-words.js` and update those figures. The
-corridor has room for eight doors and seven are in use.
+corridor has room for eight doors and all eight are in use: a ninth link needs the limit raised in
+`assets/backdrop.js` (the `uPerm[8]` uniform, the loop over it and `tags.slice(0, 8)`), or it will
+not get a door. Trace says its checks, reasons, gates and block messages are the ones in WITS: if
+the router in `capnknives/WitsV3` changes order or wording, change `assets/trace.js` to match, or
+change the sentences under "What is real here" on the page.
 
 ## Domain and HTTPS
 
@@ -81,11 +86,11 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=14`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=15`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=14' --include='*.html' . | xargs sed -i 's/?v=14/?v=15/g'
+grep -rl '?v=15' --include='*.html' . | xargs sed -i 's/?v=15/?v=16/g'
 ```
 
 ## Screen sizes

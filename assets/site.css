@@ -53,6 +53,8 @@
   --forget-wash: #f6e4ec;
   --cadence: #8f3f00;
   --cadence-wash: #fbeed3;
+  --trace: #4d5a00;
+  --trace-wash: #eef2cf;
 
   --room: var(--ink);
   --wash: var(--paper);
@@ -77,6 +79,7 @@
 [data-room="poolbalance"] { --room: var(--pool); --wash: var(--pool-wash); }
 [data-room="forgetme"] { --room: var(--forget); --wash: var(--forget-wash); }
 [data-room="cadence"] { --room: var(--cadence); --wash: var(--cadence-wash); --rule: #dcc59a; --soft: #5a4f40; }
+[data-room="trace"] { --room: var(--trace); --wash: var(--trace-wash); }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -95,6 +98,14 @@ body[data-room="forgetme"] {
   --room: #ff9ebe;
   --soft: #aab0d6;
   --rule: #363a66;
+}
+
+body[data-room="trace"] {
+  --wash: #14170c;
+  --ink: #f0f2df;
+  --room: #cfe35a;
+  --soft: #b3b89a;
+  --rule: #3b4126;
 }
 
 body[data-room="cellar"],
@@ -566,6 +577,7 @@ html.box {
 .door-tags a[data-room="poolbalance"] { --door: #b3dcff; }
 .door-tags a[data-room="forgetme"] { --door: #ff9ebe; }
 .door-tags a[data-room="cadence"] { --door: #ff9a5c; }
+.door-tags a[data-room="trace"] { --door: #cfe35a; }
 
 .world-bar {
   padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
@@ -1249,6 +1261,14 @@ body[data-room="forgetme"] .sheet {
   color: var(--ink);
 }
 
+body[data-room="trace"] .sheet {
+  --ink: #101820;
+  --room: var(--trace);
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+  color: var(--ink);
+}
+
 body[data-room="cellar"] .sheet {
   --ink: #101820;
   --room: #5d4a12;
@@ -1386,6 +1406,7 @@ body[data-room="cellar"] .sheet {
 
 body[data-room="riftforge"] .exits a,
 body[data-room="forgetme"] .exits a,
+body[data-room="trace"] .exits a,
 body[data-room="words"] .exits a,
 body[data-room="cellar"] .exits a {
   color: var(--ink);
@@ -1393,6 +1414,7 @@ body[data-room="cellar"] .exits a {
 
 body[data-room="riftforge"] .exits a:hover,
 body[data-room="forgetme"] .exits a:hover,
+body[data-room="trace"] .exits a:hover,
 body[data-room="words"] .exits a:hover,
 body[data-room="cellar"] .exits a:hover {
   color: var(--room);
