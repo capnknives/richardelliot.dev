@@ -1,0 +1,315 @@
+/* Knobs (tools/knobs.html).
+   Everything here is scoped under .knobs; type comes from site.css and the
+   room's dark colors are set there too. The loud things on the page are the
+   map (the network's answer for every reading) and the board of 33 dials. */
+
+.knobs {
+  --panel: #162a26;
+  --yes: #9df0da;         /* marked safe, and the network's "yes" */
+  --no: #ffb199;          /* marked not safe, and the network's "no" */
+}
+
+body[data-room="knobs"] .room-head h1 {
+  font-size: clamp(3.75rem, 19vw, 13rem);
+}
+body[data-room="knobs"] .room-head .lede {
+  max-width: 30ch;
+}
+
+.knobs .lab {
+  display: grid;
+  gap: clamp(2.75rem, 7vw, 4.5rem);
+  padding: 0 var(--gutter) 1.5rem;
+}
+.knobs .lab > * { min-width: 0; }
+.knobs .lab h2 {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: var(--room);
+  margin-bottom: 0.75rem;
+}
+.knobs .lab p {
+  margin: 0 0 0.9rem;
+  max-width: 36rem;
+}
+.knobs .fine {
+  font-size: 0.875rem;
+  color: var(--soft);
+}
+.knobs .say {
+  min-height: 4.6em;
+  font-family: var(--voice);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+/* Controls shared by every part */
+.knobs button {
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  font: 700 1.0625rem/1.1 var(--text);
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.knobs button.go {
+  color: var(--wash);
+  background: var(--room);
+  border-color: var(--room);
+}
+.knobs button:disabled { opacity: 0.4; cursor: default; }
+.knobs button:focus-visible,
+.knobs input:focus-visible,
+.knobs summary:focus-visible {
+  outline: 3px solid var(--no);
+  outline-offset: 2px;
+}
+.knobs .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.knobs input[type="range"] {
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  accent-color: var(--room);
+}
+.knobs .slide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 0.75rem;
+  align-items: baseline;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+.knobs .slide input { grid-column: 1 / -1; }
+.knobs .slide output {
+  font: 800 1.5rem/1 var(--display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* The written rule */
+.knobs .code {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 0;
+  max-width: 36rem;
+  overflow-x: auto;
+  background: var(--panel);
+  border-left: 3px solid var(--rule);
+  font: 500 0.875rem/1.7 var(--mono);
+}
+.knobs .code li {
+  width: max-content;
+  min-width: 100%;
+  padding: 0 0.9rem;
+  white-space: pre;
+  color: var(--soft);
+}
+.knobs .code li.hit {
+  color: var(--wash);
+  background: var(--room);
+  font-weight: 700;
+}
+.knobs .readings {
+  display: grid;
+  gap: 0.75rem 2rem;
+  max-width: 36rem;
+}
+.knobs .verdict {
+  margin-top: 0.9rem !important;
+  font: 800 clamp(1.5rem, 5.5vw, 2rem)/1.1 var(--display);
+}
+
+/* The map */
+.knobs .map {
+  display: block;
+  width: 100%;
+  font-family: var(--text);
+  cursor: crosshair;
+}
+.knobs .key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0.5rem 0 0 !important;
+  font-size: 0.875rem;
+  color: var(--soft);
+}
+.knobs .key b { color: var(--ink); font-weight: 700; margin-right: 0.3rem; }
+.knobs .key .y { color: var(--yes); }
+.knobs .key .n { color: var(--no); }
+.knobs .meters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.1rem 0 0;
+}
+.knobs .meters div {
+  border-top: 2px solid var(--rule);
+  padding-top: 0.5rem;
+}
+.knobs .meters dd {
+  margin: 0;
+  font: 800 clamp(1.75rem, 8vw, 3rem)/0.9 var(--display);
+  font-variant-numeric: tabular-nums;
+}
+.knobs .meters dd small {
+  font: 500 0.875rem var(--text);
+  color: var(--soft);
+}
+.knobs .meters dt {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: var(--soft);
+}
+
+/* The board */
+.knobs .board {
+  width: 100%;
+  max-width: 30rem;
+  border-collapse: separate;
+  border-spacing: 0.25rem;
+  table-layout: fixed;
+  margin: 0 -0.25rem;
+}
+.knobs .board th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--soft);
+  text-align: center;
+  vertical-align: bottom;
+  padding: 0 0 0.2rem;
+}
+.knobs .board tr > :first-child { width: 1.4rem; }
+.knobs .board th[scope="row"] { vertical-align: middle; padding: 0; }
+.knobs .board th.last { text-align: right; padding-right: 0.5rem; }
+.knobs .board td { padding: 0; }
+.knobs .board button {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  min-height: 3.6rem;
+  padding: 0.4rem 0.1rem 0.3rem;
+  background: var(--panel);
+  border-color: transparent;
+}
+.knobs .board button[aria-pressed="true"] { border-color: var(--room); }
+.knobs .dial {
+  display: block;
+  position: relative;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1.5px solid var(--soft);
+  border-radius: 50%;
+}
+.knobs .dial i {
+  position: absolute;
+  inset: 0;
+  transition: transform 80ms linear;
+}
+.knobs .dial i::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 1.5px);
+  top: 1px;
+  width: 3px;
+  height: 46%;
+  background: var(--room);
+  border-radius: 1.5px;
+}
+.knobs .num {
+  font: 500 0.75rem/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.knobs .turn {
+  max-width: 30rem;
+  margin-top: 1rem;
+}
+
+/* Ask both */
+.knobs .both dl {
+  margin: 0;
+  max-width: 36rem;
+}
+.knobs .both dl div {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--rule);
+}
+.knobs .both dt { color: var(--soft); font-size: 0.9375rem; }
+.knobs .both dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+.knobs .both .note { margin-top: 0.9rem !important; }
+
+/* Next word */
+.knobs .line {
+  min-height: 2.9em;
+  font: italic 500 clamp(1.375rem, 5vw, 2rem)/1.3 var(--voice);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.knobs .next {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  max-width: 30rem;
+  min-height: 12.5rem;
+  align-content: start;
+}
+.knobs .next button {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 1.85rem;
+  padding: 0.15rem 0;
+  font: 500 0.9375rem/1.2 var(--text);
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+}
+.knobs .next .track { height: 0.6rem; background: var(--panel); }
+.knobs .next i { display: block; height: 100%; background: var(--room); }
+.knobs .next .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--soft); }
+.knobs .next button:hover .w { text-decoration: underline; }
+.knobs .boldness { max-width: 30rem; }
+.knobs details { max-width: 36rem; margin-top: 1rem; }
+.knobs summary { cursor: pointer; font-weight: 600; min-height: 2.75rem; padding-top: 0.6rem; }
+.knobs details ol {
+  margin: 0.25rem 0 0;
+  padding-left: 2rem;
+  font-size: 0.9375rem;
+  color: var(--soft);
+  columns: 18rem;
+}
+
+@media (min-width: 60rem) {
+  .knobs .kn-bench {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    column-gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .knobs .readings { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .knobs .dial i { transition: none; }
+}

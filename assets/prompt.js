@@ -62,13 +62,18 @@
       "list,review,plan,wall": "A list pinned to the wall, headed What is wrong with this. Five items. Underneath, in the same hand: fix in this order."
     },
     tools: {
-      "doors,door,passage": "Five smaller doors. Nothing behind them is for sale. Each was built to answer one question.",
+      "doors,door,passage": "Six smaller doors. Nothing behind them is for sale. Each was built to answer one question.",
       "light,lights": "Each door leaks its own color. The pink one flickers when something is forgotten."
     },
     forgetme: {
       "wall,squares,weights,grid,field": "One square for every number the model is made of. Teach it something and watch where the light goes. It goes almost everywhere.",
       "ledger,record,book,stand": "Every weight, written down before anything was taught. It is the only way back that lands exactly.",
       "model,network": "Small enough to read in an afternoon. It knows ten people who do not exist."
+    },
+    knobs: {
+      "board,dials,dial,knobs,knob,wall": "Thirty-three dials. Each has a number under it and no label. Somebody set them, and it was not a person.",
+      "map,window,glass": "Green where the answer is yes, red where it is no. Turn any dial and the border moves in more than one place.",
+      "desk,chair,logbook,log": "A logbook of 240 pool readings, each marked yes or no in pencil. It is the only thing the dials were ever shown."
     },
     poolbalance: {
       "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
@@ -112,6 +117,7 @@
     { key: "wits", path: "projects/wits.html", name: "WITS", kinds: "ai agents" },
     { key: "trace", path: "tools/trace.html", name: "Trace", kinds: "tools ai agents" },
     { key: "forgetme", path: "tools/forget-me.html", name: "Forget me", kinds: "tools ai research" },
+    { key: "knobs", path: "tools/knobs.html", name: "Knobs", kinds: "tools ai" },
     { key: "cadence", path: "tools/cadence.html", name: "Cadence", kinds: "tools writing" },
     { key: "poolbalance", path: "tools/pool-balance.html", name: "Pool balance", kinds: "tools" },
     { key: "feeder", path: "tools/feeder-match.html", name: "Feeder match", kinds: "tools" }
