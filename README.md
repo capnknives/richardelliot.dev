@@ -15,6 +15,7 @@ file, push to `main`, and it is live.
 | `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback (anything in square brackets is never counted, and the page's instructions say so); `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
 | `assets/trace.css`, `assets/trace.js` | The Trace tool (`tools/trace.html`): one message followed through the router of WITS (`capnknives/WitsV3`). `trace.js` ports the ordered checks of `classify_message()` in `agents/routing_classifier.py`, the tool gates of `agents/orchestrator_preflight.py`, the injection patterns and the PII patterns, with shortened phrase lists; it then draws the path. No model runs: where WITS would call one, the page says so and counts it. Loaded on that page only. The top half of `trace.js` also runs in Node. |
 | `assets/forget-me.css`, `assets/forget-me.js` | The Forget me tool (`tools/forget-me.html`): a small neural network and its training written out by hand, the weight field, and the two ways of taking a fact back. Loaded on that page only. The top half of the script also runs in Node (`require` it) for checking the numbers. |
+| `assets/knobs.css`, `assets/knobs.js` | The Knobs tool (`tools/knobs.html`): how an AI model is made, trained and used, in six stops, with one small language model (1,992 weights, trained on a 46-sentence reading) that runs in the page. Words to numbers, a random model, training, writing a word at a time, wiping weights to look for a fact, and the step up to a chatbot. Three wordings (plain, curious, technical) are picked at the top and kept in the address as `#plain`, `#curious` or `#technical`; each stop has one paragraph per wording, marked `data-lv`. Loaded on that page only. The top half of the script also runs in Node (`require` it) for checking the numbers. |
 | `assets/feeder-match.css`, `assets/feeder-match.js` | The Feeder match tool (`tools/feeder-match.html`): a snake species and weight in, a feeder size, a schedule and a 30-day count out. `FEEDERS` (the size names and gram ranges) is a placeholder taken from one supplier's chart, to be replaced by the breeder's own; `SPECIES` holds the tapering share-of-body-weight curves, the hognose weight ladder and the schedules, for five species (corn snake, Florida kingsnake, Pueblan milk snake, Texas rat snake, western hognose). `ORDER` drives the request form under the ticket: today it only writes a message the buyer copies; setting `contactName`, `sms` or `prices` there adds a greeting, a "Text this request" link and an estimated total. Loaded on that page only. The top half of the script also runs in Node. |
 | `assets/pool-balance.css`, `assets/pool-balance.js` | The pool water balance tool (`tools/pool-balance.html`): its layout, the water chemistry, the dosing plan and the drawn pool wall. Loaded on that page only. |
 | `assets/site.css` | All styling. The front page is dark (`html.box`); each project is a world with its own color and mood, set by `data-room` on `<body>`, a `.band` or a `.door`. |
@@ -88,6 +89,12 @@ nothing else: keep `worker/wall.js` to that, or change the sentence in `cellar.h
 salt, `SOLIDS` in `assets/pool-balance.js`) unless a reading is typed in. The pool water balance and Forget me pages say they send nothing
 anywhere: keep that true too. Forget me also states its own numbers (1,560 weights, thirty facts,
 ten people) in its text: if the model in `assets/forget-me.js` changes, change the sentences.
+Knobs states its own numbers in its text (1,992 weights, 46 sentences, a 46-word vocabulary, 434
+drills of which 298 is the most any guesser can match, 300 passes, 8 and 24 for the layer sizes):
+if the model or the reading in `assets/knobs.js` changes, change the sentences in all three
+wordings. It also cites three outside sources and one model's size (Llama 3.1, 405 billion, 81
+million pages at 5,000 a page): check the links still open. It says it sends nothing anywhere:
+keep that true.
 Cadence states how well its rules scored (92 in 100, about 2,400 exceptions): if the rules in
 `assets/cadence.js` change, rebuild `assets/cadence-words.js` and update those figures. The
 corridor has room for eight doors and all eight are in use: a ninth link needs the limit raised in
@@ -130,6 +137,11 @@ function, so they can be swept without a browser. The checks that have caught re
   the ANSI/APSP table): the two worked examples in the CPO handbook, -0.5 and +0.4, must come
   out as -0.52 and +0.42.
 - Feeder match: `require` the script and run `match()` for every species, sex, shape and feeder type at every weight from 1 to 3,000 g. Every answer must name a size, no meal may pass 25% of body weight except the smallest pinky for a hatchling, a size must never go down as weight goes up, and a hognose or a milk snake is never offered a rat.
+- Knobs: `require` the script, make models from many seeds (`newModel(seed)`) and run `pass()`
+  300 times on each. Every one should end with `right()` at 298 of 434, and an untrained one near
+  zero. Write a few hundred sentences with `write()`: most should not be in the reading, and none
+  may run past 16 words. Type a word the model has never seen at stop 1: it must show a question
+  mark, not break.
 - Cadence: a line of one very long word, and a paste of a few thousand lines. Words must wrap
   and the page draws only the first 300 lines.
 - Trace: strings of 2,000 digits (some patterns are slow on long input, which is why input is

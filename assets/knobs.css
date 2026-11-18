@@ -1,0 +1,296 @@
+/* Knobs (tools/knobs.html).
+   Everything here is scoped under .knobs; type comes from site.css and the
+   room's dark colors are set there too. The page is a walk in six stops. The
+   loud thing on it is the field: one square per weight. */
+
+.knobs {
+  --panel: #162a26;
+  --yes: #9df0da;         /* a weight above zero */
+  --no: #ffb199;          /* a weight below zero, and anything flagged */
+}
+
+body[data-room="knobs"] .room-head h1 {
+  font-size: clamp(3.75rem, 19vw, 13rem);
+}
+body[data-room="knobs"] .room-head .lede {
+  max-width: 30ch;
+}
+
+.knobs .lab {
+  display: grid;
+  gap: clamp(2.75rem, 7vw, 4.5rem);
+  padding: 0 var(--gutter) 2rem;
+}
+.knobs .lab > * { min-width: 0; max-width: 44rem; }
+.knobs .lab h2 {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: var(--room);
+  margin-bottom: 0.75rem;
+}
+.knobs .stop h2 span {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-right: 0.15em;
+  padding: 0 0.3em;
+  text-align: center;
+  color: var(--wash);
+  background: var(--room);
+}
+.knobs .lab p {
+  margin: 0 0 0.9rem;
+  max-width: 36rem;
+}
+.knobs .fine {
+  font-size: 0.875rem;
+  color: var(--soft);
+}
+.knobs .say {
+  min-height: 4.6em;
+  font-family: var(--voice);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+.knobs .say.short { min-height: 3.1em; }
+
+/* One of the three wordings shows at a time. Without JavaScript the plain one does. */
+.knobs [data-lv] { display: none; }
+.knobs[data-level="plain"] [data-lv="plain"],
+.knobs[data-level="curious"] [data-lv="curious"],
+.knobs[data-level="technical"] [data-lv="technical"] { display: block; }
+
+/* Controls */
+.knobs button {
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  font: 700 1.0625rem/1.1 var(--text);
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.knobs button.go {
+  color: var(--wash);
+  background: var(--room);
+  border-color: var(--room);
+}
+.knobs button.link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--room);
+  text-decoration: underline;
+}
+.knobs button:disabled { opacity: 0.4; cursor: default; }
+.knobs button:focus-visible,
+.knobs input:focus-visible,
+.knobs summary:focus-visible {
+  outline: 3px solid var(--no);
+  outline-offset: 2px;
+}
+.knobs .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.knobs .levels .row { margin-top: 0; }
+.knobs .levels button {
+  display: grid;
+  gap: 0.2rem;
+  flex: 1 1 11rem;
+  text-align: left;
+  border-color: var(--rule);
+}
+.knobs .levels button small {
+  font: 500 0.875rem/1.2 var(--text);
+  color: var(--soft);
+}
+.knobs .levels button[aria-pressed="true"] {
+  border-color: var(--room);
+  background: var(--panel);
+}
+.knobs .levels button[aria-pressed="true"] b { color: var(--room); }
+
+.knobs input[type="range"] {
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  accent-color: var(--room);
+}
+.knobs .slide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 0.75rem;
+  align-items: baseline;
+  max-width: 30rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+.knobs .slide input { grid-column: 1 / -1; }
+.knobs .slide output {
+  font: 800 1.5rem/1 var(--display);
+  color: var(--ink);
+}
+
+/* Stop 1 */
+.knobs .type {
+  display: grid;
+  gap: 0.3rem;
+  max-width: 30rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+.knobs input[type="text"] {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  font: 500 1.0625rem/1.2 var(--text);
+  color: var(--ink);
+  background: var(--panel);
+  border: 1.5px solid var(--rule);
+  border-radius: 0.3rem;
+}
+.knobs .tokens {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 0.9rem;
+  padding: 0;
+  min-height: 3.6rem;
+}
+.knobs .tokens li {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.6rem 0.3rem;
+  background: var(--panel);
+  font-weight: 600;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.knobs .tokens b {
+  font: 800 1.5rem/1 var(--display);
+  font-variant-numeric: tabular-nums;
+  color: var(--room);
+}
+.knobs .tokens .unknown { outline: 1.5px dashed var(--no); outline-offset: -1.5px; }
+.knobs .tokens .unknown b { color: var(--no); }
+
+/* The field */
+.knobs .field {
+  display: block;
+  width: 100%;
+  background: var(--panel);
+}
+.knobs .field.tap { cursor: crosshair; }
+.knobs .key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0.5rem 0 0 !important;
+  font-size: 0.875rem;
+  color: var(--soft);
+}
+.knobs .key b { margin-right: 0.3rem; }
+.knobs .key .y { color: var(--yes); }
+.knobs .key .n { color: var(--no); }
+
+/* What it writes */
+.knobs .line {
+  min-height: 2.7em;
+  font: italic 500 clamp(1.25rem, 4.6vw, 1.75rem)/1.35 var(--voice);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Stop 3 */
+.knobs .drill {
+  padding: 0.9rem 1rem 1rem;
+  background: var(--panel);
+  border-left: 3px solid var(--room);
+  max-width: 30rem;
+}
+.knobs .drill p { margin-bottom: 0.4rem; }
+.knobs .drill .q strong { font-size: 1.125rem; }
+.knobs .bars,
+.knobs .next {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  max-width: 30rem;
+  align-content: start;
+}
+.knobs .bars { min-height: 7rem; }
+.knobs .next { min-height: 10.5rem; }
+.knobs .bars li,
+.knobs .next button {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9375rem;
+  color: var(--soft);
+}
+.knobs .next button {
+  width: 100%;
+  min-height: 1.85rem;
+  padding: 0.15rem 0;
+  font: 500 0.9375rem/1.2 var(--text);
+  color: var(--ink);
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+}
+.knobs .track { height: 0.6rem; background: var(--wash); }
+.knobs .next .track { background: var(--panel); }
+.knobs .track i { display: block; height: 100%; background: var(--soft); }
+.knobs .next .track i { background: var(--room); }
+.knobs .val { text-align: right; font-variant-numeric: tabular-nums; }
+.knobs .bars li.truth { color: var(--ink); font-weight: 700; }
+.knobs .bars li.truth .w::after { content: " \2713"; color: var(--room); }
+.knobs .bars li.truth i { background: var(--room); }
+.knobs .next button:hover .w { text-decoration: underline; }
+
+.knobs .meters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.1rem 0;
+}
+.knobs .meters.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 24rem; }
+.knobs .meters div {
+  border-top: 2px solid var(--rule);
+  padding-top: 0.5rem;
+}
+.knobs .meters dd {
+  margin: 0;
+  font: 800 clamp(1.75rem, 8vw, 3rem)/0.9 var(--display);
+  font-variant-numeric: tabular-nums;
+}
+.knobs .meters dd small {
+  font: 500 0.875rem var(--text);
+  color: var(--soft);
+}
+.knobs .meters dt {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: var(--soft);
+}
+
+.knobs details { max-width: 36rem; }
+.knobs summary { cursor: pointer; font-weight: 600; min-height: 2.75rem; padding-top: 0.6rem; }
+.knobs details ol {
+  margin: 0.25rem 0 0;
+  padding-left: 2rem;
+  font-size: 0.9375rem;
+  color: var(--soft);
+  columns: 18rem;
+}
