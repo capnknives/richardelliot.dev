@@ -11,8 +11,8 @@
   <meta property="og:url" content="https://richardelliot.dev/tools/cadence.html">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=13">
-  <link rel="stylesheet" href="../assets/cadence.css?v=13">
+  <link rel="stylesheet" href="../assets/site.css?v=14">
+  <link rel="stylesheet" href="../assets/cadence.css?v=14">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="cadence">
@@ -44,7 +44,7 @@
           <button type="button" class="link" id="cd-clear">Clear the sheet</button>
           <button type="button" class="link" id="cd-example">Put the example back</button>
         </p>
-        <p class="fine" id="cd-help">One line of the song per line. A blank line starts a new section. A line like [Verse] or Hook: names the section and is not counted.</p>
+        <p class="fine" id="cd-help">One line of the song per line. A blank line starts a new section. Anything in [square brackets] is never counted, wherever you put it: [Chorus] on its own line names the section, and a tag inside a line, like [whispered], is skipped. A short label ending in a colon, like Hook:, also names a section.</p>
         <div class="dials">
           <label for="cd-bpm" class="wide">Tempo <output id="cd-bpm-out" for="cd-bpm">150</output> <small>beats a minute</small>
             <input id="cd-bpm" type="range" min="60" max="220" step="1" value="150">
@@ -78,6 +78,7 @@
         <div class="body">
 <p>The big number is the syllables in the line. The bar under the words is the time the line gets: the divisions are beats and each tick is one syllable. Ticks are spread evenly, which a real delivery never is, so treat the bar as how crowded the line is and not where the words land.</p>
 <p>A line is flagged when it asks for more syllables a second than the limit you set, or when it is well out of step with the other lines in its section.</p>
+<p>Words shown in gray are not counted. That is everything in [square brackets], always, and words in (parentheses) while that switch is on.</p>
         </div>
       </section>
       <section>
@@ -123,10 +124,10 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=13"></script>
-  <script src="../assets/prompt.js?v=13"></script>
-  <script src="../assets/backdrop.js?v=13"></script>
-  <script src="../assets/cadence-words.js?v=13"></script>
-  <script src="../assets/cadence.js?v=13"></script>
+  <script src="../assets/box.js?v=14"></script>
+  <script src="../assets/prompt.js?v=14"></script>
+  <script src="../assets/backdrop.js?v=14"></script>
+  <script src="../assets/cadence-words.js?v=14"></script>
+  <script src="../assets/cadence.js?v=14"></script>
 </body>
 </html>
