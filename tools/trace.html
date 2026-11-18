@@ -9,10 +9,17 @@
   <meta property="og:description" content="Follow one message through a local AI assistant, check by check.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/tools/trace.html">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/tools/trace.html">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=15">
-  <link rel="stylesheet" href="../assets/trace.css?v=15">
+  <link rel="stylesheet" href="../assets/site.css?v=16">
+  <link rel="stylesheet" href="../assets/trace.css?v=16">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="trace">
@@ -39,7 +46,7 @@
     <div class="console">
       <form class="send" id="tr-form" autocomplete="off">
         <h2><label for="tr-text">Say something to it</label></h2>
-        <textarea id="tr-text" rows="2" spellcheck="false" autocapitalize="sentences" aria-describedby="tr-help">save this conversation</textarea>
+        <textarea id="tr-text" rows="2" maxlength="2000" spellcheck="false" autocapitalize="sentences" aria-describedby="tr-help">save this conversation</textarea>
         <p class="fine" id="tr-help">This is the router from WITS, the assistant I run on my own machine. There is no model behind this page: it shows the path, not the answer.</p>
 
         <fieldset class="who">
@@ -91,7 +98,7 @@
         <h2>What is real here</h2>
         <div class="body">
 <p>The order of the checks, the reason printed under Decision, the gates in front of each tool and the words of each block message are the ones in <a href="https://github.com/capnknives/WitsV3">WITS</a>. The injection patterns and the personal-data patterns are copied whole. The phrase lists are shortened, so the real router recognizes more than this page does.</p>
-<p>Where a tool is named under the orchestrator, it is the tool the route points at. A real model can still choose badly, which is what the gates are for. The whole port is <a href="../assets/trace.js">one script</a>.</p>
+<p>Where a tool is named under the orchestrator, it is the tool the route points at. A real model can still choose badly, which is what the gates are for. A named file is checked against the folders the owner has allowed; this page has no disk, so a path that climbs out of the project stands in for one that fails that check. The whole port is <a href="../assets/trace.js">one script</a>.</p>
         </div>
       </section>
       <section>
@@ -123,7 +130,7 @@
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
-  <div class="prompt" data-prompt data-room-text="A switch room with no windows. One cable comes in through the wall and meets a rack of relays, each with a paper label. Most of the lamps are dark. A red-handled breaker sits at the far end.">
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A switch room with no windows. One cable comes in through the wall and meets a rack of relays, each with a paper label. Most of the lamps are dark. A red-handled breaker sits at the far end.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
       <label for="cmd" aria-label="Command">&gt;</label>
@@ -131,9 +138,9 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=15"></script>
-  <script src="../assets/prompt.js?v=15"></script>
-  <script src="../assets/backdrop.js?v=15"></script>
-  <script src="../assets/trace.js?v=15"></script>
+  <script src="../assets/box.js?v=16"></script>
+  <script src="../assets/prompt.js?v=16"></script>
+  <script src="../assets/backdrop.js?v=16"></script>
+  <script src="../assets/trace.js?v=16"></script>
 </body>
 </html>

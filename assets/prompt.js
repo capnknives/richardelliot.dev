@@ -276,6 +276,10 @@
       say(raw, "Gone. An undo that kept the record could bring it back. One that did not, could only get close.");
       return;
     }
+    if (verb === "mail" || verb === "email" || verb === "contact" || verb === "write") {
+      say(raw, "A brass mail slot in the wall. The plate reads hello@richardelliot.dev.");
+      return;
+    }
     if (verb === "hello" || verb === "hi" || verb === "hey") {
       say(raw, "Hello. Type help if you are lost.");
       return;
@@ -289,6 +293,7 @@
       return;
     }
     if (verb === "back" || verb === "up" || verb === "u") {
+      if (here === "home") { say(raw, "You are already in the corridor. Every way back leads here."); return; }
       go(raw, "home");
       return;
     }
@@ -332,6 +337,7 @@
       input.focus();
     } else if (event.key === "Escape" && el === input) {
       wipe();
+      input.value = "";
       input.blur();
     }
   });

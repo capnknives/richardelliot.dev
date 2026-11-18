@@ -285,7 +285,13 @@ function plan(result, message, opts) {
       llm = [1, 1];
     }
   } else if (where === "read_file_direct") {
-    steps.push({ kind: "tool", title: "read_file", detail: d.file + ", read directly. No tool loop.", status: "ok" });
+    /* core/filesystem_policy.py resolves the path and checks it against the folders the owner
+       has allowed. There is no disk here, so a path that climbs out with .. or names a root
+       stands in for one that resolves outside them. */
+    var outside = /(^|[\\/])\.\.([\\/]|$)/.test(d.file) || /^([\\/~]|[a-z]:)/i.test(d.file);
+    steps.push({ kind: "tool", title: "read_file", detail: d.file + ", read directly. No tool loop.", status: outside ? "blocked" : "ok",
+      gates: [{ name: "Read roots", pass: !outside, note: outside ? "The path resolves outside the folders this assistant is allowed to read, so nothing is opened."
+        : "resolves inside the project folder, one of the folders it is allowed to read" }] });
     llm = null;
   } else if (where === "knowledge_log") {
     steps.push({ kind: "tool", title: "knowledge log", detail: "Reads the list of recurring errors and durable facts directly. No tool loop.", status: "ok" });
@@ -327,7 +333,7 @@ function plan(result, message, opts) {
 }
 
 function trace(message, opts) {
-  var text = String(message || "").trim();
+  var text = String(message || "").slice(0, 2000).trim();   /* the page caps input too; some patterns are slow on very long strings */
   if (!text) return null;
   var c = classify(text, opts), p = plan(c, text, opts);
   return { checks: c.checks, decision: c.decision, role: c.role, steps: p.steps, llm: p.llm, destination: p.destination };
@@ -445,8 +451,9 @@ form.addEventListener("change", draw);
 Array.prototype.forEach.call(document.querySelectorAll("[data-try]"), function (b) {
   b.addEventListener("click", function () {
     input.value = b.getAttribute("data-try");
-    if (b.hasAttribute("data-role")) form.querySelector('input[name="tr-role"][value="' + b.getAttribute("data-role") + '"]').checked = true;
+    form.querySelector('input[name="tr-role"][value="' + (b.getAttribute("data-role") || "owner") + '"]').checked = true;
     offline.checked = b.hasAttribute("data-offline");
+    docs.checked = false;
     draw();
     document.getElementById("tr-out").scrollIntoView({ block: "nearest", behavior: "auto" });
   });

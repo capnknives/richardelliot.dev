@@ -196,7 +196,9 @@
 
   function withoutRecord() {
     if (!anyTouched()) {
-      say.textContent = "Nothing to undo yet. Change the line or one of the constants first.";
+      say.textContent = measure() < PROBES.length
+        ? "That is as close as this undo gets. Trying again finds nothing more to take back. Only the record goes the rest of the way."
+        : "Nothing to undo yet. Change the line or one of the constants first.";
       return;
     }
     if (touched.line) {

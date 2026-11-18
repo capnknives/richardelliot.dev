@@ -25,6 +25,8 @@ file, push to `main`, and it is live.
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
 | `CNAME` | The custom domain, `richardelliot.dev`. |
+| `assets/card.png`, `assets/touch-icon.png` | The 1200x630 picture that link previews show (every page's `og:image`), and the icon a phone uses when the site is added to a home screen. |
+| `sitemap.xml`, `robots.txt` | The pages search engines should index. Add a line to `sitemap.xml` for each new page; `words.html`, `cellar.html` and `404.html` stay out. |
 
 ## Add a project
 
@@ -66,6 +68,12 @@ not get a door. Trace says its checks, reasons, gates and block messages are the
 the router in `capnknives/WitsV3` changes order or wording, change `assets/trace.js` to match, or
 change the sentences under "What is real here" on the page.
 
+## Contact
+
+The front page gives `hello@richardelliot.dev` under "Hire me" and "About", and the prompt answers
+`mail`. The address is a Name.com forward to a personal inbox, so there is no mailbox to check:
+if the forward is ever removed, take the address off the page.
+
 ## Domain and HTTPS
 
 The domain is registered at Name.com and points at GitHub Pages: four `A` records on the bare
@@ -75,6 +83,23 @@ The Mortals and Monsters game site is separate: it lives in `capnknives/capnkniv
 and its player site is served by the game server at `play.riftforge.me`.
 The bare `riftforge.me` address is set as that repository's Pages domain but does not currently
 resolve to GitHub Pages, so it shows a browser error.
+
+## Check before shipping
+
+The chemistry, the model, the syllable counter and the router each run in Node or in a plain
+function, so they can be swept without a browser. The checks that have caught real bugs:
+
+- Pool balance: run `plan()` over a grid of readings and require that every dose is positive
+  and finite, that pH, alkalinity, calcium and stabilizer all end in range, and that the plan
+  never moves the index from one side of balanced to the other.
+- Cadence: a line of one very long word, and a paste of a few thousand lines. Words must wrap
+  and the page draws only the first 300 lines.
+- Trace: strings of 2,000 digits (some patterns are slow on long input, which is why input is
+  capped), and `read ../../x.txt`, which must stop at the read-roots gate.
+- The workshop on the front page under reduced motion: the probes read computed styles the
+  instant they change, so the line they read must have no transition.
+- Every page at 320px with one unbroken 5,000-character word typed into any text box.
+- Every page with JavaScript off: tool pages show their explanation and hide the controls.
 
 ## Preview locally
 
@@ -86,11 +111,11 @@ python3 -m http.server 8000
 ## After changing a stylesheet or script
 
 Browsers keep `assets/site.css` and the scripts for a while. Each page links them with a version
-tag (`site.css?v=15`). When you change one of those files, raise the number in every HTML file so
+tag (`site.css?v=16`). When you change one of those files, raise the number in every HTML file so
 returning visitors get the new one:
 
 ```bash
-grep -rl '?v=15' --include='*.html' . | xargs sed -i 's/?v=15/?v=16/g'
+grep -rl '?v=16' --include='*.html' . | xargs sed -i 's/?v=16/?v=17/g'
 ```
 
 ## Screen sizes

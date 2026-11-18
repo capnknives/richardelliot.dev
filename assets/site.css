@@ -919,6 +919,9 @@ html.box body::before {
   margin: 0 0 0.9rem;
   text-wrap: balance;
   overflow-wrap: anywhere;
+  /* The probes read this line's weight and spacing the instant they change. Under reduced
+     motion every property gets a 0.01ms transition, which is enough to hand them the old value. */
+  transition: none !important;
 }
 
 .bench-intro p:last-child {
@@ -1098,6 +1101,16 @@ html.box body::before {
   min-height: 3.1em;
   margin: 0 0 0.5rem;
   max-width: var(--measure);
+}
+
+/* Without JavaScript the tools cannot run. Their pages keep the explanation and drop the dead controls. */
+.no-js .pool .layout,
+.no-js .forget .lab,
+.no-js .cadence .desk,
+.no-js .trace .console,
+.no-js .world-bar button,
+.no-js .world-bar .fine {
+  display: none;
 }
 
 .no-js .workshop {
@@ -1460,6 +1473,7 @@ body[data-room="cellar"] .exits a:hover {
   max-height: min(40vh, 18rem);
   overflow-y: auto;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: #b7c2cc;
   border-bottom: 1px solid #2c3742;
 }

@@ -53,9 +53,15 @@
   var current = 0;
   try {
     var saved = JSON.parse(get("sessionStorage", "re-branches") || "null");
-    if (saved && saved.nodes && saved.nodes.length) {
+    /* Saved state is only trusted if every node has a label and a parent that comes before it. */
+    var sound = saved && Array.isArray(saved.nodes) && saved.nodes.length > 0 && saved.nodes.length <= MAX_NODES &&
+      saved.nodes.every(function (n, i) {
+        return n && typeof n.label === "string" && n.label.length <= 40 &&
+          (i === 0 ? n.parent === -1 : n.parent === Math.floor(n.parent) && n.parent >= 0 && n.parent < i);
+      });
+    if (sound) {
       nodes = saved.nodes;
-      current = Math.min(saved.current || 0, nodes.length - 1);
+      current = saved.current === Math.floor(saved.current) && saved.current >= 0 && saved.current < nodes.length ? saved.current : 0;
     }
   } catch (e) { /* start fresh */ }
 
@@ -397,7 +403,7 @@
 
   var known = get("sessionStorage", "re-world");
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (known !== null && !isNaN(parseInt(known, 10))) {
+  if (known !== null && /^\d{1,4}$/.test(known)) {
     collapsed = true;
     apply(parseInt(known, 10));
     draw();
