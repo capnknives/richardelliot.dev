@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Side doors — Richard Elliot</title>
+  <meta name="description" content="Small tools by Richard Elliot that run in your browser: a message router, a model you can make forget, a syllable counter and a pool water calculator.">
+  <meta property="og:title" content="Side doors — Richard Elliot">
+  <meta property="og:description" content="Small tools by Richard Elliot that run in your browser: a message router, a model you can make forget, a syllable counter and a pool water calculator.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/tools/">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/tools/">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/touch-icon.png">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=18">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="tools">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">Small tools. Each one runs in your browser and sends nothing anywhere.</p>
+      <h1>Side doors</h1>
+      <p class="lede">The projects are down the corridor. These are the smaller rooms off it.</p>
+    </div>
+
+    <div class="sheet">
+      <section data-room="trace">
+        <h2><a href="trace.html" data-exit="trace">Trace</a></h2>
+        <div class="body">
+<p>Type a message and follow it through the assistant I run at home: which check routes it, what it costs in model calls, and which guard gets to stop it.</p>
+<p class="fine">From <a href="../projects/wits.html">WITS</a>.</p>
+        </div>
+      </section>
+      <section data-room="forgetme">
+        <h2><a href="forget-me.html" data-exit="forgetme">Forget me</a></h2>
+        <div class="body">
+<p>Teach a small neural network one fact about you, then try to take it back two ways. The model trains in your browser, and you can watch every weight it changes.</p>
+<p class="fine">The idea behind <a href="../projects/retractbench.html">retractbench</a>, small enough to hold.</p>
+        </div>
+      </section>
+      <section data-room="cadence">
+        <h2><a href="cadence.html" data-exit="cadence">Cadence</a></h2>
+        <div class="body">
+<p>Paste lyrics and see how many syllables each line asks you to fit in a bar at your tempo. It flags the crowded lines, and you can hear any line as clicks.</p>
+        </div>
+      </section>
+      <section data-room="poolbalance">
+        <h2><a href="pool-balance.html" data-exit="poolbalance">Pool water balance</a></h2>
+        <div class="body">
+<p>Five test readings in, a dosing plan out. Drag a reading and watch the pool wall pit or crust over.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other pages">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="../projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="../projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="../projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="../projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="wits"><a href="../projects/wits.html" data-exit="wits">WITS</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A side passage off the corridor. Four smaller doors, each with something working behind it.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=18"></script>
+  <script src="../assets/prompt.js?v=18"></script>
+  <script src="../assets/backdrop.js?v=18"></script>
+</body>
+</html>
