@@ -44,6 +44,11 @@
       "phone": "It is listening. Say what you see.",
       "water,pool,light": "Light moves across the bottom of the pool. It never repeats."
     },
+    cadence: {
+      "sheet,lyrics,lyric sheet,stand,music stand": "Crossed out, rewritten, crossed out again. The fourth line of the verse has twice the words of the others.",
+      "metronome,amp,click": "It does not care how many words you have. It gives you four beats and moves on.",
+      "foam,wall,room": "Egg-crate foam, gone yellow. It has heard every take."
+    },
     forgetme: {
       "wall,squares,weights,grid,field": "One square for every number the model is made of. Teach it something and watch where the light goes. It goes almost everywhere.",
       "ledger,record,book,stand": "Every weight, written down before anything was taught. It is the only way back that lands exactly.",
