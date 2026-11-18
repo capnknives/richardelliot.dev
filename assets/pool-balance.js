@@ -91,7 +91,16 @@ function buildPlan(w, opt) {
     }
     if (ash > 1e-6) {
       s.ta += 2 * ash; s.dic += ash; s.ph = short ? solvePH(s.ta, s.dic, s.cya) : phT;
-      steps.push({ kind: "sodaAsh", grams: ash * L * 105.99 / 1000, from: from2, to: s.ph, ta: s.ta * 50, want: short ? phT : 0 });
+      var over = s.ta * 50 > RANGE.ta[1] + 0.5;
+      steps.push({ kind: "sodaAsh", grams: ash * L * 105.99 / 1000, from: from2, to: s.ph, ta: s.ta * 50, want: short ? phT : 0, over: over });
+      if (over) {
+        /* The way a tech does it: let the soda ash carry alkalinity high, give it time, then
+           bring alkalinity back down with acid in rounds. pH is taken to recover between
+           rounds, as it does in the alkalinity step above, and gets tuned on the return visit. */
+        var down = (s.ta * 50 - 110) / 50, high = s.ta * 50;
+        s.ta -= down; s.ph = phT; s.dic = dicFrom(s.ph, s.ta, s.cya);
+        steps.push({ kind: "acidAfter", ml: down * L / 10.0, from: high, to: 110 });
+      }
     }
   }
   /* Acid for pH spends alkalinity. If that leaves it short, put some back. */
@@ -221,10 +230,13 @@ function describe(s) {
     case "acidPH": return ["Add " + liquid(s.ml) + " of muriatic acid (31.45%)",
       "Lowers pH from " + n1(s.from) + " to " + n1(s.to) + ". Total alkalinity ends near " + n0(s.ta) + " ppm."];
     case "sodaAsh": return ["Add up to " + weight(s.grams) + " of soda ash (sodium carbonate), half first",
-      "Raises pH from " + n1(s.from) + " to " + n1(s.to) + ", and total alkalinity to about " + n0(s.ta) + " ppm" + (s.ta > RANGE.ta[1] + 0.5 ? ", which is over its range and worth retesting in a week" : "") + ". Add half, circulate for an hour and retest. " +
-      (s.want && s.want - s.to > 0.04
-        ? "The dose stops here because more soda ash would push alkalinity higher. To help pH on toward " + n1(s.want) + " without adding alkalinity, point the returns up or run a fountain between tests."
-        : "Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest. Pointing the returns up speeds that along.")];
+      "Raises pH from " + n1(s.from) + " to " + n1(s.to) + ", and total alkalinity to about " + n0(s.ta) + " ppm. Add half, circulate for an hour and retest. " +
+      (s.over ? "That alkalinity is over range on purpose: soda ash is what moves pH, and the next step brings alkalinity back down."
+        : s.want && s.want - s.to > 0.04
+        ? "The dose stops here because more soda ash would push alkalinity over range. Pointing the returns up between tests helps pH on toward " + n1(s.want) + " without adding any."
+        : "Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest.")];
+    case "acidAfter": return ["Later, add " + liquid(s.ml) + " of muriatic acid (31.45%), a quarter at a time",
+      "Not the same hour as the soda ash: let it circulate and retest first. This brings total alkalinity back down from " + n0(s.from) + " to about " + s.to + " ppm. Each round of acid pulls pH down too, so retest and let pH come back up before the next round. Plan on a return visit to finish the tuning."];
     case "calcium": return ["Add " + weight(s.grams) + " of calcium chloride (77% flake)",
       "Raises calcium hardness from " + n0(s.from) + " to " + n0(s.to) + " ppm. Dissolve it in a bucket of pool water and add it in batches."];
     case "cya": return ["Add " + weight(s.grams) + " of stabilizer (cyanuric acid)",

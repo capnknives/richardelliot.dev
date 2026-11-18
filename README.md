@@ -91,10 +91,11 @@ function, so they can be swept without a browser. The checks that have caught re
 
 - Pool balance: run `plan()` over a grid of readings and require that every dose is positive
   and finite, that pH, calcium and stabilizer all end in range, and that the plan never moves the index
-  from one side of balanced to the other. Alkalinity ends in range too, with one exception
-  that the step says out loud: low pH with alkalinity already high, where the soda ash needed
-  to reach pH 7.2 carries alkalinity over. Raising pH is always a soda ash dose. Aeration is
-  only ever mentioned as extra help inside that step, never as a step of its own.
+  from one side of balanced to the other. Alkalinity ends in range too. Raising pH is always a
+  soda ash dose. When that dose carries alkalinity over range (low pH with alkalinity already
+  high), a second step follows it: acid, later and in rounds, to bring alkalinity back down,
+  with a return visit to finish. Aeration is only ever mentioned as extra help inside a
+  chemical step, never as a step of its own.
 - Cadence: a line of one very long word, and a paste of a few thousand lines. Words must wrap
   and the page draws only the first 300 lines.
 - Trace: strings of 2,000 digits (some patterns are slow on long input, which is why input is
