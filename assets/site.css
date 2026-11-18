@@ -49,6 +49,8 @@
   --rift-wash: #f2e3ec;
   --pool: #0b5a72;
   --pool-wash: #dceef2;
+  --forget: #8a2a55;
+  --forget-wash: #f6e4ec;
 
   --room: var(--ink);
   --wash: var(--paper);
@@ -59,7 +61,10 @@
   --mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
 
   --measure: 34rem;
-  --gutter: clamp(1.125rem, 5vw, 4.5rem);
+  /* Side padding for every section. On very wide windows (a huge monitor, or the
+     browser zoomed far out) it grows so the content stays in a centered column of
+     about 112rem instead of hugging the left edge. Backgrounds still run full width. */
+  --gutter: max(clamp(1.125rem, 5vw, 4.5rem), calc((100vw - 112rem) / 2));
   --bar: 2.875rem;            /* height of the docked command bar */
 }
 
@@ -68,6 +73,7 @@
 [data-room="aquainspection"] { --room: var(--aqua); --wash: var(--aqua-wash); }
 [data-room="riftforge"] { --room: var(--rift); --wash: var(--rift-wash); }
 [data-room="poolbalance"] { --room: var(--pool); --wash: var(--pool-wash); }
+[data-room="forgetme"] { --room: var(--forget); --wash: var(--forget-wash); }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -78,6 +84,14 @@ body[data-room="riftforge"],
   --room: #e9b44c;
   --soft: #c9b1c1;
   --rule: #4f3049;
+}
+
+body[data-room="forgetme"] {
+  --wash: #15172e;
+  --ink: #eceefb;
+  --room: #ff9ebe;
+  --soft: #aab0d6;
+  --rule: #363a66;
 }
 
 body[data-room="cellar"],
@@ -249,9 +263,9 @@ html.box {
 .box-hero {
   position: relative;
   isolation: isolate;
-  padding: clamp(2.5rem, 8vw, 6rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
+  padding: clamp(2.5rem, min(8vw, 9vh), 6rem) var(--gutter) clamp(2rem, 5vw, 3.5rem);
   margin-top: -4.5rem;          /* the sky runs up behind the masthead */
-  padding-top: calc(clamp(2.5rem, 8vw, 6rem) + 4.5rem);
+  padding-top: calc(clamp(2.5rem, min(8vw, 9vh), 6rem) + 4.5rem);
 }
 
 .box-hero .backdrop {
@@ -265,10 +279,12 @@ html.box {
 
 .box-hero h1 {
   position: relative;
-  font-size: clamp(3.5rem, 13.2vw, 11.5rem);
+  /* Sized by the window's height as well as its width, so the headline never
+     fills a wide screen and the world bar below it stays in view. */
+  font-size: clamp(3.5rem, min(13.2vw, 13vh), 11.5rem);
   line-height: 0.86;
   margin: 0.75rem 0 0;
-  max-width: 11.5em;
+  max-width: 16em;
   color: var(--light);
 }
 
@@ -370,8 +386,13 @@ html.box {
   position: relative;
   overflow: hidden;
   margin-bottom: clamp(3rem, 8vw, 5.5rem);
-  height: min(78vh, 56.25vw);
+  /* The rem limits keep the corridor in step with the text when the window is
+     very large or the browser is zoomed out. */
+  height: min(78vh, 56.25vw, 46rem);
   min-height: 22rem;
+  max-width: 112rem;
+  margin-left: auto;
+  margin-right: auto;
   background: #070912;
   touch-action: pan-y;
 }
@@ -540,6 +561,7 @@ html.box {
 .door-tags a[data-room="aquainspection"] { --door: #6fd6dd; }
 .door-tags a[data-room="riftforge"] { --door: #e9b44c; }
 .door-tags a[data-room="poolbalance"] { --door: #b3dcff; }
+.door-tags a[data-room="forgetme"] { --door: #ff9ebe; }
 
 .world-bar {
   padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
@@ -1215,6 +1237,14 @@ body[data-room="riftforge"] .sheet {
   color: var(--ink);
 }
 
+body[data-room="forgetme"] .sheet {
+  --ink: #101820;
+  --room: var(--forget);
+  --soft: #4d5a66;
+  --rule: #c5cdd4;
+  color: var(--ink);
+}
+
 body[data-room="cellar"] .sheet {
   --ink: #101820;
   --room: #5d4a12;
@@ -1351,12 +1381,14 @@ body[data-room="cellar"] .sheet {
 }
 
 body[data-room="riftforge"] .exits a,
+body[data-room="forgetme"] .exits a,
 body[data-room="words"] .exits a,
 body[data-room="cellar"] .exits a {
   color: var(--ink);
 }
 
 body[data-room="riftforge"] .exits a:hover,
+body[data-room="forgetme"] .exits a:hover,
 body[data-room="words"] .exits a:hover,
 body[data-room="cellar"] .exits a:hover {
   color: var(--room);

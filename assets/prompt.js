@@ -44,6 +44,11 @@
       "phone": "It is listening. Say what you see.",
       "water,pool,light": "Light moves across the bottom of the pool. It never repeats."
     },
+    forgetme: {
+      "wall,squares,weights,grid,field": "One square for every number the model is made of. Teach it something and watch where the light goes. It goes almost everywhere.",
+      "ledger,record,book,stand": "Every weight, written down before anything was taught. It is the only way back that lands exactly.",
+      "model,network": "Small enough to read in an afternoon. It knows ten people who do not exist."
+    },
     poolbalance: {
       "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
       "kit,test kit,vials,vial,reagents": "Six vials. Five of them take drops and turn a color. The sixth is a thermometer.",
