@@ -1,0 +1,92 @@
+/* Feeder match (tools/feeder-match.html).
+   Everything here is scoped under .feeder; colors and type come from site.css.
+   The answer is drawn as a ticket, like the tag on a tub at a reptile show. */
+
+.feeder { --paper: #fffaf7; }
+
+body[data-room="feeder"] .room-head h1 {
+  font-size: clamp(3.25rem, 14vw, 9rem);
+  line-height: 0.84;
+}
+
+.feeder [hidden] { display: none !important; }
+
+.feeder .layout {
+  display: grid;
+  grid-template-areas: "ask" "ticket" "ladder";
+  gap: 1.75rem;
+  padding: 0 var(--gutter) 1rem;
+}
+.feeder .ask { grid-area: ask; display: grid; gap: 1.25rem; min-width: 0; }
+.feeder .ticket { grid-area: ticket; min-width: 0; }
+.feeder .ladder { grid-area: ladder; min-width: 0; }
+
+.feeder .layout h2 { font: 700 1.75rem/1 var(--display); color: var(--room); margin-bottom: 0.75rem; }
+
+/* Questions */
+.feeder .step { display: grid; gap: 0.5rem; min-width: 0; }
+.feeder .step-label { font-weight: 700; }
+.feeder .picks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.feeder .pick {
+  min-height: 2.75rem; padding: 0.5rem 0.85rem;
+  font: 700 1rem/1.2 var(--text); color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule); border-radius: 0.3rem; cursor: pointer;
+}
+.feeder .pick.small { min-height: 2.25rem; padding: 0.3rem 0.7rem; font-size: 0.875rem; font-weight: 600; }
+.feeder .pick[aria-pressed="true"] { background: var(--room); border-color: var(--room); color: var(--paper); }
+.feeder .pick:focus-visible, .feeder .num:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.feeder .weight { display: flex; align-items: baseline; gap: 0.5rem; }
+.feeder .num {
+  width: 6.5rem; padding: 0.4rem 0.5rem; text-align: right;
+  font: 700 1.75rem/1 var(--display); font-variant-numeric: tabular-nums; color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule); border-radius: 0.3rem;
+}
+.feeder .hint { font-size: 0.875rem; color: var(--soft); max-width: 32rem; }
+
+/* The ticket */
+.feeder .ticket-card { background: var(--paper); border: 2px solid var(--room); border-radius: 0.5rem; overflow: hidden; }
+.feeder .ticket-head {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.1rem 1rem;
+  padding: 0.55rem 1rem; background: var(--room); color: var(--paper);
+  font: 700 1.125rem/1.2 var(--display); letter-spacing: 0.03em; text-transform: uppercase;
+}
+.feeder .ticket-main { padding: 1rem 1rem 0.9rem; }
+.feeder .ticket-main p { margin: 0; max-width: none; }
+.feeder .kicker { font-size: 0.875rem; color: var(--soft); }
+.feeder .meal {
+  font: 800 clamp(2.25rem, 10vw, 3.5rem)/0.92 var(--display);
+  color: var(--room); text-wrap: balance; overflow-wrap: anywhere;
+}
+.feeder .ticket-main .sub { margin-top: 0.45rem; font-size: 0.9375rem; color: var(--soft); }
+.feeder .facts { display: grid; grid-template-columns: 1fr 1fr; margin: 0; max-width: none; width: 100%; border-top: 1.5px dashed var(--rule); }
+.feeder .facts div { padding: 0.8rem 1rem; min-width: 0; }
+.feeder .facts div + div { border-left: 1.5px dashed var(--rule); }
+.feeder .facts dt { font-size: 0.8125rem; color: var(--soft); }
+.feeder .facts dd { margin: 0; font: 700 1.5rem/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.feeder .notes {
+  margin: 0; padding: 0.85rem 1rem 1rem 2.1rem; border-top: 1.5px dashed var(--rule);
+  display: grid; gap: 0.4rem; font-size: 0.9375rem; list-style: disc;
+}
+.feeder .notes li.warn { font-weight: 700; color: var(--room); }
+
+/* Size ladder */
+.feeder .rungs { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; }
+.feeder .rungs li {
+  display: grid; grid-template-columns: minmax(0, 9em) 1fr auto; align-items: center; gap: 0.6rem;
+  padding: 0.4rem 0.6rem; border-radius: 0.3rem; font-size: 0.9375rem;
+}
+.feeder .rungs .bar { display: block; height: 0.6rem; border-radius: 0.3rem; background: var(--rule); min-width: 4px; }
+.feeder .rungs .g { font-size: 0.8125rem; color: var(--soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.feeder .rungs .picked { background: var(--paper); outline: 2px solid var(--room); font-weight: 700; }
+.feeder .rungs .picked .bar { background: var(--room); }
+.feeder .rungs .picked .g { color: var(--ink); }
+
+@media (min-width: 56rem) {
+  .feeder .layout {
+    grid-template-areas: "ask ticket" "ladder ticket";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .feeder .ticket { position: sticky; top: 1rem; }
+}
