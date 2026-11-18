@@ -45,6 +45,7 @@ var FEEDERS = {
 var SPECIES = {
   corn: {
     label: "Corn snake",
+    inText: "corn snake",
     curve: [[8, 0.15], [24, 0.13], [150, 0.10], [350, 0.08], [500, 0.06]],
     stages: [[24, "Hatchling", 5, 7], [150, "Juvenile", 7, 10], [350, "Subadult", 10, 12], [Infinity, "Adult", 14, 21]],
     mouseCeiling: function (w) { return w > 450 ? 8 : 7; },
@@ -54,6 +55,7 @@ var SPECIES = {
   },
   king: {
     label: "Florida kingsnake",
+    inText: "Florida kingsnake",
     curve: [[10, 0.15], [35, 0.13], [200, 0.10], [450, 0.08], [700, 0.06]],
     stages: [[35, "Hatchling", 5, 7], [200, "Juvenile", 7, 10], [450, "Subadult", 7, 12], [Infinity, "Adult", 10, 14]],
     mouseCeiling: function (w) { return w > 450 ? 8 : 7; },
@@ -65,6 +67,7 @@ var SPECIES = {
   },
   milk: {
     label: "Pueblan milk snake",
+    inText: "Pueblan milk snake",
     curve: [[8, 0.13], [25, 0.11], [120, 0.09], [250, 0.07], [400, 0.06]],   // slimmer than a kingsnake, so a lower share
     stages: [[25, "Hatchling", 5, 7], [120, "Juvenile", 5, 7], [250, "Subadult", 7, 10], [Infinity, "Adult", 10, 14]],
     mouseCeiling: function () { return 7; },
@@ -77,6 +80,7 @@ var SPECIES = {
   },
   ratsnake: {
     label: "Texas rat snake",
+    inText: "Texas rat snake",
     curve: [[10, 0.15], [30, 0.13], [200, 0.10], [500, 0.08], [800, 0.06]],
     stages: [[30, "Hatchling", 5, 7], [200, "Juvenile", 5, 7], [500, "Subadult", 7, 10], [Infinity, "Adult", 10, 14]],
     mouseCeiling: function (w) { return w > 450 ? 8 : 7; },
@@ -87,6 +91,7 @@ var SPECIES = {
   },
   hognose: {
     label: "Western hognose",
+    inText: "western hognose",
     ladder: [[8, -1], [15, 0], [26, 1], [40, 3], [75, 4], [250, 5], [Infinity, 6]],
     stagesBySex: {
       male:   [[15, "Hatchling", 4, 5], [40, "Juvenile", 5, 7], [70, "Subadult male", 6, 7], [Infinity, "Adult male", 7, 10]],
@@ -107,6 +112,39 @@ var SHAPES = {
 };
 
 var MAX_WEIGHT = 3000;
+
+/* The request form under the ticket. For now it only writes a message the
+   buyer copies and sends themselves; nothing leaves the page. Fill these in
+   when the breeder is ready and the form does more without other changes:
+   contactName: greeting ("Hi Levi,").
+   sms: a phone number. Adds a "Text this request" link.
+   prices: dollars each, one per size in the same order as FEEDERS,
+     e.g. { mice: [1, 1, 1.25, ...], rats: [...] }. Adds an estimated total. */
+var ORDER = { contactName: "", sms: "", prices: null };
+var FORMS = { frozen: "frozen", live: "live", either: "frozen or live" };
+var MAX_QTY = 200;
+
+function pluralOf(s) {
+  if (/mouse$/.test(s)) return s.replace(/mouse$/, "mice");
+  if (/y$/.test(s)) return s.replace(/y$/, "ies");
+  return s + "s";
+}
+/* q: { qty, say, form, speciesName, weight, daysLow, daysHigh, name } */
+function requestText(q) {
+  var every = q.daysLow === q.daysHigh ? q.daysLow : q.daysLow + " to " + q.daysHigh;
+  var lines = [
+    (ORDER.contactName ? "Hi " + ORDER.contactName + "," : "Hi,") + " I would like " + q.qty + " " +
+      (q.qty === 1 ? q.say : pluralOf(q.say)) + " (" + FORMS[q.form] + ").",
+    "This is for my " + q.speciesName + ", which weighs " + q.weight + " g and eats one meal every " + every + " days."
+  ];
+  var name = (q.name || "").replace(/\s+/g, " ").trim().slice(0, 40);
+  lines.push(name ? "Thanks, " + name : "Thanks!");
+  return lines.join("\n");
+}
+function orderTotal(type, idx, qty) {
+  var p = ORDER.prices && ORDER.prices[type] && ORDER.prices[type][idx];
+  return typeof p === "number" ? p * qty : null;
+}
 
 function blend(curve, w) {
   if (w <= curve[0][0]) return curve[0][1];
@@ -174,7 +212,7 @@ function nextStep(o) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { FEEDERS: FEEDERS, SPECIES: SPECIES, match: match, nextStep: nextStep, MAX_WEIGHT: MAX_WEIGHT };
+  module.exports = { FEEDERS: FEEDERS, SPECIES: SPECIES, ORDER: ORDER, match: match, nextStep: nextStep, requestText: requestText, orderTotal: orderTotal, MAX_WEIGHT: MAX_WEIGHT };
 }
 
 /* ---------- the page ---------- */
@@ -182,7 +220,7 @@ if (typeof module !== "undefined") {
 if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (function () {
   "use strict";
 
-  var state = { species: "corn", type: "mice", weight: 80, sex: "unsure", shape: "ideal" };
+  var state = { species: "corn", type: "mice", weight: 80, sex: "unsure", shape: "ideal", qty: null, form: "frozen", name: "" };
   var $ = function (id) { return document.getElementById(id); };
   var weightInput = $("fm-weight");
 
@@ -200,11 +238,57 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
   }
   function fmt(n) { return (Math.round(n * 10) / 10).toString(); }
   function range(a, b, unit) { return (a === b ? a : a + "–" + b) + (unit ? " " + unit : ""); }
-  function plural(s) {
-    if (/mouse$/.test(s)) return s.replace(/mouse$/, "mice");
-    if (/y$/.test(s)) return s.replace(/y$/, "ies");
-    return s + "s";
+  var plural = pluralOf;
+
+  /* The request form. qty is null until the buyer changes it, so it follows the ticket. */
+  function drawOrder(sp, w, m) {
+    var ok = !!m && !m.parts && !m.tooSmall;
+    $("fm-order").hidden = !ok;
+    $("fm-order-none").hidden = ok;
+    if (!ok) return;
+    var qty = state.qty === null ? m.buyHigh : state.qty;
+    $("fm-qty").value = qty;
+    buttons($("fm-form"), Object.keys(FORMS).map(function (k) { return { value: k, label: k.charAt(0).toUpperCase() + k.slice(1) }; }),
+      state.form, true, function (v) { state.form = v; render(); });
+    var total = orderTotal(m.type, m.idx, qty);
+    $("fm-total").hidden = total === null;
+    if (total !== null) $("fm-total").textContent = "About $" + total.toFixed(2) + " before tax.";
+    var text = requestText({ qty: qty, say: m.size.say, form: state.form, speciesName: sp.inText, weight: fmt(w),
+      daysLow: m.daysLow, daysHigh: m.daysHigh, name: state.name });
+    $("fm-msg").textContent = text;
+    var link = $("fm-text");
+    link.hidden = !ORDER.sms;
+    if (ORDER.sms) link.href = "sms:" + ORDER.sms + "?&body=" + encodeURIComponent(text);
+    $("fm-copied").textContent = "";
   }
+  function setQty(n) {
+    if (!isFinite(n)) return;
+    state.qty = Math.max(1, Math.min(MAX_QTY, Math.round(n)));
+    render();
+  }
+  $("fm-less").addEventListener("click", function () { setQty(parseInt($("fm-qty").value, 10) - 1); });
+  $("fm-more").addEventListener("click", function () { setQty(parseInt($("fm-qty").value, 10) + 1); });
+  $("fm-qty").addEventListener("change", function () { setQty(parseInt($("fm-qty").value, 10)); });
+  $("fm-name").addEventListener("input", function () {
+    state.name = $("fm-name").value;
+    var sel = [$("fm-name").selectionStart, $("fm-name").selectionEnd];
+    render();
+    $("fm-name").setSelectionRange(sel[0], sel[1]);
+  });
+  $("fm-copy").addEventListener("click", function () {
+    var text = $("fm-msg").textContent, done = $("fm-copied");
+    function fallback() {
+      var r = document.createRange();
+      r.selectNodeContents($("fm-msg"));
+      var s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+      done.textContent = "Copying is blocked here. The request is selected, so copy it by hand.";
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done.textContent = "Copied. Paste it into a text or message."; }, fallback);
+    } else { fallback(); }
+  });
 
   function render() {
     var sp = SPECIES[state.species];
@@ -212,12 +296,12 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
     var f = FEEDERS[type];
 
     buttons($("fm-species"), Object.keys(SPECIES).map(function (k) { return { value: k, label: SPECIES[k].label }; }),
-      state.species, false, function (v) { state.species = v; render(); });
+      state.species, false, function (v) { state.species = v; state.qty = null; render(); });
 
     $("fm-sex-step").hidden = !sp.ladder;
     if (sp.ladder) {
       buttons($("fm-sex"), [{ value: "male", label: "Male" }, { value: "female", label: "Female" }, { value: "unsure", label: "Not sure" }],
-        state.sex, false, function (v) { state.sex = v; render(); });
+        state.sex, false, function (v) { state.sex = v; state.qty = null; render(); });
     }
 
     buttons($("fm-presets"), sp.presets.map(function (p) { return { value: p[1], label: p[0] + " · " + p[1] + " g", sex: p[2] }; }),
@@ -225,15 +309,16 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
         state.weight = v;
         weightInput.value = v;
         if (it.sex) state.sex = it.sex;
+        state.qty = null;
         render();
       });
 
     $("fm-type-step").hidden = !!sp.miceOnly;
     buttons($("fm-type"), Object.keys(FEEDERS).map(function (k) { return { value: k, label: FEEDERS[k].label }; }),
-      state.type, false, function (v) { state.type = v; render(); });
+      state.type, false, function (v) { state.type = v; state.qty = null; render(); });
 
     buttons($("fm-shape"), Object.keys(SHAPES).map(function (k) { return { value: k, label: SHAPES[k].label }; }),
-      state.shape, false, function (v) { state.shape = v; render(); });
+      state.shape, false, function (v) { state.shape = v; state.qty = null; render(); });
     $("fm-shape-hint").textContent = SHAPES[state.shape].hint;
 
     var w = state.weight;
@@ -254,6 +339,7 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
       $("fm-often").textContent = "–";
       $("fm-month").textContent = "–";
       drawLadder(f, -2);
+      drawOrder(sp, w, null);
       return;
     }
     var o = { species: state.species, weight: w, type: state.type, sex: state.sex, shape: state.shape };
@@ -284,6 +370,7 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
     }
     sp.notes.forEach(function (n) { note(n); });
     drawLadder(f, m.parts || m.tooSmall ? -2 : m.idx);
+    drawOrder(sp, w, m);
   }
 
   function drawLadder(f, picked) {
@@ -312,6 +399,7 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
 
   weightInput.addEventListener("input", function () {
     state.weight = parseFloat(weightInput.value);
+    state.qty = null;
     render();
   });
   render();
