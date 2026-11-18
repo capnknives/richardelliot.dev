@@ -1,143 +1,15 @@
 /* Knobs (tools/knobs.html).
-   Part one is the arithmetic, written out by hand: a rule a person wrote, a
-   small network that learns the same job from examples, and a next-word
-   guesser built from a short reading. Pure functions, no page; this half also
-   runs in Node (`require` it) for checking the numbers.
-   Part two runs the page. Nothing leaves the browser, and nothing is stored. */
+   Part one is a very small language model and its training, written out by
+   hand: pure functions, no page. This half also runs in Node (`require` it)
+   for checking the numbers. Part two runs the page: it walks one model from
+   dice rolls to sentences, a stop at a time.
+   Nothing leaves the browser, and nothing is stored. */
 (function () {
 "use strict";
 
-/* ---------- The written rule ----------
-   Two readings in, yes or no out. The line numbers match the listing on the page. */
-var PH = [6.6, 8.4], CL = [0, 6];
-var CODE = [
-  "function safeToSwim(pH, chlorine) {",
-  "  if (pH < 7.2) return \"no, too acidic\";",
-  "  if (pH > 7.8) return \"no, too basic\";",
-  "  if (chlorine < 1) return \"no, not enough chlorine\";",
-  "  if (chlorine > 4) return \"no, too much chlorine\";",
-  "  return \"yes\";",
-  "}"
-];
-function rule(ph, cl) {
-  if (ph < 7.2) return { ok: false, line: 1, why: "no, too acidic" };
-  if (ph > 7.8) return { ok: false, line: 2, why: "no, too basic" };
-  if (cl < 1) return { ok: false, line: 3, why: "no, not enough chlorine" };
-  if (cl > 4) return { ok: false, line: 4, why: "no, too much chlorine" };
-  return { ok: true, line: 5, why: "yes" };
-}
-
-function rng(seed) {                     /* mulberry32: the same numbers on every machine */
-  var a = seed >>> 0;
-  return function () {
-    a = (a + 0x6D2B79F5) >>> 0;
-    var t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/* ---------- The examples ----------
-   240 readings, each marked by the rule above: 100 that pass, 140 that do not.
-   The network only ever sees these. It is never shown the rule. */
-var N_YES = 100, N_NO = 140;
-function nx(ph) { return (ph - 7.5) / 0.9; }      /* both readings scaled to -1..1 */
-function ny(cl) { return (cl - 3) / 3; }
-function makeExamples(seed) {
-  var r = rng(seed), out = [], yes = 0, no = 0;
-  while (yes < N_YES || no < N_NO) {
-    var ph = Math.round((PH[0] + r() * (PH[1] - PH[0])) * 100) / 100;
-    var cl = Math.round((CL[0] + r() * (CL[1] - CL[0])) * 100) / 100;
-    if (yes < N_YES && r() < 0.7) {               /* most draws for "yes" are aimed at the box */
-      ph = Math.round((7.2 + r() * 0.6) * 100) / 100;
-      cl = Math.round((1 + r() * 3) * 100) / 100;
-    }
-    var ok = rule(ph, cl).ok;
-    if (ok && yes < N_YES) { yes++; out.push({ ph: ph, cl: cl, x: nx(ph), y: ny(cl), t: 1 }); }
-    else if (!ok && no < N_NO) { no++; out.push({ ph: ph, cl: cl, x: nx(ph), y: ny(cl), t: 0 }); }
-  }
-  return out;
-}
-
-/* ---------- The network ----------
-   Eight wires. Each takes the two readings, multiplies each by a knob, adds an
-   offset knob, and squashes the sum. A fourth knob says how hard that wire
-   pushes the answer. One last knob offsets the total. 8 x 4 + 1 = 33 knobs. */
-var H = 8, COUNT = H * 4 + 1;
-var COLS = ["from pH", "from chlorine", "offset", "to the answer"];
-function at(wire, col) { return col * H + wire; }  /* knob index; the last one is COUNT - 1 */
-
-function newKnobs(seed) {
-  var r = rng(seed), k = new Float64Array(COUNT);
-  for (var i = 0; i < COUNT; i++) k[i] = (r() * 2 - 1) * (i < 2 * H ? 2 : 1);
-  return k;
-}
-function answer(k, x, y) {                /* how sure it is of "yes", 0 to 1 */
-  var z = k[COUNT - 1];
-  for (var j = 0; j < H; j++) z += k[3 * H + j] * Math.tanh(k[j] * x + k[H + j] * y + k[2 * H + j]);
-  return 1 / (1 + Math.exp(-z));
-}
-
-/* One nudge. For every example: how far off was the answer? Then, for every
-   knob: which way would have made that a little smaller? Average those, and
-   turn each knob a little that way. (The step sizes are Adam's.) */
-function newTrainer() { return { m: new Float64Array(COUNT), v: new Float64Array(COUNT), t: 0 }; }
-function nudge(k, ex, tr, rate) {
-  var g = new Float64Array(COUNT), h = new Float64Array(H), loss = 0, n = ex.length, i, j;
-  for (i = 0; i < n; i++) {
-    var e = ex[i], z = k[COUNT - 1];
-    for (j = 0; j < H; j++) {
-      h[j] = Math.tanh(k[j] * e.x + k[H + j] * e.y + k[2 * H + j]);
-      z += k[3 * H + j] * h[j];
-    }
-    var p = 1 / (1 + Math.exp(-z)), off = p - e.t;
-    loss -= Math.log(Math.max(1e-12, e.t ? p : 1 - p));
-    g[COUNT - 1] += off;
-    for (j = 0; j < H; j++) {
-      g[3 * H + j] += off * h[j];
-      var back = off * k[3 * H + j] * (1 - h[j] * h[j]);
-      g[j] += back * e.x;
-      g[H + j] += back * e.y;
-      g[2 * H + j] += back;
-    }
-  }
-  tr.t++;
-  var lr = rate || 0.05, b1 = 0.9, b2 = 0.999;
-  for (i = 0; i < COUNT; i++) {
-    var gi = g[i] / n;
-    tr.m[i] = b1 * tr.m[i] + (1 - b1) * gi;
-    tr.v[i] = b2 * tr.v[i] + (1 - b2) * gi * gi;
-    k[i] -= lr * (tr.m[i] / (1 - Math.pow(b1, tr.t))) / (Math.sqrt(tr.v[i] / (1 - Math.pow(b2, tr.t))) + 1e-8);
-  }
-  return loss / n;
-}
-function right(k, ex) {
-  var c = 0;
-  for (var i = 0; i < ex.length; i++) if ((answer(k, ex[i].x, ex[i].y) >= 0.5) === (ex[i].t === 1)) c++;
-  return c;
-}
-/* Every reading a test kit could show on these two scales, to the hundredth
-   of a pH and the tenth of a ppm: how many does the network call the way the
-   rule does? */
-var GRID = (function () {
-  var pts = [];
-  for (var a = 0; a <= 180; a += 2) for (var b = 0; b <= 60; b++) {
-    var ph = 6.6 + a / 100, cl = b / 10;
-    pts.push({ x: nx(ph), y: ny(cl), t: rule(ph, cl).ok });
-  }
-  return pts;
-})();
-function agreement(k) {
-  var c = 0;
-  for (var i = 0; i < GRID.length; i++) if ((answer(k, GRID[i].x, GRID[i].y) >= 0.5) === GRID[i].t) c++;
-  return c / GRID.length;
-}
-
-/* ---------- Next word ----------
-   The reading: short sentences about looking after a pool, written for this
-   page. The guesser counts which word followed each pair of words, and nothing
-   else. It has no knobs: with this little reading, a count table is enough. */
+/* ---------- The reading ----------
+   Short sentences about looking after a pool, written for this page. It is
+   everything the model will ever be shown. */
 var READING = [
   "the water is clear and the pump is running",
   "the water is cloudy because the filter is dirty",
@@ -186,249 +58,319 @@ var READING = [
   "the leaves are in the basket after the storm",
   "the leaves are in the pool so empty the basket"
 ];
-var END = ".";
-function buildCounts(lines) {
-  var two = {}, one = {};
-  function add(table, key, w) {
-    var row = table[key] || (table[key] = {});
-    row[w] = (row[w] || 0) + 1;
-  }
-  lines.forEach(function (line) {
-    var w = ["^", "^"].concat(line.split(" "), [END]);
-    for (var i = 2; i < w.length; i++) {
-      add(two, w[i - 2] + " " + w[i - 1], w[i]);
-      add(one, w[i - 1], w[i]);
-    }
-  });
-  return { two: two, one: one };
+function rng(seed) {                     /* mulberry32: the same numbers on every machine */
+  var a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    var t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
-var COUNTS = buildCounts(READING);
-/* What could come next after these words, most likely first. `bold` reshapes
-   the odds: below 1 the favorite gets more of them, above 1 the long shots do. */
-function options(words, bold) {
-  var a = words.length > 1 ? words[words.length - 2] : "^";
-  var b = words.length ? words[words.length - 1] : "^";
-  var row = COUNTS.two[a + " " + b] || COUNTS.one[b] || {};
-  var list = Object.keys(row).map(function (w) { return { w: w, seen: row[w], p: Math.pow(row[w], 1 / (bold || 1)) }; });
-  var sum = list.reduce(function (s, o) { return s + o.p; }, 0);
+
+/* ---------- Words to numbers ----------
+   Every different word in the reading gets a number. Two extras: "^" stands
+   for "nothing yet" and "." for "stop here". */
+var START = "^", END = ".";
+var VOCAB = (function () {
+  var seen = {}, list = [START, END];
+  READING.forEach(function (line) {
+    line.split(" ").forEach(function (w) { if (!seen[w]) { seen[w] = 1; list.push(w); } });
+  });
+  return list;
+})();
+var V = VOCAB.length, ID = {};
+VOCAB.forEach(function (w, i) { ID[w] = i; });
+function tokens(text) {                  /* [{ word, id }], id -1 for a word it has never seen */
+  return (text.toLowerCase().match(/[a-z']+/g) || []).map(function (w) {
+    return { word: w, id: ID.hasOwnProperty(w) ? ID[w] : -1 };
+  });
+}
+
+/* The drill: for every position in every sentence, the two words before it
+   and the word that really came next. */
+var DRILL = (function () {
+  var out = [];
+  READING.forEach(function (line) {
+    var w = [START, START].concat(line.split(" "), [END]);
+    for (var i = 2; i < w.length; i++) out.push({ a: ID[w[i - 2]], b: ID[w[i - 1]], t: ID[w[i]] });
+  });
+  return out;
+})();
+/* The reading itself goes several ways after some pairs of words, so no model
+   can get every drill right. BEST is how many a perfect count would get. */
+var BEST = (function () {
+  var rows = {}, n = 0;
+  DRILL.forEach(function (e) { var k = e.a + " " + e.b, r = rows[k] || (rows[k] = {}); r[e.t] = (r[e.t] || 0) + 1; });
+  Object.keys(rows).forEach(function (k) { var m = 0; Object.keys(rows[k]).forEach(function (t) { if (rows[k][t] > m) m = rows[k][t]; }); n += m; });
+  return n;
+})();
+
+/* ---------- The model ----------
+   Each word has a row of D numbers. The rows for the last two words are laid
+   end to end, passed through one layer of HID units, and turned into a score
+   for every word as the next one. */
+var D = 8, HID = 24;
+var O = { e: 0, w1: V * D, b1: V * D + HID * 2 * D, w2: V * D + HID * 2 * D + HID };
+O.b2 = O.w2 + V * HID;
+var COUNT = O.b2 + V;
+
+function newModel(seed) {
+  var r = rng(seed), m = new Float64Array(COUNT);
+  for (var i = 0; i < COUNT; i++) m[i] = (r() * 2 - 1) * 0.5;
+  return m;
+}
+/* The odds the model gives each word after words a, b. Fills h (the layer in
+   the middle) and p (the odds), which the caller owns. */
+function odds(m, a, b, h, p) {
+  var i, j, z, max = -Infinity, sum = 0;
+  for (j = 0; j < HID; j++) {
+    z = m[O.b1 + j];
+    var row = O.w1 + j * 2 * D;
+    for (i = 0; i < D; i++) z += m[row + i] * m[O.e + a * D + i] + m[row + D + i] * m[O.e + b * D + i];
+    h[j] = Math.tanh(z);
+  }
+  for (i = 0; i < V; i++) {
+    z = m[O.b2 + i];
+    for (j = 0; j < HID; j++) z += m[O.w2 + i * HID + j] * h[j];
+    p[i] = z; if (z > max) max = z;
+  }
+  for (i = 0; i < V; i++) { p[i] = Math.exp(p[i] - max); sum += p[i]; }
+  for (i = 0; i < V; i++) p[i] /= sum;
+  return p;
+}
+function top(p) { var b = 0; for (var i = 1; i < V; i++) if (p[i] > p[b]) b = i; return b; }
+
+/* One pass. For every drill: how far were the odds from the word that was
+   really there? Then, for every weight: which way would have made that miss
+   smaller? Average over the drills, and move each weight a little that way.
+   (The step sizes are Adam's.) Returns the average miss. */
+function newTrainer() { return { m: new Float64Array(COUNT), v: new Float64Array(COUNT), t: 0 }; }
+function pass(m, tr, rate) {
+  var g = new Float64Array(COUNT), h = new Float64Array(HID), p = new Float64Array(V), dh = new Float64Array(HID);
+  var miss = 0, n = DRILL.length, i, j, k;
+  for (k = 0; k < n; k++) {
+    var e = DRILL[k];
+    odds(m, e.a, e.b, h, p);
+    miss -= Math.log(Math.max(1e-12, p[e.t]));
+    for (j = 0; j < HID; j++) dh[j] = 0;
+    for (i = 0; i < V; i++) {
+      var off = p[i] - (i === e.t ? 1 : 0);
+      g[O.b2 + i] += off;
+      for (j = 0; j < HID; j++) { g[O.w2 + i * HID + j] += off * h[j]; dh[j] += off * m[O.w2 + i * HID + j]; }
+    }
+    for (j = 0; j < HID; j++) {
+      var back = dh[j] * (1 - h[j] * h[j]), row = O.w1 + j * 2 * D;
+      g[O.b1 + j] += back;
+      for (i = 0; i < D; i++) {
+        g[row + i] += back * m[O.e + e.a * D + i];
+        g[row + D + i] += back * m[O.e + e.b * D + i];
+        g[O.e + e.a * D + i] += back * m[row + i];
+        g[O.e + e.b * D + i] += back * m[row + D + i];
+      }
+    }
+  }
+  tr.t++;
+  var lr = rate || 0.02, b1 = 0.9, b2 = 0.999;
+  for (i = 0; i < COUNT; i++) {
+    var gi = g[i] / n;
+    tr.m[i] = b1 * tr.m[i] + (1 - b1) * gi;
+    tr.v[i] = b2 * tr.v[i] + (1 - b2) * gi * gi;
+    m[i] -= lr * (tr.m[i] / (1 - Math.pow(b1, tr.t))) / (Math.sqrt(tr.v[i] / (1 - Math.pow(b2, tr.t))) + 1e-8);
+  }
+  return miss / n;
+}
+/* The model's first guess for every drill. */
+function guesses(m) {
+  var h = new Float64Array(HID), p = new Float64Array(V), out = new Int16Array(DRILL.length);
+  for (var k = 0; k < DRILL.length; k++) out[k] = top(odds(m, DRILL[k].a, DRILL[k].b, h, p));
+  return out;
+}
+function right(m) {
+  var g = guesses(m), c = 0;
+  for (var k = 0; k < DRILL.length; k++) if (g[k] === DRILL[k].t) c++;
+  return c;
+}
+
+/* ---------- Writing ----------
+   What could come next after these word numbers, most likely first. `bold`
+   reshapes the odds: below 1 the favorite gets more of them, above 1 the long
+   shots do. */
+function options(m, ids, bold) {
+  var a = ids.length > 1 ? ids[ids.length - 2] : 0, b = ids.length ? ids[ids.length - 1] : 0;
+  var p = odds(m, a, b, new Float64Array(HID), new Float64Array(V)), list = [], sum = 0, i;
+  for (i = 1; i < V; i++) { var q = Math.pow(p[i], 1 / (bold || 1)); list.push({ id: i, w: VOCAB[i], p: q }); sum += q; }
   list.forEach(function (o) { o.p /= sum; });
-  list.sort(function (x, y) { return y.p - x.p || (x.w < y.w ? -1 : 1); });
+  list.sort(function (x, y) { return y.p - x.p; });
   return list;
 }
 function pick(list, roll) {
   var acc = 0;
-  for (var i = 0; i < list.length; i++) { acc += list[i].p; if (roll < acc) return list[i].w; }
-  return list[list.length - 1].w;
+  for (var i = 0; i < list.length; i++) { acc += list[i].p; if (roll < acc) return list[i].id; }
+  return list[list.length - 1].id;
 }
-function wasRead(words) { return READING.indexOf(words.join(" ")) !== -1; }
+var CAP = 16;                            /* a sentence that never stops is cut off here */
+function write(m, roll, bold) {
+  var ids = [];
+  while (ids.length < CAP) { var id = pick(options(m, ids, bold), roll()); if (id === 1) break; ids.push(id); }
+  return ids;
+}
+function say(ids) { return ids.map(function (i) { return VOCAB[i]; }).join(" "); }
+function wasRead(ids) { return READING.indexOf(say(ids)) !== -1; }
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
-    rule: rule, makeExamples: makeExamples, newKnobs: newKnobs, answer: answer, newTrainer: newTrainer,
-    nudge: nudge, right: right, agreement: agreement, COUNT: COUNT, READING: READING,
-    options: options, pick: pick, wasRead: wasRead, rng: rng, END: END
+    READING: READING, VOCAB: VOCAB, DRILL: DRILL, BEST: BEST, COUNT: COUNT, CAP: CAP, tokens: tokens, rng: rng,
+    newModel: newModel, newTrainer: newTrainer, pass: pass, right: right, guesses: guesses,
+    options: options, pick: pick, write: write, say: say, wasRead: wasRead
   };
 }
 if (typeof document === "undefined") return;
 
 /* ---------- The page ---------- */
 var $ = function (id) { return document.getElementById("kn-" + id); };
-if (!$("map")) return;
+var main = document.querySelector("main.knobs");
+if (!main || !$("field")) return;
 
-var EX = makeExamples(2718);
-var knobs = newKnobs(41), trainer = newTrainer(), trained = null;
-var nudges = 0, running = false, chosen = 0, touchedByHand = false;
-var reading = { ph: 7.5, cl: 5 };
-var MAX_NUDGES = 2500;
+var MAX_PASSES = 300;
+var model = newModel(41), trainer = newTrainer(), passes = 0, running = false;
+var trained = null, base = null, wiped = 0;
 
-/* The written rule */
-var codeEl = $("code");
-CODE.forEach(function (line) {
-  var li = document.createElement("li");
-  li.textContent = line;
-  codeEl.appendChild(li);
-});
-function n1(v) { return v.toFixed(1); }
-function n2(v) { return (v < 0 ? "−" : "") + Math.abs(v).toFixed(2); }
-
-function showReading() {
-  var r = rule(reading.ph, reading.cl);
-  $("ph-out").textContent = n1(reading.ph);
-  $("cl-out").textContent = n1(reading.cl) + " ppm";
-  for (var i = 0; i < codeEl.children.length; i++) codeEl.children[i].classList.toggle("hit", i === r.line);
-  $("rule-says").textContent = "The rule says " + r.why + ". Line " + (r.line + 1) + " decided it.";
-  var p = answer(knobs, nx(reading.ph), ny(reading.cl));
-  var sure = Math.round(Math.max(p, 1 - p) * 100);
-  $("both-reading").textContent = "pH " + n1(reading.ph) + ", chlorine " + n1(reading.cl) + " ppm";
-  $("both-rule").textContent = r.why + " (line " + (r.line + 1) + ")";
-  $("both-net").textContent = (p >= 0.5 ? "yes" : "no") + ", " + sure + "% sure";
-  $("both-note").textContent = (p >= 0.5) !== r.ok
-    ? "They disagree here. The rule can show you its line. The network has only its 33 numbers."
-    : "They agree here. Only one of them can tell you why.";
+function num(n) { return n.toLocaleString("en-US"); }
+function sentence(ids, cut) {
+  if (!ids.length) return "…";
+  var s = say(ids);
+  return s.charAt(0).toUpperCase() + s.slice(1) + (cut ? " …" : ".");
 }
-$("ph").addEventListener("input", function () { reading.ph = +this.value; showReading(); draw(); });
-$("cl").addEventListener("input", function () { reading.cl = +this.value; showReading(); draw(); });
 
-/* The map: the network's answer for every reading, with the examples on top. */
-var map = $("map"), ctx = map.getContext("2d");
-var SW = 54, SH = 40, shade = document.createElement("canvas");
-shade.width = SW; shade.height = SH;
-var sctx = shade.getContext("2d"), simg = sctx.createImageData(SW, SH);
-var PAD = { l: 34, r: 8, t: 8, b: 26 }, W = 0, Hh = 0;
-
-function size() {
-  var w = map.clientWidth || 320, dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = w; Hh = Math.round(Math.min(w * 0.74, 460));
-  map.width = Math.round(W * dpr); map.height = Math.round(Hh * dpr);
-  map.style.height = Hh + "px";
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+/* How it is explained: plain, curious or technical. The choice is kept in the
+   address (#plain, #curious, #technical) so a link can carry it. */
+var LEVELS = ["plain", "curious", "technical"];
+function setLevel(lv, quiet) {
+  if (LEVELS.indexOf(lv) === -1) lv = "plain";
+  main.setAttribute("data-level", lv);
+  LEVELS.forEach(function (l) { $("lv-" + l).setAttribute("aria-pressed", l === lv ? "true" : "false"); });
+  if (!quiet) { try { history.replaceState(null, "", "#" + lv); } catch (e) { /* the page still works */ } }
 }
-function px(ph) { return PAD.l + (ph - PH[0]) / (PH[1] - PH[0]) * (W - PAD.l - PAD.r); }
-function py(cl) { return Hh - PAD.b - (cl - CL[0]) / (CL[1] - CL[0]) * (Hh - PAD.t - PAD.b); }
+LEVELS.forEach(function (l) { $("lv-" + l).addEventListener("click", function () { setLevel(l); }); });
+window.addEventListener("hashchange", function () { setLevel(location.hash.slice(1), true); });
+setLevel(location.hash.slice(1), true);
 
-function draw() {
-  if (!W) size();
-  var i, d = simg.data;
-  for (var r = 0; r < SH; r++) for (var c = 0; c < SW; c++) {
-    var p = answer(knobs, -1 + 2 * (c + 0.5) / SW, 1 - 2 * (r + 0.5) / SH);
-    var lit = 0.35 + 0.65 * Math.abs(2 * p - 1), o = (r * SW + c) * 4;
-    d[o] = (p >= 0.5 ? 26 : 122) * lit; d[o + 1] = (p >= 0.5 ? 122 : 52) * lit; d[o + 2] = (p >= 0.5 ? 104 : 44) * lit; d[o + 3] = 255;
-  }
-  sctx.putImageData(simg, 0, 0);
-  ctx.clearRect(0, 0, W, Hh);
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(shade, PAD.l, PAD.t, W - PAD.l - PAD.r, Hh - PAD.t - PAD.b);
-
-  /* the written rule, as a dashed box */
-  ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(232, 243, 238, 0.85)";
-  ctx.strokeRect(px(7.2), py(4), px(7.8) - px(7.2), py(1) - py(4));
-  ctx.setLineDash([]);
-
-  for (i = 0; i < EX.length; i++) {
-    var e = EX[i], x = px(e.ph), y = py(e.cl), ok = (answer(knobs, e.x, e.y) >= 0.5) === (e.t === 1);
-    ctx.beginPath();
-    if (e.t) { ctx.arc(x, y, 3.2, 0, 6.2832); ctx.fillStyle = "#9df0da"; ctx.fill(); }
-    else { ctx.moveTo(x - 3, y - 3); ctx.lineTo(x + 3, y + 3); ctx.moveTo(x + 3, y - 3); ctx.lineTo(x - 3, y + 3); ctx.strokeStyle = "#ffb199"; ctx.lineWidth = 1.6; ctx.stroke(); }
-    if (!ok) { ctx.beginPath(); ctx.arc(x, y, 6.5, 0, 6.2832); ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke(); }
-  }
-
-  /* the reading being asked about */
-  var mx = px(reading.ph), my = py(reading.cl);
-  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(mx - 9, my); ctx.lineTo(mx + 9, my); ctx.moveTo(mx, my - 9); ctx.lineTo(mx, my + 9); ctx.stroke();
-
-  ctx.fillStyle = "#a9c4bb"; ctx.font = "600 12px " + getComputedStyle(map).fontFamily;
-  ctx.textAlign = "center"; ctx.textBaseline = "top";
-  [6.6, 7.2, 7.8, 8.4].forEach(function (v) { ctx.fillText(n1(v), px(v), Hh - PAD.b + 5); });
-  ctx.fillText("pH", px(7.5), Hh - PAD.b + 5);
-  ctx.textAlign = "right"; ctx.textBaseline = "middle";
-  [0, 1, 4, 6].forEach(function (v) { ctx.fillText(String(v), PAD.l - 6, py(v)); });
-  ctx.save(); ctx.translate(11, py(2.5)); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center";
-  ctx.fillText("chlorine, ppm", 0, 0); ctx.restore();
+/* Stop 1: words to numbers */
+function showTokens() {
+  var list = tokens($("text").value), ul = $("tokens"), missing = 0;
+  ul.textContent = "";
+  list.slice(0, 40).forEach(function (t) {
+    var li = document.createElement("li"), b = document.createElement("b");
+    li.textContent = t.word;
+    b.textContent = t.id < 0 ? "?" : t.id;
+    if (t.id < 0) { li.className = "unknown"; missing++; }
+    li.appendChild(b); ul.appendChild(li);
+  });
+  $("token-say").textContent = !list.length ? "Type a few words."
+    : missing ? "A question mark is a word this model has never seen. It has no number for it, so it cannot use it. It knows " + (V - 2) + " words, all from its reading."
+    : "Every word has a number. From here on the model only ever sees the numbers.";
 }
-map.addEventListener("click", function (ev) {
-  var b = map.getBoundingClientRect();
-  var ph = PH[0] + (ev.clientX - b.left - PAD.l) / (W - PAD.l - PAD.r) * (PH[1] - PH[0]);
-  var cl = CL[0] + (Hh - PAD.b - (ev.clientY - b.top)) / (Hh - PAD.t - PAD.b) * (CL[1] - CL[0]);
-  reading.ph = Math.round(Math.min(PH[1], Math.max(PH[0], ph)) * 10) / 10;
-  reading.cl = Math.round(Math.min(CL[1], Math.max(CL[0], cl)) * 10) / 10;
-  $("ph").value = reading.ph; $("cl").value = reading.cl;
-  showReading(); draw();
-});
+$("text").addEventListener("input", showTokens);
 
-/* The board: one button per knob, laid out the way the knobs are wired. */
-var board = $("board"), buttons = [];
-function place(i) {
-  if (i === COUNT - 1) return "the last offset";
-  return "wire " + (i % H + 1) + ", " + COLS[Math.floor(i / H)];
-}
-(function build() {
-  var head = document.createElement("tr");
-  head.innerHTML = "<td></td>" + COLS.map(function (c) { return '<th scope="col">' + c + "</th>"; }).join("");
-  board.appendChild(head);
-  function knob(i) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.innerHTML = '<span class="dial"><i></i></span><span class="num"></span>';
-    b.addEventListener("click", function () { choose(i); });
-    buttons[i] = b;
-    return b;
-  }
-  for (var j = 0; j < H; j++) {
-    var tr = document.createElement("tr");
-    tr.innerHTML = '<th scope="row">' + (j + 1) + "</th>";
-    for (var c = 0; c < 4; c++) { var td = document.createElement("td"); td.appendChild(knob(at(j, c))); tr.appendChild(td); }
-    board.appendChild(tr);
-  }
-  var last = document.createElement("tr");
-  last.innerHTML = '<th scope="row" colspan="4" class="last">One last offset on the total</th>';
-  var cell = document.createElement("td"); cell.appendChild(knob(COUNT - 1)); last.appendChild(cell);
-  board.appendChild(last);
-})();
-function showKnobs() {
+/* The field: one square per weight. Drawn twice, at stops 2 and 5. */
+var COLS = 0;
+function drawField(canvas) {
+  var w = canvas.clientWidth || 320, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var cols = w < 420 ? 48 : w < 700 ? 64 : 83, cell = w / cols, rows = Math.ceil(COUNT / cols);
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(rows * cell * dpr);
+  canvas.style.height = rows * cell + "px";
+  canvas._cols = cols; canvas._cell = cell;
+  var c = canvas.getContext("2d");
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, rows * cell);
   for (var i = 0; i < COUNT; i++) {
-    var b = buttons[i], v = knobs[i];
-    b.firstChild.firstChild.style.transform = "rotate(" + (Math.tanh(v / 5) * 135).toFixed(1) + "deg)";
-    b.lastChild.textContent = n2(v);
-    b.setAttribute("aria-label", "Knob " + (i + 1) + ", " + place(i) + ", set to " + v.toFixed(2));
+    var v = model[i], lit = Math.min(1, Math.abs(v) / 1.6);
+    c.fillStyle = v === 0 ? "#050b0a" : v > 0 ? "rgba(157, 240, 218, " + (0.12 + 0.88 * lit) + ")" : "rgba(255, 177, 153, " + (0.12 + 0.88 * lit) + ")";
+    c.fillRect((i % cols) * cell + 0.5, Math.floor(i / cols) * cell + 0.5, cell - 1, cell - 1);
   }
-  $("turn").value = Math.max(-12, Math.min(12, knobs[chosen]));
-  $("turn-out").textContent = n2(knobs[chosen]);
 }
-function choose(i) {
-  chosen = i;
-  buttons.forEach(function (b, n) { b.setAttribute("aria-pressed", n === i ? "true" : "false"); });
-  $("turn-name").textContent = "Knob " + (i + 1) + " (" + place(i) + ")";
-  showKnobs();
-}
-$("turn").addEventListener("input", function () {
+function drawFields() { drawField($("field")); drawField($("field2")); }
+
+/* Stop 2: a new model */
+var rollSeed = 0;
+function writeSample(seed) { var ids = write(model, rng(seed), 1); return sentence(ids, ids.length >= CAP); }
+$("ask").addEventListener("click", function () {
+  rollSeed++;
+  $("first").textContent = writeSample(1000 + rollSeed);
+  $("first-say").textContent = passes ? "This model has had " + num(passes) + " passes of training. Roll new dice to see an untrained one again."
+    : "Word salad. It knows the words, because we gave it the list. It knows nothing about which word follows which.";
+});
+$("dice").addEventListener("click", function () {
   stop();
-  knobs[chosen] = +this.value;
-  touchedByHand = true;
-  render();
-  var r = right(knobs, EX);
-  say(trained
-    ? "You moved one knob and " + (EX.length - r) + " of the 240 examples are now wrong. Watch the shape on the map: more than one edge of it moves. No single knob holds a single line of the rule."
-    : "By hand: " + r + " of 240. Every knob bends the whole picture a little, so fixing one corner breaks another.");
+  model = newModel(Math.floor(Math.random() * 1e9));
+  trainer = newTrainer(); passes = 0; trained = null; base = null; wiped = 0;
+  $("first").textContent = writeSample(1000 + (++rollSeed));
+  $("first-say").textContent = "New dice, new nonsense. Every model starts like this.";
+  line = []; showAll();
 });
 
-function meters() {
-  var r = right(knobs, EX);
-  $("right").textContent = r;
-  $("nudges").textContent = nudges.toLocaleString("en-US");
-  $("agree").textContent = (agreement(knobs) * 100).toFixed(1) + "%";
-  return r;
+/* Stop 3: training */
+var drillAt = 6, hBuf = new Float64Array(HID), pBuf = new Float64Array(V);
+function showDrill() {
+  var e = DRILL[drillAt], p = odds(model, e.a, e.b, hBuf, pBuf), order = [], i;
+  for (i = 1; i < V; i++) order.push(i);
+  order.sort(function (x, y) { return p[y] - p[x]; });
+  var shown = order.slice(0, 4);
+  if (shown.indexOf(e.t) === -1) shown[3] = e.t;
+  $("drill-q").textContent = (e.a ? VOCAB[e.a] + " " : "") + (e.b ? VOCAB[e.b] + " " : "") + "___";
+  $("drill-a").textContent = e.t === 1 ? "(the sentence ends)" : VOCAB[e.t];
+  var ul = $("drill-bars");
+  ul.textContent = "";
+  shown.forEach(function (id) {
+    var li = document.createElement("li");
+    li.innerHTML = '<span class="w"></span><span class="track"><i></i></span><span class="val"></span>';
+    li.children[0].textContent = id === 1 ? "(stop)" : VOCAB[id];
+    li.children[1].firstChild.style.width = Math.round(p[id] * 100) + "%";
+    li.children[2].textContent = Math.round(p[id] * 100) + "%";
+    if (id === e.t) li.className = "truth";
+    ul.appendChild(li);
+  });
 }
-function render() { showKnobs(); draw(); showReading(); return meters(); }
-function say(t) { $("say").textContent = t; }
+$("drill-next").addEventListener("click", function () { drillAt = (drillAt + 37) % DRILL.length; showDrill(); });
 
+function meters(miss) {
+  $("passes").textContent = num(passes);
+  $("right").textContent = right(model);
+  if (miss !== undefined) $("miss").textContent = miss.toFixed(2);
+}
+function tell(t) { $("say").textContent = t; }
 function stop() {
   running = false;
   $("train").textContent = "Train it";
   $("train").setAttribute("aria-pressed", "false");
 }
-function finish(r) {
+function onePass() {
+  var miss = pass(model, trainer);
+  passes++; wiped = 0;
+  return miss;
+}
+function finish() {
   stop();
-  trained = new Float64Array(knobs);
-  touchedByHand = false;
-  $("restore").disabled = false;
-  say((r === EX.length ? "All 240 right" : r + " of 240 right") + " after " + nudges.toLocaleString("en-US") +
-    " nudges. Nobody typed 7.2 or 4 into it. Those numbers are in the 33 knobs somewhere. Pick a knob, move it, and try to find which one holds “chlorine no higher than 4”.");
+  trained = new Float64Array(model);
+  base = guesses(model);
+  tell("Done: " + num(passes) + " passes. Its first guess now matches the reading as often as any guesser could, because the reading itself goes more than one way after some words. Nobody gave it a rule of grammar or a fact about pools. All that changed is the " + num(COUNT) + " numbers.");
+  showAll();
 }
 function frame() {
   if (!running) return;
-  var loss = 1, r;
-  for (var s = 0; s < 3 && nudges < MAX_NUDGES; s++) { loss = nudge(knobs, EX, trainer); nudges++; }
-  r = render();
-  if (nudges >= MAX_NUDGES || (r === EX.length && loss < 0.06)) { finish(r); return; }
-  say("Training. Each nudge checks all 240 examples, measures how far off the answers were, and turns every knob a hair in the direction that shrinks the miss.");
+  var miss = onePass();
+  meters(miss); showDrill();
+  if (passes % 10 === 0 || passes < 10) $("now").textContent = writeSample(7);
+  if (passes % 6 === 0) drawField($("field"));
+  if (passes >= MAX_PASSES) { finish(); return; }
+  tell("Training. Each pass runs all " + DRILL.length + " drills, measures how far off the guesses were, and moves every number a hair in the direction that shrinks the miss.");
   requestAnimationFrame(frame);
 }
 $("train").addEventListener("click", function () {
-  if (running) { stop(); say("Paused at " + nudges.toLocaleString("en-US") + " nudges."); return; }
-  if (nudges >= MAX_NUDGES) { say("It has had its " + MAX_NUDGES.toLocaleString("en-US") + " nudges. Scramble the knobs to start a new one."); return; }
-  if (touchedByHand) trainer = newTrainer();
-  touchedByHand = false;
+  if (running) { stop(); tell("Paused at " + num(passes) + " passes."); showAll(); return; }
+  if (passes >= MAX_PASSES) { tell("It has had its " + MAX_PASSES + " passes. Go back to stop 2 and roll new dice to train another."); return; }
   running = true;
   this.textContent = "Pause";
   this.setAttribute("aria-pressed", "true");
@@ -436,101 +378,121 @@ $("train").addEventListener("click", function () {
 });
 $("once").addEventListener("click", function () {
   stop();
-  if (nudges >= MAX_NUDGES) return;
-  var before = new Float64Array(knobs);
-  nudge(knobs, EX, trainer); nudges++;
-  var moved = 0, far = 0;
-  for (var i = 0; i < COUNT; i++) { var dlt = Math.abs(knobs[i] - before[i]); if (dlt > 0) moved++; if (dlt > far) far = dlt; }
-  var r = render();
-  say("One nudge. " + moved + " of 33 knobs moved, none by more than " + far.toFixed(3) + ". It now gets " + r + " of 240.");
-});
-$("scramble").addEventListener("click", function () {
-  stop();
-  knobs = newKnobs(Math.floor(Math.random() * 1e9));
-  trainer = newTrainer(); trained = null; nudges = 0; touchedByHand = false;
-  $("restore").disabled = true;
-  render();
-  say("New knobs, set by dice. Train it again and compare the numbers: it will reach the same answers with a different set of 33.");
-});
-$("restore").addEventListener("click", function () {
-  if (!trained) return;
-  stop();
-  knobs = new Float64Array(trained);
-  touchedByHand = false;
-  render();
-  say("The trained knobs are back.");
+  if (passes >= MAX_PASSES) return;
+  var before = new Float64Array(model), miss = onePass(), far = 0;
+  for (var i = 0; i < COUNT; i++) far = Math.max(far, Math.abs(model[i] - before[i]));
+  showAll(miss);
+  tell("One pass. All " + num(COUNT) + " numbers moved, none by more than " + far.toFixed(3) + ". That is how small each step is.");
+  if (passes >= MAX_PASSES) finish();
 });
 
-/* Next word */
-var line = [], bold = 1, cut = false, CAP = 28;
-function sentence(words) {
-  if (!words.length) return "";
-  var s = words.join(" ");
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-function ended() { return line.length > 0 && line[line.length - 1] === END; }
-function done() { return ended() || cut; }
+/* Stop 4: writing */
+var line = [], bold = 1;
+function lineDone() { return line.length >= CAP || line[line.length - 1] === 1; }
 function showLine() {
-  var words = ended() ? line.slice(0, -1) : line, opts = done() ? [] : options(line, bold);
-  $("line").textContent = words.length ? sentence(words) + (ended() ? "." : " …") : "…";
+  var ended = line[line.length - 1] === 1, ids = ended ? line.slice(0, -1) : line, done = lineDone();
+  $("line").textContent = ids.length ? sentence(ids, !ended) : "…";
   var ul = $("next");
   ul.textContent = "";
-  opts.slice(0, 6).forEach(function (o) {
+  (done ? [] : options(model, line, bold).slice(0, 5)).forEach(function (o) {
     var li = document.createElement("li"), b = document.createElement("button");
     b.type = "button";
     b.innerHTML = '<span class="w"></span><span class="track"><i></i></span><span class="val"></span>';
-    b.children[0].textContent = o.w === END ? "(stop here)" : o.w;
+    b.children[0].textContent = o.id === 1 ? "(stop here)" : o.w;
     b.children[1].firstChild.style.width = Math.round(o.p * 100) + "%";
     b.children[2].textContent = Math.round(o.p * 100) + "%";
-    b.addEventListener("click", function () { take(o.w); });
+    b.addEventListener("click", function () { line.push(o.id); showLine(); });
     li.appendChild(b); ul.appendChild(li);
   });
-  $("word").disabled = $("rest").disabled = done();
-  if (cut) {
-    $("word-say").textContent = "It never chose to stop, so the page cut it off at " + CAP + " words. It only remembers the last two words, so it cannot tell it has been going in circles.";
-  } else if (ended()) {
-    $("word-say").textContent = wasRead(words)
-      ? "That one is word for word from its reading. With this little to read, some sentences come back whole. Make another."
-      : "That sentence is not in its reading. Nothing was copied: it was put together one likely word at a time. Nothing checked whether it is true, either.";
-  } else if (!line.length) {
-    $("word-say").textContent = "It has read 46 short sentences about looking after a pool. The bars are the words it saw start a sentence most often.";
-  } else {
-    $("word-say").textContent = opts.length === 1
-      ? "Only one word ever followed these two in its reading, so there is nothing to choose."
-      : "After “" + line.slice(-2).join(" ") + "” its reading went " + opts.length + " different ways. The bars are the odds it gives each.";
-  }
+  $("word").disabled = $("rest").disabled = done;
+  $("word-say").textContent = !passes ? "This model is untrained, so every word is about as likely as any other. Train it at stop 3, then come back."
+    : !done ? (line.length ? "The bars are its odds for the next word. Press one to choose it yourself, or let it roll." : "The bars are the words it thinks could start a sentence.")
+    : !ended ? "It never chose to stop, so the page cut it off at " + CAP + " words. It only sees the last two words, so it cannot tell it is going in circles."
+    : wasRead(ids) ? "That one is word for word from its reading. With this little to read, some sentences come back whole. Make another."
+    : "That sentence is not in its reading. Nothing was copied: it was built one likely word at a time. Nothing checked whether it is true, either.";
 }
-function take(w, quiet) {
-  if (done()) return;
-  line.push(w);
-  if (!ended() && line.length >= CAP) cut = true;
-  if (!quiet) showLine();
-}
-$("word").addEventListener("click", function () { take(pick(options(line, bold), Math.random())); });
+$("word").addEventListener("click", function () { line.push(pick(options(model, line, bold), Math.random())); showLine(); });
 $("rest").addEventListener("click", function () {
-  while (!done()) take(pick(options(line, bold), Math.random()), true);
+  while (!lineDone()) line.push(pick(options(model, line, bold), Math.random()));
   showLine();
 });
-$("fresh").addEventListener("click", function () { line = []; cut = false; showLine(); });
+$("fresh").addEventListener("click", function () { line = []; showLine(); });
 $("bold").addEventListener("input", function () {
   bold = +this.value;
-  $("bold-out").textContent = bold < 0.75 ? "careful" : bold > 1.35 ? "bold" : "as read";
+  $("bold-out").textContent = bold < 0.75 ? "careful" : bold > 1.35 ? "bold" : "as trained";
   showLine();
 });
-(function listReading() {
-  var ol = $("reading");
-  READING.forEach(function (s) { var li = document.createElement("li"); li.textContent = sentence(s.split(" ")) + "."; ol.appendChild(li); });
-})();
+
+/* Stop 5: find where it put something */
+function changed() {
+  var g = guesses(model), c = 0;
+  for (var k = 0; k < g.length; k++) if (g[k] !== base[k]) c++;
+  return c;
+}
+function afterWipe(what) {
+  drawField($("field2"));
+  var c = changed();
+  $("wiped").textContent = num(wiped);
+  $("changed").textContent = c;
+  $("green").textContent = sentence(greenLine(), false);
+  $("find-say").textContent = what + (!wiped ? "" : c
+    ? " With " + num(wiped) + " wiped in all, " + c + " of its " + DRILL.length + " answers have changed, across sentences that have nothing to do with each other."
+    : " With " + num(wiped) + " wiped in all, none of its " + DRILL.length + " answers has changed. The other numbers covered for it.");
+  meters(); showLine(); showDrill();
+}
+function greenLine() {                    /* its favorite way to finish "the water is green" */
+  var ids = tokens("the water is green").map(function (t) { return t.id; });
+  while (ids.length < CAP) { var o = options(model, ids, 1)[0]; if (o.id === 1) break; ids.push(o.id); }
+  return ids;
+}
+function needTrained() {
+  if (trained) return false;
+  $("find-say").textContent = "There is nothing to find yet. Train the model at stop 3 first.";
+  return true;
+}
+$("field2").addEventListener("click", function (ev) {
+  if (needTrained()) return;
+  var b = this.getBoundingClientRect();
+  var i = Math.floor((ev.clientY - b.top) / this._cell) * this._cols + Math.floor((ev.clientX - b.left) / this._cell);
+  if (i < 0 || i >= COUNT) return;
+  if (model[i] !== 0) { model[i] = 0; wiped++; }
+  afterWipe("You wiped number " + num(i + 1) + " of " + num(COUNT) + ".");
+});
+$("wipe").addEventListener("click", function () {
+  if (needTrained()) return;
+  for (var n = 0; n < 50; n++) { var i = Math.floor(Math.random() * COUNT); if (model[i] !== 0) { model[i] = 0; wiped++; } }
+  afterWipe("Fifty numbers wiped at random.");
+});
+$("restore").addEventListener("click", function () {
+  if (needTrained()) return;
+  model = new Float64Array(trained); wiped = 0;
+  afterWipe("Every number is back where training left it.");
+});
+
+function showAll(miss) {
+  meters(miss); showDrill(); drawFields(); showLine();
+  $("now").textContent = writeSample(7);
+  $("wiped").textContent = num(wiped);
+  $("changed").textContent = base ? changed() : 0;
+  $("green").textContent = trained ? sentence(greenLine(), false) : "…";
+  if (!trained) $("find-say").textContent = "Train the model at stop 3, then come back and take it apart.";
+  else if (!wiped) $("find-say").textContent = "Tap any square to wipe that number, or wipe fifty at once.";
+}
 
 var resizeTimer = 0;
 window.addEventListener("resize", function () {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(function () { size(); draw(); }, 80);
+  resizeTimer = setTimeout(drawFields, 80);
 });
+(function listReading() {
+  var ol = $("reading");
+  READING.forEach(function (s) { var li = document.createElement("li"); li.textContent = s.charAt(0).toUpperCase() + s.slice(1) + "."; ol.appendChild(li); });
+})();
 
-size();
-choose(0);
-var first = render();
-say("These 33 knobs were set by dice, and the network gets " + first + " of 240 right. Try it by hand first: pick a knob below, move it, and see how far you get.");
-showLine();
+showTokens();
+$("first").textContent = writeSample(1000);
+$("first-say").textContent = "That is what a brand-new model writes. Ask again for more of it.";
+$("miss").textContent = "—";
+showAll();
+tell("Untrained, its first guess is right on " + right(model) + " of " + DRILL.length + " drills. The best any guesser could do with this reading is " + BEST + ".");
 })();

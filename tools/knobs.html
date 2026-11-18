@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Knobs — Richard Elliot</title>
-  <meta name="description" content="How AI works, with working parts. Read a rule a person wrote, then watch a small network learn the same job from examples by turning 33 knobs, and try to find where it put the rule.">
+  <meta name="description" content="How an AI model is made, trained and used, one stop at a time, with a model small enough to watch. Train it from random numbers to sentences in your browser, then try to find where it put what it learned.">
   <meta property="og:title" content="Knobs — Richard Elliot">
-  <meta property="og:description" content="How AI works, with working parts. Watch a small network learn a job from examples by turning 33 knobs, then try to find where it put the rule.">
+  <meta property="og:description" content="How an AI model is made, trained and used, with one small enough to watch. Train it from random numbers to sentences, then try to find where it put what it learned.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/tools/knobs.html">
   <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
@@ -35,126 +35,145 @@
     </nav>
   </header>
 
-  <main id="main" class="knobs">
+  <main id="main" class="knobs" data-level="plain">
     <div class="room-head">
-      <p class="state">How AI works, with working parts. All of it runs in your browser and sends nothing anywhere.</p>
+      <p class="state">How an AI model is made, trained and used, with one small enough to watch. It runs in your browser and sends nothing anywhere.</p>
       <h1>Knobs</h1>
-      <p class="lede">Nobody typed the rules into an AI. They were turned in, a hair at a time. Here are 33 knobs to turn yourself.</p>
+      <p class="lede">Nobody types the rules into an AI. A model is a pile of numbers, turned a hair at a time until it works. Here is one with 1,992 of them.</p>
     </div>
 
-    <noscript><p style="padding: 0 var(--gutter)">The working parts on this page need JavaScript. The explanation below does not.</p></noscript>
+    <noscript><p style="padding: 0 var(--gutter)">The working parts on this page need JavaScript. The explanation at the bottom does not.</p></noscript>
 
     <div class="lab">
-      <section class="written" aria-labelledby="kn-written-h">
-        <h2 id="kn-written-h">1. A rule somebody wrote</h2>
-        <p>Is this pool safe to swim in? Someone who knows pools can write the answer down. Most software is made this way: a person decides every step, and when the answer is wrong you can point to the line.</p>
-        <ol class="code" id="kn-code" aria-label="The rule, as code"></ol>
-        <div class="readings">
-          <label class="slide" for="kn-ph">pH <output id="kn-ph-out" for="kn-ph"></output>
-            <input id="kn-ph" type="range" min="6.6" max="8.4" step="0.1" value="7.5">
-          </label>
-          <label class="slide" for="kn-cl">Chlorine <output id="kn-cl-out" for="kn-cl"></output>
-            <input id="kn-cl" type="range" min="0" max="6" step="0.1" value="5">
-          </label>
-        </div>
-        <p class="verdict" id="kn-rule-says" aria-live="polite"></p>
+      <div class="levels" role="group" aria-labelledby="kn-lv-h">
+        <h2 id="kn-lv-h">How do you want it explained?</h2>
+        <p class="row">
+          <button type="button" id="kn-lv-plain" aria-pressed="true"><b>Plainly</b><small>No jargon</small></button>
+          <button type="button" id="kn-lv-curious" aria-pressed="false"><b>With the real terms</b><small>Named and explained</small></button>
+          <button type="button" id="kn-lv-technical" aria-pressed="false"><b>Technically</b><small>For people who build software</small></button>
+        </p>
+        <p class="fine">The working parts are the same in all three. Only the words change.</p>
+      </div>
+
+      <section class="stop" aria-labelledby="kn-s1">
+        <h2 id="kn-s1"><span>1</span> Words become numbers</h2>
+        <p data-lv="plain">A model cannot read. Before anything else happens, each word you give it is swapped for a number from a fixed list. Type something about a pool and watch.</p>
+        <p data-lv="curious">A model cannot read. Text is first cut into pieces called <strong>tokens</strong>, and each token is swapped for its number in a fixed list, the <strong>vocabulary</strong>. This model's tokens are whole words. Big models use word pieces, so a rare word becomes several tokens.</p>
+        <p data-lv="technical">A word-level tokenizer over a 46-word vocabulary, plus a start marker and an end marker. Out-of-vocabulary words are simply unusable here. Production models use subword schemes such as byte-pair encoding, so any string can be encoded.</p>
+        <label class="type" for="kn-text">Type a few words
+          <input id="kn-text" type="text" maxlength="120" value="The water is green and murky" autocapitalize="none" spellcheck="false">
+        </label>
+        <ul class="tokens" id="kn-tokens" aria-label="Your words and their numbers"></ul>
+        <p class="say short" id="kn-token-say" aria-live="polite"></p>
       </section>
 
-      <section class="grown" aria-labelledby="kn-grown-h">
-        <h2 id="kn-grown-h">2. The same job, with the rule taken away</h2>
-        <p>This network never sees the code above. It gets 240 test readings, each already marked yes or no, and 33 knobs. The colored ground on the map is its answer for every possible reading: green for yes, red for no, darker where it is unsure.</p>
-        <div class="kn-bench">
-          <div>
-            <p class="row">
-              <button type="button" class="go" id="kn-train" aria-pressed="false">Train it</button>
-              <button type="button" id="kn-once">One nudge</button>
-              <button type="button" id="kn-scramble">Scramble</button>
-              <button type="button" id="kn-restore" disabled>Back to trained</button>
-            </p>
-            <canvas class="map" id="kn-map" role="img" aria-label="A map of pool readings, pH across and chlorine up. Shading shows where the network answers yes or no. Dots are the 240 examples. A dashed box marks the written rule. Tap to pick a reading."></canvas>
-            <p class="key"><span><b class="y">&#9679;</b>marked yes</span><span><b class="n">&#10005;</b>marked no</span><span><b>&#9711;</b>ringed: the network has it wrong</span><span><b>&#9476;</b>the written rule</span><span><b>+</b>the reading you are asking about</span></p>
-            <dl class="meters">
-              <div><dd><span id="kn-right">0</span> <small>of 240</small></dd><dt>examples it gets right</dt></div>
-              <div><dd id="kn-nudges">0</dd><dt>nudges so far</dt></div>
-              <div><dd id="kn-agree">0%</dd><dt>of all readings where it matches the rule</dt></div>
-            </dl>
-            <p class="say" id="kn-say" aria-live="polite"></p>
-          </div>
-          <div>
-            <p class="fine">Every knob in the network. Eight wires, four knobs on each, and one more at the end. You can see where each knob is wired. Nothing says what it means.</p>
-            <table class="board" id="kn-board" aria-label="The 33 knobs"></table>
-            <label class="slide turn" for="kn-turn"><span id="kn-turn-name"></span> <output id="kn-turn-out" for="kn-turn"></output>
-              <input id="kn-turn" type="range" min="-12" max="12" step="0.01" value="0">
-            </label>
-          </div>
-        </div>
+      <section class="stop" aria-labelledby="kn-s2">
+        <h2 id="kn-s2"><span>2</span> A new model is a pile of dice rolls</h2>
+        <p data-lv="plain">Making a model means deciding two things: how many numbers it has, and how they are wired together. Then every number is set at random. This one has 1,992. Each square below is one of them. Nothing is known yet.</p>
+        <p data-lv="curious">Making a model means choosing its <strong>architecture</strong> (how the numbers are wired together) and its size. The numbers are called <strong>weights</strong>, or parameters. They start out random. Everything the model will ever know ends up in them and nowhere else.</p>
+        <p data-lv="technical">Architecture: an 8-dimensional embedding per token; the embeddings of the two previous tokens are concatenated, passed through one tanh layer of 24 units, then a softmax over the vocabulary. 1,992 parameters, uniform random init. It is a fixed-window neural language model, the design that came before transformers.</p>
+        <canvas class="field" id="kn-field" role="img" aria-label="A grid with one square for each of the model's 1,992 numbers. Green squares are above zero, orange below, brighter for bigger."></canvas>
+        <p class="key"><span><b class="y">&#9632;</b>above zero</span><span><b class="n">&#9632;</b>below zero</span><span>brighter means bigger</span></p>
+        <p class="row">
+          <button type="button" class="go" id="kn-ask">Ask it to write</button>
+          <button type="button" id="kn-dice">Roll new dice</button>
+        </p>
+        <p class="line" id="kn-first" aria-live="polite"></p>
+        <p class="say short" id="kn-first-say" aria-live="polite"></p>
       </section>
 
-      <section class="both" aria-labelledby="kn-both-h">
-        <h2 id="kn-both-h">3. Ask both</h2>
-        <p>Tap anywhere on the map to pick a reading, then compare the answers.</p>
-        <dl>
-          <div><dt>Reading</dt><dd id="kn-both-reading"></dd></div>
-          <div><dt>The rule says</dt><dd id="kn-both-rule"></dd></div>
-          <div><dt>The network says</dt><dd id="kn-both-net"></dd></div>
+      <section class="stop" aria-labelledby="kn-s3">
+        <h2 id="kn-s3"><span>3</span> Training: guess, measure the miss, nudge</h2>
+        <p data-lv="plain">Training is one drill, repeated. Show the model the start of a real sentence and let it guess the next word. Compare its guess with the word that was really there. Then nudge every number slightly so the right word scores a little higher next time. Nobody tells it a rule.</p>
+        <p data-lv="curious">Training is one drill, repeated: predict the next token, compare with the real one. The size of the miss is the <strong>loss</strong>. Working out which way each weight should move to shrink it is <strong>backpropagation</strong>, and taking that small step is <strong>gradient descent</strong>. One trip through all the examples is a pass, or epoch.</p>
+        <p data-lv="technical">Next-token prediction with cross-entropy loss over 434 positions from 46 sentences. Full-batch Adam, learning rate 0.02, 300 steps. The gradients are written out by hand in the script. Top-1 accuracy is capped at 298 of 434 by the entropy of the data itself.</p>
+        <div class="drill">
+          <p class="fine">One drill out of 434. <button type="button" class="link" id="kn-drill-next">Show another</button></p>
+          <p class="q">The reading says: <strong id="kn-drill-q"></strong></p>
+          <p class="q">The real next word: <strong id="kn-drill-a"></strong></p>
+          <ul class="bars" id="kn-drill-bars" aria-label="The model's odds for the next word. The real one is marked."></ul>
+        </div>
+        <p class="row">
+          <button type="button" class="go" id="kn-train" aria-pressed="false">Train it</button>
+          <button type="button" id="kn-once">One pass</button>
+        </p>
+        <dl class="meters">
+          <div><dd id="kn-passes">0</dd><dt>passes through the drills</dt></div>
+          <div><dd><span id="kn-right">0</span> <small>of 434</small></dd><dt>first guesses that match (298 is the most possible)</dt></div>
+          <div><dd id="kn-miss"></dd><dt>average miss, lower is better</dt></div>
         </dl>
-        <p class="note fine" id="kn-both-note" aria-live="polite"></p>
+        <p class="fine">What it writes right now:</p>
+        <p class="line" id="kn-now" aria-live="off"></p>
+        <p class="say" id="kn-say" aria-live="polite"></p>
+        <details>
+          <summary>Everything it is trained on</summary>
+          <ol id="kn-reading"></ol>
+        </details>
       </section>
 
-      <section class="words" aria-labelledby="kn-words-h">
-        <h2 id="kn-words-h">4. The same trick, with words</h2>
-        <p>A chatbot has one job: given the words so far, guess the next one. Then it does that again. This guesser is as small as that job gets.</p>
+      <section class="stop" aria-labelledby="kn-s4">
+        <h2 id="kn-s4"><span>4</span> Using it: one word at a time</h2>
+        <p data-lv="plain">A trained model writes by doing its one trick in a loop. It gives every word it knows odds of coming next, picks one, adds it, and goes again. That loop is all a chatbot is doing when the words appear one by one.</p>
+        <p data-lv="curious">Using a trained model is called <strong>inference</strong>. It scores every token as the next one, picks one by rolling weighted dice, appends it and repeats. The dice are why the same question can get different answers. How adventurous the roll is gets set by a dial called <strong>temperature</strong>.</p>
+        <p data-lv="technical">Autoregressive sampling from the softmax, with temperature. The context here is two tokens. A transformer attends over many thousands, and that is the main thing this toy lacks.</p>
         <p class="line" id="kn-line" aria-live="polite"></p>
-        <ul class="next" id="kn-next" aria-label="Words it could say next, with the odds it gives each. Press one to choose it yourself."></ul>
+        <ul class="next" id="kn-next" aria-label="Words it could say next, with its odds for each. Press one to choose it yourself."></ul>
         <p class="row">
           <button type="button" class="go" id="kn-word">Next word</button>
           <button type="button" id="kn-rest">Finish the sentence</button>
           <button type="button" id="kn-fresh">New sentence</button>
         </p>
-        <label class="slide boldness" for="kn-bold">How it picks <output id="kn-bold-out" for="kn-bold">as read</output>
+        <label class="slide" for="kn-bold">How it picks <output id="kn-bold-out" for="kn-bold">as trained</output>
           <input id="kn-bold" type="range" min="0.4" max="1.8" step="0.05" value="1">
         </label>
         <p class="say" id="kn-word-say" aria-live="polite"></p>
-        <details>
-          <summary>Everything it has read</summary>
-          <ol id="kn-reading"></ol>
-        </details>
+      </section>
+
+      <section class="stop" aria-labelledby="kn-s5">
+        <h2 id="kn-s5"><span>5</span> Now find where it put something</h2>
+        <p data-lv="plain">The trained model can tell you why pool water goes green. That knowledge is somewhere in these 1,992 squares, and you can see every one of them. Try to find it. Wipe a number and see what breaks.</p>
+        <p data-lv="curious">Every weight is in plain view, and none of them has a label. Finding what the numbers mean after training is a research field of its own, called <strong>interpretability</strong>. Wipe a weight and see what breaks.</p>
+        <p data-lv="technical">The representation is distributed: a fact is a direction across many weights, and each weight takes part in many facts. Ablate weights below and count how many top-1 predictions flip across the whole training set.</p>
+        <p class="fine">Its favorite way to finish &ldquo;The water is green&rdquo;:</p>
+        <p class="line" id="kn-green" aria-live="polite"></p>
+        <canvas class="field tap" id="kn-field2" role="img" aria-label="The same grid of 1,992 numbers. Tap a square to set that number to zero."></canvas>
+        <p class="row">
+          <button type="button" class="go" id="kn-wipe">Wipe fifty at random</button>
+          <button type="button" id="kn-restore">Put them all back</button>
+        </p>
+        <dl class="meters two">
+          <div><dd id="kn-wiped">0</dd><dt>numbers wiped</dt></div>
+          <div><dd><span id="kn-changed">0</span> <small>of 434</small></dd><dt>answers that changed</dt></div>
+        </dl>
+        <p class="say" id="kn-find-say" aria-live="polite"></p>
+        <p data-lv="plain">No square holds one fact. Each fact is spread across many numbers, and each number does a little work for many facts. With 1,992 of them, a patient person could still untangle it. The big models have hundreds of billions.</p>
+        <p data-lv="curious">No weight holds one fact. In a real image model, researchers found a single unit that responds to cat faces and also to the fronts of cars. The working explanation is that a model holds more ideas than it has units, so each idea is spread across many of them. Since 2023 there have been tools that pull those ideas apart again, and they work on a small part of what a large model does.</p>
+        <p data-lv="technical">Single units in real models are polysemantic. The leading account is superposition: more features than dimensions, each feature a direction shared across units. Dictionary learning with sparse autoencoders recovers many interpretable features and lets you steer with them, but coverage of a large model is still partial.</p>
+      </section>
+
+      <section class="stop" aria-labelledby="kn-s6">
+        <h2 id="kn-s6"><span>6</span> From this to a chatbot</h2>
+        <p data-lv="plain">A chatbot is this same drill at a size that is hard to picture. One openly published model, Meta's Llama 3.1, has 405 billion numbers. Printed at 5,000 to a page, that is 81 million pages. It was trained on more text than a person could read in thousands of lifetimes, then trained a second time on example conversations so it answers like an assistant.</p>
+        <p data-lv="curious">A chatbot is the same drill at enormous scale. The first round, on a huge pile of text, is <strong>pre-training</strong>. A second round on example conversations, called <strong>fine-tuning</strong>, makes it behave like an assistant. Meta's Llama 3.1 has 405 billion weights: at 5,000 to a page, 81 million pages.</p>
+        <p data-lv="technical">Swap the fixed two-token window for a transformer, whose attention layers let every position read from every earlier one. Pre-train on next-token prediction over a web-scale corpus, then fine-tune on dialogue and with feedback from people. Llama 3.1 at its largest has 405 billion parameters.</p>
+        <p>Two things people notice follow from how it is made. It can write sentences nobody has written before, because it builds them a word at a time. And it can say false things smoothly, because what was trained is what plausibly comes next. True and likely usually go together. When they do not, there is no separate step that checks.</p>
+        <p>The people who build these can inspect every step of the arithmetic, and still cannot fully explain how it arrives at a given answer. You just met the reason at stop 5.</p>
       </section>
     </div>
 
     <div class="sheet">
       <section>
-        <h2>What you just saw</h2>
-        <div class="body">
-<p>The first answer came from a rule a person wrote. You could read it, and it told you which line decided.</p>
-<p>The second came from 33 numbers nobody wrote. They started as dice rolls. Each nudge checked the network's answers against the 240 examples, measured how far off they were, and worked out for every knob which direction would shrink the miss. Then it turned each knob slightly that way. A few hundred rounds of that is all the training there is.</p>
-<p>People compare this to training a dog with treats. There is no treat here and nothing that wants one. There is a measured miss, and arithmetic that makes it smaller.</p>
-        </div>
-      </section>
-      <section>
-        <h2>Why the builders cannot just read it</h2>
-        <div class="body">
-<p>Every number in a model can be looked at, the way you looked at these. What is missing is a label. Move one knob on the board and several edges of the shape move at once, because the rule is held by all of them together.</p>
-<p>With 33 knobs, a patient person could still work it out on paper. Llama 3.1, a model Meta published in 2024, has 405 billion. Printed at 5,000 numbers to a page, that is 81 million pages.</p>
-<p>Researchers do open these models up. In one image model they found a single unit that fires for cat faces and also for the fronts of cars. The working explanation is that a network holds more ideas than it has units, so each idea ends up spread across many of them. Since 2023 there have been tools that pull those ideas apart again, and in 2024 one lab reported finding the pattern inside its own model that stands for the Golden Gate Bridge.</p>
-<p>That is real progress, and it covers a small part of what a large model does. The people who build these can inspect every step of the arithmetic and still cannot fully explain how it arrives at a given answer.</p>
-<p class="fine">Where those claims come from: <a href="https://transformer-circuits.pub/2023/monosemantic-features/">Towards Monosemanticity</a> (Anthropic, 2023), <a href="https://www.technologyreview.com/2026/01/12/1130003/">MIT Technology Review on mechanistic interpretability</a> (2026), and <a href="https://www.theneuron.ai/explainer-articles/mechanistic-interpretability-ai-safety/">The Neuron's summary of a 2026 research survey</a>.</p>
-        </div>
-      </section>
-      <section>
-        <h2>What a chatbot adds</h2>
-        <div class="body">
-<p>A chatbot does the word guesser's job with the knob board's machinery. It reads what has been written so far, scores every word it knows as the next one, picks one, and goes again. Its knobs were trained the way these 33 were, with the next word of real text as the example to match, on far more reading than a person could do in a thousand lifetimes.</p>
-<p>That accounts for two things people notice. It can write sentences nobody has written before, because it builds them a word at a time. And it can say false things smoothly, because what was trained is what plausibly comes next. True and likely usually go together. When they do not, there is no separate step that checks.</p>
-        </div>
-      </section>
-      <section>
         <h2>What this is not</h2>
         <div class="body">
-<p>This is a toy. The pool rule is cut down to two readings so the picture fits on a flat page, and two readings do not make a real pool safe. The network has one layer of eight wires, and it learned a rule that was already written, which is the easy case. Networks get trained for the jobs where nobody can write the rule, like telling a cat from a car.</p>
-<p>The word guesser counts instead of training, and it remembers only two words back, which is why it loses its thread. A chatbot looks back over thousands of words.</p>
-<p>The network here ends up matching the written rule on about 98 of every 100 possible readings, not all of them. It is least reliable at the edges, where it saw the fewest examples. That part holds for the big ones too.</p>
-<p>All of it is in <a href="../assets/knobs.js">one script</a>, written out by hand with no libraries. For what happens when you try to take something back out of the knobs, see <a href="forget-me.html">Forget me</a>.</p>
+<p>This is a toy. It has read 46 sentences and sees only the last two words, which is why it loses its thread. Its words are whole words. It has one layer where a chatbot has dozens.</p>
+<p>What it shares with the big ones is the part this page is about: the numbers start random, the same drill moves them, and afterward the knowledge is in the numbers with no labels on it.</p>
+<p>All of it is in <a href="../assets/knobs.js">one script</a>, written out by hand with no libraries. For what happens when you try to take one fact back out of a model, see <a href="forget-me.html">Forget me</a>.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Where the outside claims come from</h2>
+        <div class="body">
+<p>The unit that answers to cat faces and car fronts, and the tools that pull ideas apart: <a href="https://transformer-circuits.pub/2023/monosemantic-features/">Towards Monosemanticity</a> (Anthropic, 2023). How far that work has come: <a href="https://www.technologyreview.com/2026/01/12/1130003/">MIT Technology Review on mechanistic interpretability</a> (2026) and <a href="https://www.theneuron.ai/explainer-articles/mechanistic-interpretability-ai-safety/">The Neuron's summary of a 2026 research survey</a>.</p>
         </div>
       </section>
     </div>
@@ -184,7 +203,7 @@
     <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
   </footer>
 
-  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A control room. One wall is a board of thirty-three dials, each with a number under it. A window looks onto a map that changes color when a dial moves. Nobody is at the desk.">
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A control room. One wall is a grid of small lit squares, nineteen hundred and ninety-two of them. A stack of forty-six index cards sits on the desk, a sentence on each. Nobody is at the desk.">
     <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
     <form autocomplete="off">
       <label for="cmd" aria-label="Command">&gt;</label>

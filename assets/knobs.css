@@ -1,12 +1,12 @@
 /* Knobs (tools/knobs.html).
    Everything here is scoped under .knobs; type comes from site.css and the
-   room's dark colors are set there too. The loud things on the page are the
-   map (the network's answer for every reading) and the board of 33 dials. */
+   room's dark colors are set there too. The page is a walk in six stops. The
+   loud thing on it is the field: one square per weight. */
 
 .knobs {
   --panel: #162a26;
-  --yes: #9df0da;         /* marked safe, and the network's "yes" */
-  --no: #ffb199;          /* marked not safe, and the network's "no" */
+  --yes: #9df0da;         /* a weight above zero */
+  --no: #ffb199;          /* a weight below zero, and anything flagged */
 }
 
 body[data-room="knobs"] .room-head h1 {
@@ -19,13 +19,22 @@ body[data-room="knobs"] .room-head .lede {
 .knobs .lab {
   display: grid;
   gap: clamp(2.75rem, 7vw, 4.5rem);
-  padding: 0 var(--gutter) 1.5rem;
+  padding: 0 var(--gutter) 2rem;
 }
-.knobs .lab > * { min-width: 0; }
+.knobs .lab > * { min-width: 0; max-width: 44rem; }
 .knobs .lab h2 {
   font-size: clamp(1.75rem, 5vw, 2.5rem);
   color: var(--room);
   margin-bottom: 0.75rem;
+}
+.knobs .stop h2 span {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-right: 0.15em;
+  padding: 0 0.3em;
+  text-align: center;
+  color: var(--wash);
+  background: var(--room);
 }
 .knobs .lab p {
   margin: 0 0 0.9rem;
@@ -42,8 +51,15 @@ body[data-room="knobs"] .room-head .lede {
   font-size: 1.0625rem;
   line-height: 1.55;
 }
+.knobs .say.short { min-height: 3.1em; }
 
-/* Controls shared by every part */
+/* One of the three wordings shows at a time. Without JavaScript the plain one does. */
+.knobs [data-lv] { display: none; }
+.knobs[data-level="plain"] [data-lv="plain"],
+.knobs[data-level="curious"] [data-lv="curious"],
+.knobs[data-level="technical"] [data-lv="technical"] { display: block; }
+
+/* Controls */
 .knobs button {
   min-height: 2.75rem;
   padding: 0.55rem 1.1rem;
@@ -59,6 +75,15 @@ body[data-room="knobs"] .room-head .lede {
   background: var(--room);
   border-color: var(--room);
 }
+.knobs button.link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--room);
+  text-decoration: underline;
+}
 .knobs button:disabled { opacity: 0.4; cursor: default; }
 .knobs button:focus-visible,
 .knobs input:focus-visible,
@@ -72,6 +97,24 @@ body[data-room="knobs"] .room-head .lede {
   gap: 0.6rem;
   margin: 1rem 0;
 }
+.knobs .levels .row { margin-top: 0; }
+.knobs .levels button {
+  display: grid;
+  gap: 0.2rem;
+  flex: 1 1 11rem;
+  text-align: left;
+  border-color: var(--rule);
+}
+.knobs .levels button small {
+  font: 500 0.875rem/1.2 var(--text);
+  color: var(--soft);
+}
+.knobs .levels button[aria-pressed="true"] {
+  border-color: var(--room);
+  background: var(--panel);
+}
+.knobs .levels button[aria-pressed="true"] b { color: var(--room); }
+
 .knobs input[type="range"] {
   width: 100%;
   min-height: 2.75rem;
@@ -83,56 +126,68 @@ body[data-room="knobs"] .room-head .lede {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0 0.75rem;
   align-items: baseline;
+  max-width: 30rem;
   font-weight: 600;
   font-size: 0.9375rem;
 }
 .knobs .slide input { grid-column: 1 / -1; }
 .knobs .slide output {
   font: 800 1.5rem/1 var(--display);
-  font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
 
-/* The written rule */
-.knobs .code {
-  list-style: none;
-  margin: 0 0 1.1rem;
-  padding: 0.75rem 0;
-  max-width: 36rem;
-  overflow-x: auto;
-  background: var(--panel);
-  border-left: 3px solid var(--rule);
-  font: 500 0.875rem/1.7 var(--mono);
-}
-.knobs .code li {
-  width: max-content;
-  min-width: 100%;
-  padding: 0 0.9rem;
-  white-space: pre;
-  color: var(--soft);
-}
-.knobs .code li.hit {
-  color: var(--wash);
-  background: var(--room);
-  font-weight: 700;
-}
-.knobs .readings {
+/* Stop 1 */
+.knobs .type {
   display: grid;
-  gap: 0.75rem 2rem;
-  max-width: 36rem;
+  gap: 0.3rem;
+  max-width: 30rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
 }
-.knobs .verdict {
-  margin-top: 0.9rem !important;
-  font: 800 clamp(1.5rem, 5.5vw, 2rem)/1.1 var(--display);
+.knobs input[type="text"] {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  font: 500 1.0625rem/1.2 var(--text);
+  color: var(--ink);
+  background: var(--panel);
+  border: 1.5px solid var(--rule);
+  border-radius: 0.3rem;
 }
+.knobs .tokens {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 0.9rem;
+  padding: 0;
+  min-height: 3.6rem;
+}
+.knobs .tokens li {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.6rem 0.3rem;
+  background: var(--panel);
+  font-weight: 600;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.knobs .tokens b {
+  font: 800 1.5rem/1 var(--display);
+  font-variant-numeric: tabular-nums;
+  color: var(--room);
+}
+.knobs .tokens .unknown { outline: 1.5px dashed var(--no); outline-offset: -1.5px; }
+.knobs .tokens .unknown b { color: var(--no); }
 
-/* The map */
-.knobs .map {
+/* The field */
+.knobs .field {
   display: block;
   width: 100%;
-  font-family: var(--text);
-  cursor: crosshair;
+  background: var(--panel);
 }
+.knobs .field.tap { cursor: crosshair; }
 .knobs .key {
   display: flex;
   flex-wrap: wrap;
@@ -141,15 +196,75 @@ body[data-room="knobs"] .room-head .lede {
   font-size: 0.875rem;
   color: var(--soft);
 }
-.knobs .key b { color: var(--ink); font-weight: 700; margin-right: 0.3rem; }
+.knobs .key b { margin-right: 0.3rem; }
 .knobs .key .y { color: var(--yes); }
 .knobs .key .n { color: var(--no); }
+
+/* What it writes */
+.knobs .line {
+  min-height: 2.7em;
+  font: italic 500 clamp(1.25rem, 4.6vw, 1.75rem)/1.35 var(--voice);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Stop 3 */
+.knobs .drill {
+  padding: 0.9rem 1rem 1rem;
+  background: var(--panel);
+  border-left: 3px solid var(--room);
+  max-width: 30rem;
+}
+.knobs .drill p { margin-bottom: 0.4rem; }
+.knobs .drill .q strong { font-size: 1.125rem; }
+.knobs .bars,
+.knobs .next {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+  max-width: 30rem;
+  align-content: start;
+}
+.knobs .bars { min-height: 7rem; }
+.knobs .next { min-height: 10.5rem; }
+.knobs .bars li,
+.knobs .next button {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9375rem;
+  color: var(--soft);
+}
+.knobs .next button {
+  width: 100%;
+  min-height: 1.85rem;
+  padding: 0.15rem 0;
+  font: 500 0.9375rem/1.2 var(--text);
+  color: var(--ink);
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+}
+.knobs .track { height: 0.6rem; background: var(--wash); }
+.knobs .next .track { background: var(--panel); }
+.knobs .track i { display: block; height: 100%; background: var(--soft); }
+.knobs .next .track i { background: var(--room); }
+.knobs .val { text-align: right; font-variant-numeric: tabular-nums; }
+.knobs .bars li.truth { color: var(--ink); font-weight: 700; }
+.knobs .bars li.truth .w::after { content: " \2713"; color: var(--room); }
+.knobs .bars li.truth i { background: var(--room); }
+.knobs .next button:hover .w { text-decoration: underline; }
+
 .knobs .meters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
-  margin: 1.1rem 0 0;
+  margin: 1.1rem 0;
 }
+.knobs .meters.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 24rem; }
 .knobs .meters div {
   border-top: 2px solid var(--rule);
   padding-top: 0.5rem;
@@ -170,128 +285,7 @@ body[data-room="knobs"] .room-head .lede {
   color: var(--soft);
 }
 
-/* The board */
-.knobs .board {
-  width: 100%;
-  max-width: 30rem;
-  border-collapse: separate;
-  border-spacing: 0.25rem;
-  table-layout: fixed;
-  margin: 0 -0.25rem;
-}
-.knobs .board th {
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.15;
-  color: var(--soft);
-  text-align: center;
-  vertical-align: bottom;
-  padding: 0 0 0.2rem;
-}
-.knobs .board tr > :first-child { width: 1.4rem; }
-.knobs .board th[scope="row"] { vertical-align: middle; padding: 0; }
-.knobs .board th.last { text-align: right; padding-right: 0.5rem; }
-.knobs .board td { padding: 0; }
-.knobs .board button {
-  display: grid;
-  justify-items: center;
-  gap: 0.2rem;
-  width: 100%;
-  min-height: 3.6rem;
-  padding: 0.4rem 0.1rem 0.3rem;
-  background: var(--panel);
-  border-color: transparent;
-}
-.knobs .board button[aria-pressed="true"] { border-color: var(--room); }
-.knobs .dial {
-  display: block;
-  position: relative;
-  width: 1.7rem;
-  height: 1.7rem;
-  border: 1.5px solid var(--soft);
-  border-radius: 50%;
-}
-.knobs .dial i {
-  position: absolute;
-  inset: 0;
-  transition: transform 80ms linear;
-}
-.knobs .dial i::before {
-  content: "";
-  position: absolute;
-  left: calc(50% - 1.5px);
-  top: 1px;
-  width: 3px;
-  height: 46%;
-  background: var(--room);
-  border-radius: 1.5px;
-}
-.knobs .num {
-  font: 500 0.75rem/1 var(--mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-}
-.knobs .turn {
-  max-width: 30rem;
-  margin-top: 1rem;
-}
-
-/* Ask both */
-.knobs .both dl {
-  margin: 0;
-  max-width: 36rem;
-}
-.knobs .both dl div {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
-  gap: 0.75rem;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--rule);
-}
-.knobs .both dt { color: var(--soft); font-size: 0.9375rem; }
-.knobs .both dd {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.125rem;
-}
-.knobs .both .note { margin-top: 0.9rem !important; }
-
-/* Next word */
-.knobs .line {
-  min-height: 2.9em;
-  font: italic 500 clamp(1.375rem, 5vw, 2rem)/1.3 var(--voice);
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-.knobs .next {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.3rem;
-  max-width: 30rem;
-  min-height: 12.5rem;
-  align-content: start;
-}
-.knobs .next button {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr) 2.6rem;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  min-height: 1.85rem;
-  padding: 0.15rem 0;
-  font: 500 0.9375rem/1.2 var(--text);
-  text-align: left;
-  border: 0;
-  border-radius: 0;
-}
-.knobs .next .track { height: 0.6rem; background: var(--panel); }
-.knobs .next i { display: block; height: 100%; background: var(--room); }
-.knobs .next .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--soft); }
-.knobs .next button:hover .w { text-decoration: underline; }
-.knobs .boldness { max-width: 30rem; }
-.knobs details { max-width: 36rem; margin-top: 1rem; }
+.knobs details { max-width: 36rem; }
 .knobs summary { cursor: pointer; font-weight: 600; min-height: 2.75rem; padding-top: 0.6rem; }
 .knobs details ol {
   margin: 0.25rem 0 0;
@@ -299,17 +293,4 @@ body[data-room="knobs"] .room-head .lede {
   font-size: 0.9375rem;
   color: var(--soft);
   columns: 18rem;
-}
-
-@media (min-width: 60rem) {
-  .knobs .kn-bench {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    column-gap: clamp(2rem, 5vw, 5rem);
-    align-items: start;
-  }
-  .knobs .readings { grid-template-columns: 1fr 1fr; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .knobs .dial i { transition: none; }
 }
