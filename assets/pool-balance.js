@@ -84,7 +84,7 @@ function buildPlan(w, opt) {
   }
 
   // 2. pH.
-  var needPH = !aerated && (s.ph < RANGE.ph[0] - 1e-6 || s.ph > RANGE.ph[1] + 1e-6 || (opt.forcePH && Math.abs(s.ph - phT) > 0.05));
+  var needPH = !aerated && (s.ph < RANGE.ph[0] - 1e-6 || s.ph > (opt.phHigh || RANGE.ph[1]) + 1e-6 || (opt.forcePH && Math.abs(s.ph - phT) > 0.05));
   if (needPH && s.ph > phT) {
     var a = s.ta - taFrom(phT, s.dic, s.cya), from = s.ph;
     s.ta -= a; s.ph = phT;
@@ -155,7 +155,15 @@ function leanOnPH(w, chTarget, p, dir, taTarget, fullAsh) {
   }
   return best;
 }
+/* A pH up to 8.0 is over the textbook range, but a tech leaves it alone when everything else
+   is good. So acid for pH is only called for above 7.8 if the water would not balance without it. */
+var PH_LEAVE = 8.0;
 function plan(w) {
+  var easy = buildPlan(w, { phHigh: PH_LEAVE });
+  if (easy.end.ph > RANGE.ph[1] + 0.005 && easy.lsi >= -0.3 && easy.lsi <= 0.3) {
+    easy.balanced = true; easy.phLeft = easy.end.ph;
+    return easy;
+  }
   var p = buildPlan(w);
   if (p.lsi < -0.3) {
     var need = Math.ceil(p.end.ch * Math.pow(10, -0.15 - p.lsi) / 10) * 10;
@@ -326,14 +334,15 @@ function update() {
     b.textContent = t[0]; sp.textContent = t[1]; box.appendChild(b); box.appendChild(sp); li.appendChild(box); ol.appendChild(li);
   });
   if (!p.steps.length) {
-    ol.innerHTML = '<p class="none">' + (key === "ok" ? "Nothing. Every reading is in range and the water is balanced." : "Every reading is in range, so there is no dose to give.") + "</p>";
+    ol.innerHTML = '<p class="none">' + (p.phLeft ? "Nothing to add. The water is balanced." : key === "ok" ? "Nothing. Every reading is in range and the water is balanced." : "Every reading is in range, so there is no dose to give.") + "</p>";
   }
   /* Acid in rounds only ends where the plan says once pH has had time to climb back. */
   var slow = p.steps.some(function (s) { return s.kind === "acidAfter" || s.kind === "acidTA"; });
   $("after").textContent = p.steps.length
     ? (slow ? "This is not a one-visit fix. Right after each round of acid the pH, and the index with it, will read lower than this. Once the rounds are done and pH has come back up, the index should settle near "
             : "After this, the index should read ") + signed(p.lsi) + (p.balanced ? ", balanced." : p.lsi < 0 ? ". Still hungry: this water is cold or soft enough that the ranges alone will not settle it. Keep pH and calcium at the top of their ranges." : ". Still scale-forming: keep pH near 7.2 and let alkalinity drift toward 80.")
-    : (key === "ok" ? "" : key === "low" ? "The index is low because of temperature. Keep pH and calcium at the top of their ranges." : "The index is high because of temperature or dissolved solids. Keep pH near 7.2.");
+    : (p.phLeft ? "" : key === "ok" ? "" : key === "low" ? "The index is low because of temperature. Keep pH and calcium at the top of their ranges." : "The index is high because of temperature or dissolved solids. Keep pH near 7.2.");
+  if (p.phLeft) $("after").textContent += (p.steps.length ? " " : "") + "pH " + n1(p.phLeft) + " is over the textbook 7.8, but with the rest in line this water is balanced, so it can sit there. Above " + n1(PH_LEAVE) + " it gets brought down.";
   target = Math.min(1.5, Math.max(-1.5, v));
   if (still) draw(0);
 }
