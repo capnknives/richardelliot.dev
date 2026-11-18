@@ -158,9 +158,11 @@ body[data-room="cadence"] .room-head h1 {
   gap: 0.1rem 0.4rem;
   font-size: 1.0625rem;
 }
+.cadence .words > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .cadence .w {
   display: inline-grid;
   justify-items: start;
+  text-align: left;
   padding: 0.1rem 0;
   font: inherit;
   color: var(--ink);
@@ -170,6 +172,10 @@ body[data-room="cadence"] .room-head h1 {
   cursor: pointer;
 }
 .cadence .w:hover { border-bottom-color: var(--room); }
+.cadence .more {
+  margin-top: 1.5rem;
+  color: var(--soft);
+}
 .cadence .w i {
   font-style: normal;
   font-size: 0.95rem;

@@ -49,6 +49,9 @@ function buildPlan(w, opt) {
   if (f > 0) {
     steps.push({ kind: "drain", pct: Math.round(f * 100), why: why });
     s.ch *= (1 - f); s.cya *= (1 - f);
+    /* The fill water is unknown, so pH and alkalinity are taken to come back as they
+       were. The carbonate has to be worked out again against the thinner stabilizer. */
+    s.dic = dicFrom(s.ph, s.ta, s.cya);
   }
 
   // 1. Total alkalinity.
@@ -72,8 +75,20 @@ function buildPlan(w, opt) {
   } else if (needPH && s.ph < phT) {
     var lo = 0, hi = 10, from2 = s.ph;
     for (var i = 0; i < 60; i++) { var m = (lo + hi) / 2; if (solvePH(s.ta + 2 * m, s.dic + m, s.cya) < phT) lo = m; else hi = m; }
-    s.ta += 2 * lo; s.dic += lo; s.ph = phT;
-    steps.push({ kind: "sodaAsh", grams: lo * L * 105.99 / 1000, from: from2, to: phT, ta: s.ta * 50 });
+    if ((s.ta + 2 * lo) * 50 > RANGE.ta[1] + 0.5) {
+      /* Soda ash would carry alkalinity out of range. Driving off carbon dioxide raises pH and leaves alkalinity alone. */
+      steps.push({ kind: "aerate", from: from2, to: phT, ta: s.ta * 50, ash: (s.ta + 2 * lo) * 50 });
+      s.ph = phT; s.dic = dicFrom(s.ph, s.ta, s.cya);
+    } else {
+      s.ta += 2 * lo; s.dic += lo; s.ph = phT;
+      steps.push({ kind: "sodaAsh", grams: lo * L * 105.99 / 1000, from: from2, to: phT, ta: s.ta * 50 });
+    }
+  }
+  /* Acid for pH spends alkalinity. If that leaves it short, put some back. */
+  if (s.ta * 50 < RANGE.ta[0] - 0.5) {
+    var back = (90 - s.ta * 50) / 50, was = s.ta * 50;
+    s.ta += back; s.dic += back; s.ph = solvePH(s.ta, s.dic, s.cya);
+    steps.push({ kind: "bicarb", grams: back * L * 84.01 / 1000, from: was, to: 90, ph: s.ph });
   }
 
   // 3. Calcium hardness.
@@ -91,17 +106,28 @@ function buildPlan(w, opt) {
 }
 
 /* Try the plain plan first. If the readings land in range but the index does not,
-   lean on calcium, then pH, which are the two levers that stay inside their ranges. */
+   lean on calcium, then pH, which are the two levers that stay inside their ranges.
+   pH moves a tenth at a time and stops at the first target that balances, so the
+   plan never swings from hungry water to scaling water or back. */
+function leanOnPH(w, chTarget, p, dir) {
+  var best = p, start = Math.round(Math.min(7.8, Math.max(7.2, p.end.ph)) * 10);
+  for (var t = start + dir; t >= 72 && t <= 78; t += dir) {
+    var q = buildPlan(w, { chTarget: chTarget, phTarget: t / 10, forcePH: true });
+    if (q.end.ph < RANGE.ph[0] - 0.005 || q.end.ph > RANGE.ph[1] + 0.005) continue;
+    if (Math.abs(q.lsi) < Math.abs(best.lsi)) best = q;
+    if (q.lsi >= -0.3 && q.lsi <= 0.3) return q;
+  }
+  return best;
+}
 function plan(w) {
   var p = buildPlan(w);
   if (p.lsi < -0.3) {
     var need = Math.ceil(p.end.ch * Math.pow(10, -0.15 - p.lsi) / 10) * 10;
-    var q = buildPlan(w, { chTarget: Math.min(400, Math.max(250, need)) });
-    if (q.lsi < -0.3) q = buildPlan(w, { chTarget: Math.min(400, Math.max(250, need)), phTarget: 7.8, forcePH: true });
-    p = q;
+    var ch = Math.min(400, Math.max(250, need));
+    p = buildPlan(w, { chTarget: ch });
+    if (p.lsi < -0.3) p = leanOnPH(w, ch, p, 1);
   } else if (p.lsi > 0.3) {
-    var r = buildPlan(w, { phTarget: 7.2, forcePH: true });
-    if (r.lsi < p.lsi) p = r;
+    p = leanOnPH(w, 0, p, -1);
   }
   p.balanced = p.lsi >= -0.3 && p.lsi <= 0.3;
   return p;
@@ -134,6 +160,13 @@ FIELDS.forEach(function (f) {
   var num = d.querySelector(".num"), slide = d.querySelector('input[type="range"]');
   slide.addEventListener("input", function () { num.value = slide.value; update(); });
   num.addEventListener("input", function () { if (num.value !== "") { slide.value = num.value; update(); } });
+  /* On leaving the box, show the value the plan is using: in range, and never blank. */
+  num.addEventListener("change", function () {
+    var v = parseFloat(num.value);
+    if (!isFinite(v)) v = parseFloat(slide.value);
+    v = Math.min(f.max, Math.max(f.min, v));
+    num.value = v; slide.value = v; update();
+  });
 });
 $("readings").addEventListener("submit", function (e) { e.preventDefault(); });
 $("reset").addEventListener("click", function () {
@@ -145,7 +178,7 @@ function read() {
   var w = {};
   FIELDS.forEach(function (f) {
     var v = parseFloat($(f.id).value);
-    if (!isFinite(v)) v = f.def;
+    if (!isFinite(v)) v = parseFloat($(f.id + "-slide").value);
     w[f.id] = Math.min(f.max, Math.max(f.min, v));
   });
   return w;
@@ -179,6 +212,8 @@ function describe(s) {
       "Lowers pH from " + n1(s.from) + " to " + n1(s.to) + ". Total alkalinity ends near " + n0(s.ta) + " ppm."];
     case "sodaAsh": return ["Add up to " + weight(s.grams) + " of soda ash (sodium carbonate), half first",
       "Raises pH from " + n1(s.from) + " to " + n1(s.to) + ", and total alkalinity to about " + n0(s.ta) + " ppm. Add half, circulate for an hour and retest. Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest."];
+    case "aerate": return ["Aerate: point the returns up or run a fountain, and retest each day",
+      "Raises pH from " + n1(s.from) + " toward " + n1(s.to) + " by driving off carbon dioxide, with total alkalinity staying near " + n0(s.ta) + " ppm. Soda ash would be faster, but here it would push alkalinity to about " + n0(s.ash) + " ppm."];
     case "calcium": return ["Add " + weight(s.grams) + " of calcium chloride (77% flake)",
       "Raises calcium hardness from " + n0(s.from) + " to " + n0(s.to) + " ppm. Dissolve it in a bucket of pool water and add it in batches."];
     case "cya": return ["Add " + weight(s.grams) + " of stabilizer (cyanuric acid)",
