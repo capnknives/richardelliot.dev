@@ -19,7 +19,7 @@
   <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../assets/site.css?v=20">
-  <link rel="stylesheet" href="../assets/feeder-match.css?v=20">
+  <link rel="stylesheet" href="../assets/feeder-match.css?v=22">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="feeder">
@@ -89,6 +89,35 @@
           </dl>
           <ul class="notes" id="fm-notes"></ul>
         </div>
+
+        <div class="order" id="fm-order">
+          <h2 id="fm-order-h">Ask for these feeders</h2>
+          <p class="hint">This writes the request for you. Copy it and send it to your breeder yourself. Prices and direct ordering come in a later version.</p>
+          <div class="order-row">
+            <label class="step-label" for="fm-qty">How many</label>
+            <div class="stepper">
+              <button type="button" class="pick small" id="fm-less" aria-label="One fewer">&minus;</button>
+              <input class="num" id="fm-qty" type="number" inputmode="numeric" min="1" max="200" step="1" value="1">
+              <button type="button" class="pick small" id="fm-more" aria-label="One more">+</button>
+            </div>
+          </div>
+          <div class="order-row">
+            <span class="step-label" id="fm-l-form">Frozen or live</span>
+            <div class="picks" id="fm-form" role="group" aria-labelledby="fm-l-form"></div>
+          </div>
+          <div class="order-row">
+            <label class="step-label" for="fm-name">Your name <small>(optional)</small></label>
+            <input class="txt" id="fm-name" type="text" maxlength="40" autocomplete="given-name" autocapitalize="words">
+          </div>
+          <p class="total" id="fm-total" hidden></p>
+          <p class="msg" id="fm-msg"></p>
+          <div class="picks">
+            <button type="button" class="pick" id="fm-copy">Copy request</button>
+            <a class="pick" id="fm-text" hidden>Text this request</a>
+          </div>
+          <p class="hint" id="fm-copied" role="status"></p>
+        </div>
+        <p class="hint" id="fm-order-none" hidden>The request form appears once the ticket names a feeder.</p>
       </section>
 
       <section class="ladder" aria-labelledby="fm-ladder-title">
@@ -113,6 +142,7 @@
 <p>For every species but the hognose, the meal is a share of body weight that tapers as the snake grows: about 15% for a hatchling, 10% for a juvenile, and 6% for an adult. A flat 10% for life is the common rule, and it overfeeds adults. Adults are also held to a largest mouse size, because past that point a bigger meal mostly adds fat.</p>
 <p>Hognoses use the weight ladder that two breeders publish (<a href="https://www.ectothermempire.com/care-information/western-hognose-prey-size-frequency-guide">Ectotherm Empire</a> and <a href="https://www.sandiegoreptile.com/breeding-info-caresheets/hognose-snakes/western-plains-hognose-care">San Diego Reptile</a>) instead of a percentage. Corn snake schedules follow <a href="https://reptifiles.com/corn-snake/care-guide/corn-snake-food">ReptiFiles</a>. Nobody publishes a veterinary chart for Florida kingsnakes, Pueblan milk snakes or Texas rat snakes, so those numbers are general care for their kind and keeper practice, and the ticket says so.</p>
 <p>The feeder names and gram ranges are a placeholder: <a href="https://rodentpro.com/informationcenter/resources/the-guide-to-different-sizes-of-frozen-feeder-mice">one large supplier's chart</a>. Suppliers do not agree on what a "small" is, so the match is done in grams first and named second.</p>
+<p>The request form only writes a message for you to copy. Your name and the request stay on this page until you send them yourself.</p>
 <p>The arithmetic is in <a href="../assets/feeder-match.js">one short script</a> you can read.</p>
         </div>
       </section>
@@ -159,6 +189,6 @@
   <script src="../assets/box.js?v=20"></script>
   <script src="../assets/prompt.js?v=20"></script>
   <script src="../assets/backdrop.js?v=20"></script>
-  <script src="../assets/feeder-match.js?v=21"></script>
+  <script src="../assets/feeder-match.js?v=22"></script>
 </body>
 </html>
