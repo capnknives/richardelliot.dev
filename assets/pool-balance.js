@@ -236,7 +236,7 @@ function describe(s) {
         ? "The dose stops here because more soda ash would push alkalinity over range. Pointing the returns up between tests helps pH on toward " + n1(s.want) + " without adding any."
         : "Low-pH water also sheds carbon dioxide on its own, which lifts pH without any help, so you may not need the rest.")];
     case "acidAfter": return ["Later, add " + liquid(s.ml) + " of muriatic acid (31.45%), a quarter at a time",
-      "Not the same hour as the soda ash: let it circulate and retest first. This brings total alkalinity back down from " + n0(s.from) + " to about " + s.to + " ppm. Each round of acid pulls pH down too, so retest and let pH come back up before the next round. Plan on a return visit to finish the tuning."];
+      "Not the same hour as the soda ash: let it circulate and retest first. This brings total alkalinity back down from " + n0(s.from) + " to about " + s.to + " ppm. Each round of acid also pulls pH down, at first to below where you started. It climbs back as the water gives off carbon dioxide, which takes circulation and time, so retest and wait for pH to recover before the next round. Plan on a return visit to finish the tuning."];
     case "calcium": return ["Add " + weight(s.grams) + " of calcium chloride (77% flake)",
       "Raises calcium hardness from " + n0(s.from) + " to " + n0(s.to) + " ppm. Dissolve it in a bucket of pool water and add it in batches."];
     case "cya": return ["Add " + weight(s.grams) + " of stabilizer (cyanuric acid)",
@@ -271,8 +271,11 @@ function update() {
   if (!p.steps.length) {
     ol.innerHTML = '<p class="none">' + (key === "ok" ? "Nothing. Every reading is in range and the water is balanced." : "Every reading is in range, so there is no dose to give.") + "</p>";
   }
+  /* Acid in rounds only ends where the plan says once pH has had time to climb back. */
+  var slow = p.steps.some(function (s) { return s.kind === "acidAfter" || s.kind === "acidTA"; });
   $("after").textContent = p.steps.length
-    ? "After this, the index should read " + signed(p.lsi) + (p.balanced ? ", balanced." : p.lsi < 0 ? ". Still hungry: this water is cold or soft enough that the ranges alone will not settle it. Keep pH and calcium at the top of their ranges." : ". Still scale-forming: keep pH near 7.2 and let alkalinity drift toward 80.")
+    ? (slow ? "This is not a one-visit fix. Right after each round of acid the pH, and the index with it, will read lower than this. Once the rounds are done and pH has come back up, the index should settle near "
+            : "After this, the index should read ") + signed(p.lsi) + (p.balanced ? ", balanced." : p.lsi < 0 ? ". Still hungry: this water is cold or soft enough that the ranges alone will not settle it. Keep pH and calcium at the top of their ranges." : ". Still scale-forming: keep pH near 7.2 and let alkalinity drift toward 80.")
     : (key === "ok" ? "" : key === "low" ? "The index is low because of temperature. Keep pH and calcium at the top of their ranges." : "The index is high because of temperature or dissolved solids. Keep pH near 7.2.");
   target = Math.min(1.5, Math.max(-1.5, v));
   if (still) draw(0);
