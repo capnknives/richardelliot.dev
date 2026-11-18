@@ -86,7 +86,11 @@
       "door": "It leads back to the corridor. It may not be where you left it."
     },
     cellar: {
-      "shelves,shelf,jars": "Fonts in jars, shaders in a crate, one benchmark carefully labeled, and a single mustard seed in a jar of its own.",
+      "shelves,shelf,jars,jar": "Fonts in jars, a shader in a crate, one benchmark carefully labeled, and a single mustard seed in a jar of its own.",
+      "wall,chalk,names,notes": "Names in chalk, left by people who found the way down. There is room for one more. You could sign it.",
+      "crate,shader": "One program for every backdrop on the site. It is asked the same question for every pixel, every frame.",
+      "bench,tape,snippets,languages,code": "One idea, written out six times in six languages. Keep what was there, and you can always put it back.",
+      "tally,commands,list,marks": "A tally scratched into the beam: every command the box understands. Some of the marks are still blank.",
       "seed,mustard seed,mustard": "The smallest thing on the shelf.",
       "stairs,trapdoor": "Light comes down from the corridor. You can go up."
     }
@@ -134,6 +138,36 @@
       (here === "home" ? "\nThe rest has stepped back. show all brings it home." : "") +
       "\nType go and a name.");
   }
+
+  /* Every command, by one name each, so the cellar can show which have been found.
+     The first nine are in the help. The rest are for people who try things. */
+  var LISTED = ["help", "look", "examine", "exits", "go", "show", "walk", "inventory", "back"];
+  var HIDDEN = [
+    ["down", /^(down|d)$/], ["jump", /^(jump|fork)$/], ["origin", /^origin$/], ["world", /^(world|constants|where|whereami)$/],
+    ["score", /^(score|stats)$/], ["observe", /^(observe|measure)$/], ["who", /^who$/], ["north", /^(n|s|e|w|north|south|east|west)$/],
+    ["say", /^say$/], ["hail", /^hail$/], ["consider", /^(consider|con)$/], ["camp", /^(camp|sit|rest)$/], ["dance", /^dance$/],
+    ["sudo", /^sudo$/], ["forget", /^(rm|delete|forget)$/], ["mail", /^(mail|email|contact|write)$/], ["hello", /^(hello|hi|hey)$/],
+    ["xyzzy", /^(xyzzy|plugh)$/], ["42", /^42$/], ["quit", /^(quit|exit|logout)$/], ["sign", /^sign$/]
+  ];
+  var ALSO = { "?": "help", l: "look", x: "examine", inspect: "examine", ls: "exits", cd: "go", open: "go", enter: "go",
+    filter: "show", list: "show", forward: "walk", onward: "walk", advance: "walk", i: "inventory", inv: "inventory", up: "back", u: "back" };
+  function found() {
+    try { return (window.sessionStorage.getItem("cmds") || "").split(",").filter(Boolean); } catch (e) { return []; }
+  }
+  function note(verb, rest) {
+    var name = LISTED.indexOf(verb) !== -1 ? verb : ALSO[verb];
+    if (name === "look" && rest) name = "examine";
+    if (!name) {
+      for (var i = 0; i < HIDDEN.length; i++) if (HIDDEN[i][1].test(verb)) { name = HIDDEN[i][0]; break; }
+    }
+    if (!name) return;
+    var have = found();
+    if (have.indexOf(name) !== -1) return;
+    have.push(name);
+    try { window.sessionStorage.setItem("cmds", have.join(",")); } catch (e) { /* storage is optional */ }
+    window.dispatchEvent(new CustomEvent("commandfound", { detail: name }));
+  }
+  window.REPrompt = { listed: LISTED, hidden: HIDDEN.map(function (h) { return h[0]; }), found: found };
 
   function remember(key) {
     try { window.sessionStorage.setItem(key, "1"); } catch (e) { /* storage is optional */ }
@@ -233,6 +267,14 @@
     var verb = parts[0];
     var rest = parts.slice(1).join(" ").replace(/^(at|the|to) /, "").replace(/^the /, "");
 
+    note(verb, rest);
+
+    if (verb === "sign") {
+      if (here !== "cellar") { say(raw, "There is nothing here to sign. People say there is a wall somewhere below."); return; }
+      window.dispatchEvent(new CustomEvent("signwall"));
+      say(raw, document.querySelector("[data-wall]:not([hidden])") ? "You pick up the chalk." : "The wall is bare, and there is no chalk yet.");
+      return;
+    }
     if (verb === "help" || verb === "?") {
       say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\nshow X     ai, apps, tools, all\nwalk       down the corridor\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
       return;
