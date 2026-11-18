@@ -14,7 +14,7 @@
    prompt) brings the next stretch up close. What is seen through door number i is drawn
    by world(i) in the shader: 0 to 3 are modes 0 to 3, 4 is the pool wall of
    the water balance tool, 5 is the wall of weights from Forget me, 6 is the bars of
-   ticks from Cadence, and 9 is the door that is not on the plan.
+   ticks from Cadence, 7 is the rack of relays from Trace, and 9 is the door that is not on the plan.
 
    The corridor is not ray-marched. Walls, floor and ceiling are flat, so each
    pixel's ray is intersected with them directly, which is cheap and exact.
@@ -147,6 +147,18 @@
     " col=mix(col,vec3(.06,.09,.13),.16*step(uv.x,head)*step(.18,fy)*step(fy,.84));",
     " return col;}",
 
+    /* A rack of relays on one cable. One lamp is lit at a time, and it moves down the rack. */
+    "vec3 relays(vec2 uv){",
+    " float rows=9.;float r=floor(uv.y*rows);float fy=fract(uv.y*rows);",
+    " float lit=1.-step(.5,abs(r-(rows-1.-floor(mod(uTime*.6,rows)))));",
+    " float d=length(vec2((uv.x-.22)*rows*.75,fy-.5));",
+    " float label=step(.36,uv.x)*step(uv.x,.56+.3*hash(vec2(r,7.)))*step(.4,fy)*step(fy,.6);",
+    " vec3 col=mix(gA,gB,smoothstep(.014,.005,abs(uv.x-.22)));",
+    " col=mix(col,gB,label*.8);col=mix(col,gC,label*lit);",
+    " col=mix(col,mix(gB*1.5,gC,lit),smoothstep(.2,.14,d));",
+    " col+=gC*lit*.3*exp(-d*3.);",
+    " return col;}",
+
     /* ---- the corridor ---- */
     "const float W=1.1;const float H=1.25;const float D=3.;const float DW=.75;const float DH=2.;const float Z0=1.1;",
 
@@ -154,6 +166,7 @@
     " if(i<.5)return vec3(.50,.58,1.);if(i<1.5)return vec3(.45,.86,.58);",
     " if(i<2.5)return vec3(.40,.86,.90);if(i<3.5)return vec3(.95,.70,.28);",
     " if(i<4.5)return vec3(.70,.88,1.);if(i<5.5)return vec3(1.,.62,.75);if(i<6.5)return vec3(1.,.60,.36);",
+    " if(i<7.5)return vec3(.81,.89,.35);",
     " return uEgg<1.5?vec3(1.,.96,.86):uEgg<2.5?vec3(.95,.62,.34):vec3(.72,.58,1.);}",
 
     /* What you see through door i. uv.y runs 0..1 up the door. */
@@ -167,6 +180,7 @@
     " else if(i<4.5){gA=vec3(.86,.93,.95);gB=vec3(.39,.73,.76);gC=vec3(.04,.35,.45);col=tank(uv/vec2(.75,1.));}",
     " else if(i<5.5){gA=vec3(.08,.09,.18);col=stain(uv/vec2(.75,1.));}",
     " else if(i<6.5){gA=vec3(.98,.93,.83);gB=vec3(1.,.98,.94);gC=vec3(.56,.25,.0);col=bars(uv/vec2(.75,1.));}",
+    " else if(i<7.5){gA=vec3(.08,.09,.05);gB=vec3(.23,.25,.15);gC=vec3(.81,.89,.35);col=relays(uv/vec2(.75,1.));}",
     " else{gA=vec3(.02,.02,.06);gB=vec3(.22,.24,.5);gC=vec3(1.,.97,.9);",          /* the door that should not be there */
     "  col=sky(uv*1.6+uTime*.01)+gC*(.9*exp(-length(uv-vec2(.375,.62))*16.)+.25*exp(-length(uv-vec2(.375,.62))*4.));}",
     " gA=sa;gB=sb;gC=sc;gAsp=sasp;return col;}",
