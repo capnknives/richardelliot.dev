@@ -1,6 +1,6 @@
 /* The command prompt.
    The site is laid out like a text game: every page is a room, every link
-   marked data-exit is a way out. This script reads those links from the page,
+   marked data-exit is a way out ("show <kind>" lists the work by kind, from FILED below). This script reads those links from the page,
    so adding a project to the HTML adds it to the prompt with no change here.
    Rooms also hold a few things to examine, and the front page has a way down
    that is not listed until you find it.
@@ -55,6 +55,16 @@
       "lamps,lamp,lights": "One is lit. That is the whole point of the room.",
       "breaker,handle,switch": "Red handle, worn smooth. It is allowed to say no to anything in here, including the machine."
     },
+    wits: {
+      "relays,relay,rack,labels,label": "Each relay is labeled in pencil with one question. A message trips the first one whose answer is yes. You can try it yourself: go trace.",
+      "cable,wire": "Everything anyone says comes in on this one cable.",
+      "machine,model,hum,next room": "It runs on one graphics card, in this house. It does not phone anyone without asking.",
+      "list,review,plan,wall": "A list pinned to the wall, headed What is wrong with this. Five items. Underneath, in the same hand: fix in this order."
+    },
+    tools: {
+      "doors,door,passage": "Four smaller doors. Nothing behind them is for sale. Each was built to answer one question.",
+      "light,lights": "Each door leaks its own color. The pink one flickers when something is forgotten."
+    },
     forgetme: {
       "wall,squares,weights,grid,field": "One square for every number the model is made of. Teach it something and watch where the light goes. It goes almost everywhere.",
       "ledger,record,book,stand": "Every weight, written down before anything was taught. It is the only way back that lands exactly.",
@@ -83,6 +93,47 @@
   };
 
   var CARRYING = "You are carrying nothing. Richard is carrying Python, PyTorch, FastAPI, asyncio, one benchmark and a mustard seed.";
+
+  /* "show ai": the work, filed by kind. On the front page, what does not match steps back. */
+  var FILED = [
+    { key: "retractbench", path: "projects/retractbench.html", name: "retractbench", kinds: "ai research" },
+    { key: "storygecko", path: "projects/storygecko.html", name: "StoryGecko", kinds: "apps ai writing" },
+    { key: "aquainspection", path: "projects/aquainspection.html", name: "Aquainspection", kinds: "apps ai" },
+    { key: "riftforge", path: "projects/riftforge.html", name: "Riftforge", kinds: "games" },
+    { key: "wits", path: "projects/wits.html", name: "WITS", kinds: "ai agents" },
+    { key: "trace", path: "tools/trace.html", name: "Trace", kinds: "tools ai agents" },
+    { key: "forgetme", path: "tools/forget-me.html", name: "Forget me", kinds: "tools ai research" },
+    { key: "cadence", path: "tools/cadence.html", name: "Cadence", kinds: "tools writing" },
+    { key: "poolbalance", path: "tools/pool-balance.html", name: "Pool balance", kinds: "tools" }
+  ];
+  var KIND_NAMES = "ai, apps, tools, research, agents, games, writing";
+  var KIND_ALIASES = { app: "apps", tool: "tools", game: "games", agent: "agents", ml: "ai", saas: "apps", everything: "all", projects: "all" };
+
+  function has(kinds, kind) {
+    return (" " + kinds + " ").indexOf(" " + kind + " ") !== -1;
+  }
+  function dim(kind) {
+    var nodes = document.querySelectorAll("[data-kind]");
+    for (var i = 0; i < nodes.length; i++) {
+      var off = kind !== "all" && !has(nodes[i].getAttribute("data-kind"), kind);
+      if (off) nodes[i].classList.add("dim"); else nodes[i].classList.remove("dim");
+    }
+  }
+  function show(raw, word) {
+    var kind = KIND_ALIASES[word] || word;
+    if (!kind) { say(raw, "Show what? Kinds: " + KIND_NAMES + ". Or show all."); return; }
+    if (kind === "all") {
+      dim("all");
+      say(raw, "Everything: " + FILED.map(function (f) { return f.name; }).join(", ") + ".");
+      return;
+    }
+    var hits = FILED.filter(function (f) { return has(f.kinds, kind); });
+    if (!hits.length) { say(raw, "Nothing is filed under \u201c" + word + "\u201d. Kinds: " + KIND_NAMES + "."); return; }
+    dim(kind);
+    say(raw, kind + ": " + hits.map(function (f) { return f.name; }).join(", ") + "." +
+      (here === "home" ? "\nThe rest has stepped back. show all brings it home." : "") +
+      "\nType go and a name.");
+  }
 
   function remember(key) {
     try { window.sessionStorage.setItem(key, "1"); } catch (e) { /* storage is optional */ }
@@ -133,7 +184,20 @@
     }
     /* Forgive short forms: "go story", "go aqua". */
     var hits = list.filter(function (e) { return word.length > 1 && e.key.indexOf(word) === 0; });
-    return hits.length === 1 ? hits[0] : null;
+    if (hits.length === 1) return hits[0];
+    /* Not a way out of this room, but a place on the site: every project and tool can be reached from anywhere. */
+    var squashed = word.replace(/[^a-z0-9]/g, "");
+    var filed = FILED.filter(function (f) {
+      return squashed.length > 1 && (f.key.indexOf(squashed) === 0 || f.name.toLowerCase().replace(/[^a-z0-9]/g, "").indexOf(squashed) === 0);
+    });
+    if (squashed === "sidedoors" || squashed === "side" || squashed === "passage") return { key: "tools", href: new URL("tools/", root()).href };
+    return filed.length === 1 ? { key: filed[0].key, href: new URL(filed[0].path, root()).href } : null;
+  }
+
+  /* The top of the site, worked out from this page's link to the front page. */
+  function root() {
+    var home = document.querySelector('a[data-exit="home"]');
+    return home ? new URL(".", home.href).href : new URL(".", document.baseURI).href;
   }
 
   function thing(word) {
@@ -170,7 +234,7 @@
     var rest = parts.slice(1).join(" ").replace(/^(at|the|to) /, "").replace(/^the /, "");
 
     if (verb === "help" || verb === "?") {
-      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\nwalk       down the corridor\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
+      say(raw, "look       this page\nexamine X  look closer\nexits      where you can go\ngo X       go there\nshow X     ai, apps, tools, all\nwalk       down the corridor\ninventory  what you carry\nback       front page\n\n/ jumps here. Esc clears.\nThere are other commands. Try things.");
       return;
     }
     if ((verb === "look" || verb === "l") && !rest) {
@@ -196,6 +260,10 @@
       var back = /^(back|backward|backwards)$/.test(rest);
       window.dispatchEvent(new CustomEvent("corridorwalk", { detail: { steps: back ? -1 : 1 } }));
       say(raw, back ? "You walk back the way you came." : "You walk on. Two doors fall behind you and two more come up out of the dark.");
+      return;
+    }
+    if (verb === "show" || verb === "filter" || verb === "list") {
+      show(raw, rest);
       return;
     }
     if (verb === "exits" || verb === "ls") {

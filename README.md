@@ -9,15 +9,16 @@ file, push to `main`, and it is live.
 | Path | What |
 | --- | --- |
 | `index.html` | Front page: the inside of the box (headline), the 3D corridor whose doors are links, the world bar (number, constants, jump), a band per project, side doors (small tools), hire me, the workshop, beliefs, working rules, the record, about. |
-| `projects/*.html` | One landing page per project. |
-| `tools/*.html` | One page per small tool. Each is a door in the corridor and an entry under "Side doors". |
+| `projects/*.html` | One page per project: retractbench, StoryGecko, Aquainspection, Riftforge, WITS. StoryGecko and WITS are full case studies (where it came from, how work moves through it, decisions and what they cost, what testing or review found). Their facts come from each project's own repository (build log, roadmap, README): recheck them there before changing a number. No screenshots of the private apps. |
+| `tools/index.html` | Side doors: the room that lists the small tools. It has one door in the corridor; the tools themselves no longer have doors there. |
+| `tools/*.html` | One page per small tool, listed in `tools/index.html` and named in the short "Side doors" section of the front page. |
 | `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback (anything in square brackets is never counted, and the page's instructions say so); `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
 | `assets/trace.css`, `assets/trace.js` | The Trace tool (`tools/trace.html`): one message followed through the router of WITS (`capnknives/WitsV3`). `trace.js` ports the ordered checks of `classify_message()` in `agents/routing_classifier.py`, the tool gates of `agents/orchestrator_preflight.py`, the injection patterns and the PII patterns, with shortened phrase lists; it then draws the path. No model runs: where WITS would call one, the page says so and counts it. Loaded on that page only. The top half of `trace.js` also runs in Node. |
 | `assets/forget-me.css`, `assets/forget-me.js` | The Forget me tool (`tools/forget-me.html`): a small neural network and its training written out by hand, the weight field, and the two ways of taking a fact back. Loaded on that page only. The top half of the script also runs in Node (`require` it) for checking the numbers. |
 | `assets/pool-balance.css`, `assets/pool-balance.js` | The pool water balance tool (`tools/pool-balance.html`): its layout, the water chemistry, the dosing plan and the drawn pool wall. Loaded on that page only. |
 | `assets/site.css` | All styling. The front page is dark (`html.box`); each project is a world with its own color and mood, set by `data-room` on `<body>`, a `.band` or a `.door`. |
 | `assets/box.js` | Worlds (the headline starts in superposition and collapses into a numbered world; the number sets that world's constants, which drive the corridor, heading weight and spacing, and a page overlay), the branch map, and the Plain view switch. Loaded on every page for Plain view. |
-| `assets/prompt.js` | The command prompt (`look`, `examine`, `exits`, `go <name>`, `walk`, `inventory`, `back`), the things to examine in each room, the hidden way down, and a set of commands that are not in the help. Docked at the bottom of every page; `/` focuses it. |
+| `assets/prompt.js` | The command prompt (`look`, `examine`, `exits`, `go <name>`, `show <kind>`, `walk`, `inventory`, `back`), the things to examine in each room, the hidden way down, and a set of commands that are not in the help. Docked at the bottom of every page; `/` focuses it. |
 | `assets/bench.js` | The workshop on the front page: one line and three constants to change, eleven probes, two ways home. The "without the record" undo is a simulation. |
 | `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. The corridor holds one door per link in `.door-tags` (up to eight), names the nearest four, and lets you walk on to bring the next ones close. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
 | `words.html` | The gallery: every quote, reached through the extra door that appears in about one world in six. The same list lives in `QUOTES` in `assets/box.js`, which shows one per world on the front page; change both together. Not linked from the navigation. |
@@ -35,11 +36,12 @@ file, push to `main`, and it is live.
    `[data-room="key"]` line next to the existing four. Check the deep tone against the wash for
    contrast (4.5:1 or better).
 3. In `index.html`, copy a `<section class="band">` for it and add a link to `.door-tags`, with
-   `data-exit="key"` (the command bar reads those links). The corridor picks up the new link by
+   `data-exit="key"` (the command bar reads those links), `data-kind` (the kinds `show` filters by) and
+   `data-world` (which `world()` branch is seen through the door). The corridor picks up the new link by
    itself: doors go two to a stretch of wall in the order of the links, the nearest four are
    named, and walking on brings up the rest, up to eight links. What is seen through the new door
-   is the next number in the `world()` and `tintOf()` shader functions in `assets/backdrop.js`
-   (0 to 7 are taken, 9 is the hidden door). Without a branch there it shows the hidden door's sky.
+   is the `world()` and `tintOf()` branch its `data-world` names, in `assets/backdrop.js`
+   (0 to 7 exist: 4 to 7 were drawn for the tools, WITS uses 7 and Side doors uses 5; 9 is the hidden door). Without a branch there it shows the hidden door's sky.
 4. Add a link in the "Exits" list of the other project pages, also with `data-exit="key"`.
 5. Optional: a moving backdrop (an entry in `ROOMS` in `assets/backdrop.js` and a matching branch
    in the shader), a `view-transition-name` pair in `assets/site.css`, and things to examine in
@@ -47,10 +49,12 @@ file, push to `main`, and it is live.
 
 ## Add a small tool
 
-Same steps as a project, with these differences: the page goes in `tools/`, its own styles and
+A tool does not get a corridor door or a band. The page goes in `tools/`, it gets a section in
+`tools/index.html`, a name in the front page's "Side doors" sentence, a line in the exits list of
+the other tool pages, and an entry in `FILED` in `assets/prompt.js` (so `show` and `go` find it
+from any page). Otherwise the same as a project: its own styles and
 script go in `assets/<name>.css` and `assets/<name>.js` (scope the styles under one class on
-`<main>`, as `.pool` does), and on the front page it gets an item in the "Side doors" list
-instead of a band. `tools/pool-balance.html` is the one to copy.
+`<main>`, as `.pool` does). `tools/pool-balance.html` is the one to copy.
 
 ## Keep true
 

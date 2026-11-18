@@ -11,8 +11,8 @@
    The corridor holds one door per link in .door-tags, in order, two to a
    stretch of wall, up to eight, and then they repeat. Only the nearest four
    are named. Walking on (the buttons, a click on a far door, or "walk" at the
-   prompt) brings the next stretch up close. What is seen through door number i is drawn
-   by world(i) in the shader: 0 to 3 are modes 0 to 3, 4 is the pool wall of
+   prompt) brings the next stretch up close. What is seen through a door is drawn by
+   world(i) in the shader, where i is the link's data-world (or its place in the list): 0 to 3 are modes 0 to 3, 4 is the pool wall of
    the water balance tool, 5 is the wall of weights from Forget me, 6 is the bars of
    ticks from Cadence, 7 is the rack of relays from Trace, and 9 is the door that is not on the plan.
 
@@ -501,9 +501,14 @@
         }
         return a;
       };
+      /* Which world() the shader draws behind each link: its data-world, or its place in the list. */
+      var worldOf = tags.map(function (t, i) {
+        var w = parseInt(t.getAttribute("data-world"), 10);
+        return isNaN(w) ? i : w;
+      });
       var padded = function (perm) {
         var f = new Float32Array(8);
-        for (var i = 0; i < perm.length; i++) f[i] = perm[i];
+        for (var i = 0; i < perm.length; i++) f[i] = worldOf[perm[i]];
         return f;
       };
       cor.set("uN", N);

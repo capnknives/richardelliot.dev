@@ -80,6 +80,8 @@
 [data-room="forgetme"] { --room: var(--forget); --wash: var(--forget-wash); }
 [data-room="cadence"] { --room: var(--cadence); --wash: var(--cadence-wash); --rule: #dcc59a; --soft: #5a4f40; }
 [data-room="trace"] { --room: var(--trace); --wash: var(--trace-wash); }
+[data-room="wits"] { --room: var(--trace); --wash: var(--trace-wash); }
+[data-room="tools"] { --room: #5d4a12; --wash: #efe9d8; }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -100,7 +102,8 @@ body[data-room="forgetme"] {
   --rule: #363a66;
 }
 
-body[data-room="trace"] {
+body[data-room="trace"],
+body[data-room="wits"] {
   --wash: #14170c;
   --ink: #f0f2df;
   --room: #cfe35a;
@@ -109,6 +112,7 @@ body[data-room="trace"] {
 }
 
 body[data-room="cellar"],
+body[data-room="tools"],
 body[data-room="words"] {
   --wash: #1b1d1c;
   --ink: #e9ece7;
@@ -578,6 +582,8 @@ html.box {
 .door-tags a[data-room="forgetme"] { --door: #ff9ebe; }
 .door-tags a[data-room="cadence"] { --door: #ff9a5c; }
 .door-tags a[data-room="trace"] { --door: #cfe35a; }
+.door-tags a[data-room="wits"] { --door: #cfe35a; }
+.door-tags a[data-room="tools"] { --door: #ff9ebe; }
 
 .world-bar {
   padding: 0 var(--gutter) clamp(1.25rem, 3vw, 2rem);
@@ -1274,7 +1280,8 @@ body[data-room="forgetme"] .sheet {
   color: var(--ink);
 }
 
-body[data-room="trace"] .sheet {
+body[data-room="trace"] .sheet,
+body[data-room="wits"] .sheet {
   --ink: #101820;
   --room: var(--trace);
   --soft: #4d5a66;
@@ -1282,7 +1289,8 @@ body[data-room="trace"] .sheet {
   color: var(--ink);
 }
 
-body[data-room="cellar"] .sheet {
+body[data-room="cellar"] .sheet,
+body[data-room="tools"] .sheet {
   --ink: #101820;
   --room: #5d4a12;
   --soft: #4d5a66;
@@ -1420,6 +1428,8 @@ body[data-room="cellar"] .sheet {
 body[data-room="riftforge"] .exits a,
 body[data-room="forgetme"] .exits a,
 body[data-room="trace"] .exits a,
+body[data-room="wits"] .exits a,
+body[data-room="tools"] .exits a,
 body[data-room="words"] .exits a,
 body[data-room="cellar"] .exits a {
   color: var(--ink);
@@ -1428,6 +1438,8 @@ body[data-room="cellar"] .exits a {
 body[data-room="riftforge"] .exits a:hover,
 body[data-room="forgetme"] .exits a:hover,
 body[data-room="trace"] .exits a:hover,
+body[data-room="wits"] .exits a:hover,
+body[data-room="tools"] .exits a:hover,
 body[data-room="words"] .exits a:hover,
 body[data-room="cellar"] .exits a:hover {
   color: var(--room);
@@ -1716,5 +1728,98 @@ html.plain.box body::before {
 
   body {
     padding-bottom: 0;
+  }
+}
+
+/* ---------- Case studies: a pipeline, and decisions with their cost ---------- */
+
+.flow {
+  list-style: none;
+  counter-reset: step;
+  padding-left: 0 !important;
+  border-left: 0.25rem solid var(--room);
+}
+
+.flow li {
+  counter-increment: step;
+  margin: 0;
+  padding: 0.55rem 0 0.55rem 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.flow li:first-child {
+  border-top: 0;
+}
+
+.flow b {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--room);
+}
+
+.flow b::before {
+  content: counter(step) "  ";
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--soft);
+  vertical-align: 0.2em;
+  white-space: pre;
+}
+
+.choices {
+  margin: 0 0 1em;
+}
+
+.choices dt {
+  font-family: var(--display);
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--room);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+
+.choices dt:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.choices dd {
+  margin: 0.35rem 0 0.9rem;
+}
+
+.sheet h2 a {
+  color: inherit;
+}
+
+.side-note {
+  max-width: var(--measure);
+}
+
+/* ---------- "show ai" at the prompt: what does not match steps back ---------- */
+
+.band.dim,
+.part.dim {
+  opacity: 0.28;
+}
+
+.door-tags a.dim {
+  opacity: 0.25 !important;
+}
+
+.band,
+.part {
+  transition: opacity 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .band,
+  .part {
+    transition: none;
   }
 }

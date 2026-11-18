@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WITS — Richard Elliot</title>
+  <meta name="description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, what was decided, and what a review found.">
+  <meta property="og:title" content="WITS — Richard Elliot">
+  <meta property="og:description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, what was decided, and what a review found.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/projects/wits.html">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/projects/wits.html">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/touch-icon.png">
+  <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/site.css?v=18">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="wits">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="../index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="../index.html#worlds">Projects</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">Running at home, open source. A case study.</p>
+      <h1>WITS</h1>
+      <p class="lede">An assistant that runs on my own machine and answers to me.</p>
+      <p class="actions"><a class="primary" href="../tools/trace.html" data-exit="trace">Follow a message through it</a><a href="https://github.com/capnknives/WitsV3">Code on GitHub</a></p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>What it is</h2>
+        <div class="body">
+<p>WITS is a local-first assistant. I talk to it in a browser or on my phone. It plans, calls real tools, remembers context, and can edit its own code when asked. The models run on my own graphics card through Ollama, so nothing leaves the house unless I approve it.</p>
+<p>This is the third version. The first two taught me what not to build.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How a message moves through it</h2>
+        <div class="body">
+<ol class="flow">
+  <li><b>Arrive</b> Everything anyone says comes in on one path.</li>
+  <li><b>Route</b> A list of plain checks runs in order. The first one that says yes decides where the message goes. Many messages never reach a model.</li>
+  <li><b>Guard</b> Injection patterns, personal-data patterns and the guest allowlist each get to say no.</li>
+  <li><b>Work</b> The orchestrator plans and calls tools, or hands off to a specialist: coding, book writing or self-repair.</li>
+  <li><b>Answer</b> One reply comes back, however many steps it took.</li>
+</ol>
+<p>The router is ported to this site, with no model behind it, so you can type a message and watch the path it takes. <a href="../tools/trace.html">Open Trace</a>.</p>
+        </div>
+      </section>
+      <section>
+        <h2>Decisions and what they cost</h2>
+        <div class="body">
+<dl class="choices">
+  <dt>Local first.</dt>
+  <dd>The default models fit in about 8 GB of video memory. Small models are weaker, and I accept that. Asking a cloud model is possible, and it needs my approval each time. It is never automatic.</dd>
+  <dt>Route before you think.</dt>
+  <dd>Cheap checks in plain code come before any model call. That is faster and it is predictable: I can read why a message went where it did. The cost is phrase lists that have to be kept up by hand.</dd>
+  <dt>Edits have to prove themselves.</dt>
+  <dd>When WITS changes its own code, the change is written, the tests are run, and it is committed only if they pass. Otherwise the file goes back to its original bytes.</dd>
+  <dt>Guests get less.</dt>
+  <dd>Family can join on the home network with an invite code. They get chat and a filtered set of tools: no file writes, no self-repair, no settings.</dd>
+</dl>
+        </div>
+      </section>
+      <section>
+        <h2>What a review found</h2>
+        <div class="body">
+<p>In November 2026 I reviewed the whole codebase against what I want it to become. The list was not flattering, and it is the plan now.</p>
+<ul>
+  <li><strong>One model backend.</strong> Ollama is the only real one.</li>
+  <li><strong>One shared secret.</strong> A single token guards every route. No scopes, and no way to cut off one client.</li>
+  <li><strong>Storage is JSON files.</strong> Fine for one user, unsafe once several agents write at once.</li>
+  <li><strong>It only reacts.</strong> WITS acts when typed to. It has no calendar, mail, tasks or reminders.</li>
+  <li><strong>Research code beside the hot path.</strong> About 6,000 lines of experiments live next to the code that answers messages.</li>
+</ul>
+        </div>
+      </section>
+      <section>
+        <h2>Where it is going</h2>
+        <div class="body">
+<ol>
+  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a gateway that gives each client its own identity and scopes.</li>
+  <li><strong>Agents in.</strong> An MCP server, so outside agents can use WITS tools and memory, with access I can revoke.</li>
+  <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
+  <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, and their results pass the same tested-edit rule.</li>
+  <li><strong>Voice.</strong> Local speech in and out.</li>
+</ol>
+<p class="fine">Planned as of November 17, 2026. No phase has started.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How it is built</h2>
+        <div class="body">
+<ul>
+  <li><strong>Core:</strong> Python, with a FastAPI web app that also installs on a phone.</li>
+  <li><strong>Models:</strong> Ollama, with separate small models for general work, coding and embeddings.</li>
+  <li><strong>Tools:</strong> 28 built in and discovered at start-up, plus outside tools over MCP.</li>
+  <li><strong>Memory:</strong> a FAISS vector index beside the session records.</li>
+  <li><strong>Tests:</strong> 677 passing in pytest as of July 2026, run by GitHub Actions.</li>
+</ul>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Other projects">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="../index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="tools"><a href="../tools/index.html" data-exit="tools">Side doors</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="WITS. A rack of relays against one wall, each labeled in pencil. One cable comes in. A machine hums in the next room.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="../assets/box.js?v=18"></script>
+  <script src="../assets/prompt.js?v=18"></script>
+  <script src="../assets/backdrop.js?v=18"></script>
+</body>
+</html>
