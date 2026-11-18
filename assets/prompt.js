@@ -62,7 +62,7 @@
       "list,review,plan,wall": "A list pinned to the wall, headed What is wrong with this. Five items. Underneath, in the same hand: fix in this order."
     },
     tools: {
-      "doors,door,passage": "Four smaller doors. Nothing behind them is for sale. Each was built to answer one question.",
+      "doors,door,passage": "Five smaller doors. Nothing behind them is for sale. Each was built to answer one question.",
       "light,lights": "Each door leaks its own color. The pink one flickers when something is forgotten."
     },
     forgetme: {
@@ -74,6 +74,11 @@
       "wall,plaster,tile,tiles,scale,pits": "Plaster below, a band of tile at the waterline. Hungry water pits the one. Overfull water crusts the other.",
       "kit,test kit,vials,vial,reagents": "Five vials. Four of them take drops and turn a color. The fifth is a thermometer.",
       "water,pool,calcium": "It is never neutral about calcium. Move a reading and watch which way it leans."
+    },
+    feeder: {
+      "tubs,tub,rack,racks,snake,snakes": "Rows of tubs, each with a strip of tape and a weight in grams. The third one flicks its tongue at you.",
+      "scale,cup,deli cup,bench": "A kitchen scale and a deli cup with holes in the lid. Every feeding question starts here.",
+      "freezer,feeders,mice,rats": "Bags sorted by size, smallest on top. The labels are in grams, because nobody agrees on what a small is."
     },
     riftforge: {
       "rift,crack,light": "A seam of gold in the dusk. Things come through. Some of them stay.",
@@ -108,7 +113,8 @@
     { key: "trace", path: "tools/trace.html", name: "Trace", kinds: "tools ai agents" },
     { key: "forgetme", path: "tools/forget-me.html", name: "Forget me", kinds: "tools ai research" },
     { key: "cadence", path: "tools/cadence.html", name: "Cadence", kinds: "tools writing" },
-    { key: "poolbalance", path: "tools/pool-balance.html", name: "Pool balance", kinds: "tools" }
+    { key: "poolbalance", path: "tools/pool-balance.html", name: "Pool balance", kinds: "tools" },
+    { key: "feeder", path: "tools/feeder-match.html", name: "Feeder match", kinds: "tools" }
   ];
   var KIND_NAMES = "ai, apps, tools, research, agents, games, writing";
   var KIND_ALIASES = { app: "apps", tool: "tools", game: "games", agent: "agents", ml: "ai", saas: "apps", everything: "all", projects: "all" };
