@@ -63,6 +63,28 @@ var SPECIES = {
             "House kingsnakes alone. They eat other snakes.",
             "No veterinary chart exists for Florida kingsnakes. These numbers come from general kingsnake care and keeper practice."]
   },
+  milk: {
+    label: "Pueblan milk snake",
+    curve: [[8, 0.13], [25, 0.11], [120, 0.09], [250, 0.07], [400, 0.06]],   // slimmer than a kingsnake, so a lower share
+    stages: [[25, "Hatchling", 5, 7], [120, "Juvenile", 5, 7], [250, "Subadult", 7, 10], [Infinity, "Adult", 10, 14]],
+    mouseCeiling: function () { return 7; },
+    ratCeiling: 2,
+    miceOnly: true,
+    presets: [["Hatchling", 8], ["Juvenile", 60], ["Adult", 300]],
+    notes: ["Pueblan milk snakes are slim and stay on mice for life.",
+            "House milk snakes alone. They eat other snakes.",
+            "No veterinary chart exists for Pueblan milk snakes. These numbers come from general milk snake care and keeper practice."]
+  },
+  ratsnake: {
+    label: "Texas rat snake",
+    curve: [[10, 0.15], [30, 0.13], [200, 0.10], [500, 0.08], [800, 0.06]],
+    stages: [[30, "Hatchling", 5, 7], [200, "Juvenile", 5, 7], [500, "Subadult", 7, 10], [Infinity, "Adult", 10, 14]],
+    mouseCeiling: function (w) { return w > 450 ? 8 : 7; },
+    ratCeiling: 4,
+    presets: [["Hatchling", 12], ["Juvenile", 120], ["Adult", 800]],
+    notes: ["Adults can stay on mice or move to rats. One rat is easier than two mice for a big snake.",
+            "No veterinary chart exists for Texas rat snakes. These numbers come from general rat snake care and keeper practice."]
+  },
   hognose: {
     label: "Western hognose",
     ladder: [[8, -1], [15, 0], [26, 1], [40, 3], [75, 4], [250, 5], [Infinity, 6]],
