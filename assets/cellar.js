@@ -6,7 +6,8 @@
    The wall talks to the small server in worker/wall.js. Its address is the content of
    <meta name="wall-endpoint">. While that is empty, or the server cannot be reached,
    the wall stays hidden and the rest of the page is unchanged. Every name and note is
-   put on the page as text, never as markup.
+   put on the page as text, never as markup. Before a note is sent, the browser solves the
+   small puzzle the wall hands out (the way it keeps bots off without knowing who anyone is).
 
    The keeper (the site's owner) opens cellar.html#keeper, types the key, and gets a
    "wipe" button beside each note. The key is held in this page's memory only. */
@@ -48,7 +49,7 @@
   var wall = document.querySelector("[data-wall]");
   var meta = document.querySelector('meta[name="wall-endpoint"]');
   var base = meta ? meta.content.replace(/\/+$/, "") : "";
-  if (!wall || !base || !window.fetch) return;
+  if (!wall || !base || !window.fetch || !(window.crypto && crypto.subtle)) return;
 
   var form = wall.querySelector("[data-wall-form]");
   var say = wall.querySelector("[data-wall-say]");
@@ -94,13 +95,54 @@
 
   load().catch(function () { /* no wall today: the section stays hidden */ });
 
+  /* The wall asks for a moment of work before each note (see worker/wall.js): find a number
+     that makes SHA-256(seed + ":" + number) start with `bits` zero bits. Nothing about the
+     visitor is sent; the browser just does some arithmetic. Hashes run in batches so the
+     page stays responsive. */
+  var enc = new TextEncoder();
+  function zeros(buf) {
+    var bytes = new Uint8Array(buf), n = 0;
+    for (var i = 0; i < bytes.length; i++) {
+      if (bytes[i] === 0) { n += 8; continue; }
+      return n + Math.clz32(bytes[i]) - 24;
+    }
+    return n;
+  }
+  function solve(seed, bits) {
+    var start = 0, BATCH = 512;
+    function round() {
+      var tries = [];
+      for (var i = 0; i < BATCH; i++) tries.push(crypto.subtle.digest("SHA-256", enc.encode(seed + ":" + (start + i))));
+      return Promise.all(tries).then(function (out) {
+        for (var i = 0; i < out.length; i++) if (zeros(out[i]) >= bits) return String(start + i);
+        start += BATCH;
+        return round();
+      });
+    }
+    return round();
+  }
+  var post = function (body, left) {
+    return fetch(base + "/challenge")
+      .then(function (r) { return r.json(); })
+      .then(function (c) {
+        if (!c.seed) throw new Error(c.error || "wall");
+        if (c.bits > 18) say.textContent = "The wall is busy, so the chalk takes longer. Hold on.";
+        return solve(c.seed, c.bits).then(function (nonce) {
+          body.seed = c.seed;
+          body.nonce = nonce;
+          return fetch(base + "/notes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+        });
+      })
+      .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+      .then(function (r) { return !r.ok && r.body.retry && left > 0 ? post(body, left - 1) : r; });
+  };
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var body = { name: form.elements.name.value, note: form.elements.note.value, website: form.elements.website.value };
     button.disabled = true;
-    say.textContent = "";
-    fetch(base + "/notes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+    say.textContent = "Chalking it up…";
+    post(body, 2)
       .then(function (r) {
         button.disabled = false;
         if (!r.ok) { say.textContent = r.body.error || "The chalk broke. Try again."; return; }

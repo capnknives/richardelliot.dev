@@ -1,0 +1,55 @@
+# Publishes the site to GitHub Pages. Only the files visitors need are published: the pages,
+# assets/, projects/, tools/, robots.txt and sitemap.xml. The README, the wall's server code
+# (worker/) and these workflows stay in the repository and are not served.
+#
+# One-time setting: Settings > Pages > Build and deployment > Source: "GitHub Actions".
+# The custom domain (richardelliot.dev) stays set on that same page; the CNAME file in the
+# repository is no longer read once the source is GitHub Actions.
+#
+# Free: standard GitHub-hosted runners cost nothing on public repositories.
+name: Publish site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Gather the files visitors need
+        run: |
+          mkdir _site
+          cp ./*.html robots.txt sitemap.xml _site/
+          cp -r assets projects tools _site/
+      - name: Check nothing private slipped in
+        run: |
+          bad=$(find _site \( -name '*.md' -o -name '*.toml' -o -name '*.mjs' -o -name '*.yml' -o -path '*/worker*' -o -name '.*' \) -print)
+          if [ -n "$bad" ]; then echo "::error::These should not be published:"; echo "$bad"; exit 1; fi
+          [ -f _site/index.html ] && [ -f _site/404.html ] || { echo "::error::index.html or 404.html missing"; exit 1; }
+          echo "Publishing $(find _site -type f | wc -l) files"
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
