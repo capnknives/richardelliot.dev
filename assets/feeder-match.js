@@ -402,5 +402,8 @@ if (typeof document !== "undefined" && document.getElementById("fm-ticket")) (fu
     state.qty = null;
     render();
   });
+  /* The form only gathers choices; pressing Enter in it should never reload the page. */
+  var ask = document.getElementById("fm-ask");
+  if (ask) ask.addEventListener("submit", function (e) { e.preventDefault(); });
   render();
 })();

@@ -2,6 +2,7 @@
 <html lang="en" class="no-js">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-XwWdy3h8RLzX10dUs9n/fCAkQc+XFysyIb7c80Ymdkw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Feeder match — Richard Elliot</title>
   <meta name="description" content="Pick a snake species and enter its weight. See which feeder size to buy, how often to feed, and how many to pick up for the month.">
@@ -44,7 +45,7 @@
     <noscript><p style="padding: 0 var(--gutter)">This tool needs JavaScript to run.</p></noscript>
 
     <div class="layout">
-      <form class="ask" id="fm-ask" aria-label="About the snake" novalidate onsubmit="return false">
+      <form class="ask" id="fm-ask" aria-label="About the snake" novalidate>
         <div class="step">
           <span class="step-label" id="fm-l-species">Species</span>
           <div class="picks" id="fm-species" role="group" aria-labelledby="fm-l-species"></div>
@@ -189,6 +190,6 @@
   <script src="../assets/box.js?v=20"></script>
   <script src="../assets/prompt.js?v=20"></script>
   <script src="../assets/backdrop.js?v=20"></script>
-  <script src="../assets/feeder-match.js?v=22"></script>
+  <script src="../assets/feeder-match.js?v=23"></script>
 </body>
 </html>
