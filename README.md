@@ -24,7 +24,7 @@ file, push to `main`, and it is live.
 | `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. The corridor holds one door per link in `.door-tags` (up to eight), names the nearest four, and lets you walk on to bring the next ones close. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
 | `words.html` | The gallery: every quote, reached through the extra door that appears in about one world in six. The same list lives in `QUOTES` in `assets/box.js`, which shows one per world on the front page; change both together. Not linked from the navigation. |
 | `cellar.html`, `assets/cellar.css`, `assets/cellar.js` | The cellar: a hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. Shelves of jars (one keepsake from each project and tool, the shader, the mustard seed), one idea written in six languages (each sample was run before it went on the page, except the PowerShell and GLSL ones: rerun them if you change them), a tally of every prompt command that fills in as a visitor finds the hidden ones (kept in `sessionStorage`, gone when the tab closes), and the wall. |
-| `worker/`, `.github/workflows/wall.yml` | The cellar wall: a small Cloudflare Worker (`worker/wall.js`) that keeps the names and notes visitors leave, in one KV entry. It stores an id, the name, the note and the time, and nothing about the visitor. `node worker/test.mjs` runs its rules. See "The wall" below. |
+| `worker/`, `.github/workflows/wall.yml` | The cellar wall: a small Cloudflare Worker (`worker/wall.js`) that keeps the names and notes visitors leave, in one Durable Object. It stores an id, the name, the note and the time, and nothing about the visitor. `node worker/test.mjs` runs its rules. See "The wall" below. |
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
 | `CNAME` | The custom domain, `richardelliot.dev`. |
@@ -66,17 +66,34 @@ The wall in the cellar is hidden until it has a server to talk to.
    Cloudflare with the "Edit Cloudflare Workers" template), `CLOUDFLARE_ACCOUNT_ID`, and
    `WALL_ADMIN_KEY` (any long random string; keep a copy, it is the key that removes notes).
 2. Run the "Cellar wall" workflow (Actions tab, "Run workflow"). It tests the rules, finds or
-   creates the KV namespace, and deploys. The log ends with the Worker's address
+   creates the KV namespace (only read once now, to carry old notes over), and deploys the Worker
+   with its Durable Object. SQLite-backed Durable Objects run on the Workers Free plan. The log ends with the Worker's address
    (`https://cellar-wall.<your-subdomain>.workers.dev`).
 3. Put that address in `<meta name="wall-endpoint" content="">` in `cellar.html` and push.
 
 What is refused: links, addresses, phone numbers, and the words in `WHOLE` and `STEMS` at the
 top of `worker/wall.js` (edit the lists there; `worker/test.mjs` has the cases that must stay
-clean, such as Scunthorpe). The wall holds the newest 200 notes and takes at most 20 an hour in
-total. That limit is for the whole wall because nothing about a visitor is kept to count by.
+clean, such as Scunthorpe). Letters from other alphabets are refused too, because a Cyrillic
+letter can look exactly like a Latin one and carry a slur past the lists; accented Latin letters
+and emoji are fine. The wall holds the newest 200 notes.
+
+Keeping bots off without tracking anyone: nothing about a visitor is kept, so the wall cannot
+count posts per person. Instead each note costs a little work. The page asks `/challenge` for a
+signed puzzle, the browser finds a number that makes `SHA-256(seed + ":" + number)` start with
+the asked-for count of zero bits, and the note is sent with the answer. While the wall is quiet
+that is 12 bits (a few hundredths of a second in a browser). Every note past the third in the
+last hour adds a bit, and each bit doubles the work, so a flood quickly becomes too expensive to
+keep up and real notes cannot be pushed off the wall. A puzzle lasts ten minutes, works once,
+and must be at least as hard as the wall asks for when the note arrives. The numbers are in
+`PUZZLE` in `worker/wall.js`. During a real flood, honest visitors wait too: that is the price of
+not tracking anyone.
+
+All notes live in one Durable Object, which takes one change at a time, so two people signing
+at once cannot overwrite each other. The puzzle's signing key is derived from `WALL_ADMIN_KEY`,
+so there is no extra secret to set.
 
 To remove a note: open `cellar.html#keeper`, type the admin key, and press "wipe" beside it.
-The key stays in that page's memory and is sent only with a wipe.
+The key stays in that page's memory and is sent only with a wipe, as `Authorization: Bearer <key>`.
 
 ## Keep true
 
