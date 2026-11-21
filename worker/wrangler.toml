@@ -1,5 +1,7 @@
 # The cellar wall (worker/wall.js). Deployed by .github/workflows/wall.yml,
-# which fills in the KV namespace id below before it deploys.
+# which fills in the KV namespace id below before it deploys. The notes live in the
+# Durable Object (SQLite-backed, so it runs on the Workers Free plan); the KV namespace
+# is only read once, to carry over notes the wall held before it moved.
 name = "cellar-wall"
 main = "wall.js"
 compatibility_date = "2026-11-01"
@@ -11,3 +13,11 @@ ALLOW_ORIGIN = "https://richardelliot.dev"
 [[kv_namespaces]]
 binding = "WALL"
 id = "KV_ID_SET_BY_THE_WORKFLOW"
+
+[[durable_objects.bindings]]
+name = "WALL_DO"
+class_name = "Wall"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Wall"]

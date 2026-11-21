@@ -2,7 +2,9 @@
 
 Richard Elliot's portfolio, served by GitHub Pages at https://richardelliot.dev.
 Plain HTML, CSS and a little JavaScript: no framework, no libraries and no build step. Edit a
-file, push to `main`, and it is live.
+file, push to `main`, and the "Publish site" workflow puts it live (free: GitHub Actions costs
+nothing on public repositories). Only the pages and their files are published; this README, the
+wall's server code and the workflows are not served.
 
 ## What is where
 
@@ -24,10 +26,11 @@ file, push to `main`, and it is live.
 | `assets/backdrop.js` | One WebGL fragment shader with several modes: a backdrop per world, the starfield, and the 3D corridor, whose doors are portals onto the worlds. The corridor holds one door per link in `.door-tags` (up to eight), names the nearest four, and lets you walk on to bring the next ones close. It also pins the door names to their doors and handles clicks on doors. Still frame under reduced motion; off in Plain view; without WebGL the doors become a plain row of links. |
 | `words.html` | The gallery: every quote, reached through the extra door that appears in about one world in six. The same list lives in `QUOTES` in `assets/box.js`, which shows one per world on the front page; change both together. Not linked from the navigation. |
 | `cellar.html`, `assets/cellar.css`, `assets/cellar.js` | The cellar: a hidden page, reached from the front-page prompt (`examine floor`, then `down`). Not linked or indexed. Shelves of jars (one keepsake from each project and tool, the shader, the mustard seed), one idea written in six languages (each sample was run before it went on the page, except the PowerShell and GLSL ones: rerun them if you change them), a tally of every prompt command that fills in as a visitor finds the hidden ones (kept in `sessionStorage`, gone when the tab closes), and the wall. |
-| `worker/`, `.github/workflows/wall.yml` | The cellar wall: a small Cloudflare Worker (`worker/wall.js`) that keeps the names and notes visitors leave, in one KV entry. It stores an id, the name, the note and the time, and nothing about the visitor. `node worker/test.mjs` runs its rules. See "The wall" below. |
+| `worker/`, `.github/workflows/wall.yml` | The cellar wall: a small Cloudflare Worker (`worker/wall.js`) that keeps the names and notes visitors leave, in one Durable Object. It stores an id, the name, the note and the time, and nothing about the visitor. `node worker/test.mjs` runs its rules. See "The wall" below. |
 | `assets/fonts/` | Self-hosted typefaces (Sofia Sans, Sofia Sans Extra Condensed, Literata italic) and their licenses. |
 | `404.html` | Not-found page. Uses absolute paths because it is served at any depth. |
-| `CNAME` | The custom domain, `richardelliot.dev`. |
+| `CNAME` | The custom domain, `richardelliot.dev`. Kept for reference: since the site is published by GitHub Actions, the domain is set in Settings > Pages instead, and this file is not published. |
+| `.github/workflows/pages.yml` | Publishes the site. It copies only the pages, `assets/`, `projects/`, `tools/`, `robots.txt` and `sitemap.xml`, and refuses to publish if a README, config file or the `worker/` folder slips in. A new top-level file or folder that visitors need must be added to its copy step. |
 | `assets/card.png`, `assets/touch-icon.png` | The 1200x630 picture that link previews show (every page's `og:image`), and the icon a phone uses when the site is added to a home screen. |
 | `sitemap.xml`, `robots.txt` | The pages search engines should index. Add a line to `sitemap.xml` for each new page; `words.html`, `cellar.html` and `404.html` stay out. |
 
@@ -66,17 +69,34 @@ The wall in the cellar is hidden until it has a server to talk to.
    Cloudflare with the "Edit Cloudflare Workers" template), `CLOUDFLARE_ACCOUNT_ID`, and
    `WALL_ADMIN_KEY` (any long random string; keep a copy, it is the key that removes notes).
 2. Run the "Cellar wall" workflow (Actions tab, "Run workflow"). It tests the rules, finds or
-   creates the KV namespace, and deploys. The log ends with the Worker's address
+   creates the KV namespace (only read once now, to carry old notes over), and deploys the Worker
+   with its Durable Object. SQLite-backed Durable Objects run on the Workers Free plan. The log ends with the Worker's address
    (`https://cellar-wall.<your-subdomain>.workers.dev`).
 3. Put that address in `<meta name="wall-endpoint" content="">` in `cellar.html` and push.
 
 What is refused: links, addresses, phone numbers, and the words in `WHOLE` and `STEMS` at the
 top of `worker/wall.js` (edit the lists there; `worker/test.mjs` has the cases that must stay
-clean, such as Scunthorpe). The wall holds the newest 200 notes and takes at most 20 an hour in
-total. That limit is for the whole wall because nothing about a visitor is kept to count by.
+clean, such as Scunthorpe). Letters from other alphabets are refused too, because a Cyrillic
+letter can look exactly like a Latin one and carry a slur past the lists; accented Latin letters
+and emoji are fine. The wall holds the newest 200 notes.
+
+Keeping bots off without tracking anyone: nothing about a visitor is kept, so the wall cannot
+count posts per person. Instead each note costs a little work. The page asks `/challenge` for a
+signed puzzle, the browser finds a number that makes `SHA-256(seed + ":" + number)` start with
+the asked-for count of zero bits, and the note is sent with the answer. While the wall is quiet
+that is 12 bits (a few hundredths of a second in a browser). Every note past the third in the
+last hour adds a bit, and each bit doubles the work, so a flood quickly becomes too expensive to
+keep up and real notes cannot be pushed off the wall. A puzzle lasts ten minutes, works once,
+and must be at least as hard as the wall asks for when the note arrives. The numbers are in
+`PUZZLE` in `worker/wall.js`. During a real flood, honest visitors wait too: that is the price of
+not tracking anyone.
+
+All notes live in one Durable Object, which takes one change at a time, so two people signing
+at once cannot overwrite each other. The puzzle's signing key is derived from `WALL_ADMIN_KEY`,
+so there is no extra secret to set.
 
 To remove a note: open `cellar.html#keeper`, type the admin key, and press "wipe" beside it.
-The key stays in that page's memory and is sent only with a wipe.
+The key stays in that page's memory and is sent only with a wipe, as `Authorization: Bearer <key>`.
 
 ## Keep true
 
@@ -95,6 +115,29 @@ corridor has room for eight doors and all eight are in use: a ninth link needs t
 not get a door. Trace says its checks, reasons, gates and block messages are the ones in WITS: if
 the router in `capnknives/WitsV3` changes order or wording, change `assets/trace.js` to match, or
 change the sentences under "What is real here" on the page.
+
+## Security policy
+
+Every page carries a Content-Security-Policy in a `<meta http-equiv>` tag, right after
+`<meta charset>`. It lets the browser run only this site's own scripts, load only this site's
+fonts, styles and images, and talk only to this site and the wall (`*.workers.dev`). If a bug
+ever let someone slip markup onto a page, their script would not run and could not send
+anything anywhere. Inline `style` attributes are allowed (the tools draw with them); inline
+scripts and `onclick=`-style handlers are not.
+
+Keeping it working:
+- A new page copies the whole `<meta http-equiv="Content-Security-Policy">` line from an
+  existing one. Change the policy in every page at once, never in one.
+- The one inline script allowed is `document.documentElement.classList.remove("no-js");`, by
+  its hash (`sha256-XwWd...`). Change that line and the hash must be recomputed, or the page
+  loses its scripted layout. Put any other script in a file under `assets/`.
+- Something from another site (a font, an image, an API) must be added to the matching
+  directive (`font-src`, `img-src`, `connect-src`) or the browser will refuse it.
+
+What a tag in the page cannot do: stop other sites from framing these pages
+(`frame-ancestors` and `X-Frame-Options` only work as real HTTP headers), and GitHub Pages
+does not let a site set its own headers. Moving hosting to Cloudflare, which does, is the
+planned next step.
 
 ## Contact
 
