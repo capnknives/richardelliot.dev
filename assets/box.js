@@ -218,11 +218,11 @@
       ],
       [
           "Everybody\u2019s lost but me.",
-          "Indiana Jones and the Last Crusade"
+          "Indiana Jones, The Last Crusade"
       ],
       [
           "Stand for something, or you will fall for anything.",
-          "Source disputed"
+          "Modern proverb, author unknown"
       ],
       [
           "The only thing necessary for the triumph of evil is for good men to do nothing.",
@@ -266,11 +266,11 @@
       ],
       [
           "Never give up, never surrender.",
-          "Galaxy Quest"
+          "Commander Peter Quincy Taggart, Galaxy Quest"
       ],
       [
           "Do. Or do not. There is no try.",
-          "The Empire Strikes Back"
+          "Yoda, The Empire Strikes Back"
       ],
       [
           "So they ran both together: and the other disciple did outrun Peter, and came first to the sepulchre.",
@@ -278,7 +278,7 @@
       ],
       [
           "He who has felt the deepest grief is best able to experience supreme happiness.",
-          "Alexandre Dumas, The Count of Monte Cristo"
+          "Edmond Dant\u00e8s, The Count of Monte Cristo"
       ],
       [
           "For all have sinned, and come short of the glory of God.",
