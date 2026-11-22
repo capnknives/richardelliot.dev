@@ -129,14 +129,21 @@
       <section>
         <h2>How the work is run</h2>
         <div class="body">
-<p>On a project this size I work as the architect and the reviewer. I set the design and the rules, and AI agents write much of the code under them. The smaller things I build by hand where I can: much of Riftforge, and tools like the pool water balance calculator. Here, the build follows rules that are written down in the repository.</p>
+<p>On a project this size I work as the architect and the reviewer. I set the design and the standards, and AI agents write much of the code under them. The smaller things I build by hand where I can: much of Riftforge, and tools like the pool water balance calculator.</p>
+<p>Whoever writes a change, I hold it to the same engineering standards before I accept it.</p>
 <ul>
-  <li><strong>Contracts first.</strong> Interfaces are fixed in a document before anything is built against them.</li>
-  <li><strong>Small packages.</strong> One brief, one fresh agent, one pull request. The cheapest model that can pass the tests builds it.</li>
-  <li><strong>Review the diff, not the story.</strong> A lead model checks every diff against its brief and runs the tests again. Anything that touches access or security also goes to a second reviewer that sees only the brief and the diff.</li>
-  <li><strong>I decide and I merge.</strong> The open questions come to me one at a time, and nothing reaches the main branch without me.</li>
+  <li><strong>Design before code.</strong> Interfaces and data shapes are agreed in a written contract first, so parts built separately fit together.</li>
+  <li><strong>Small, reviewable changes.</strong> One purpose per pull request, small enough to read in full. Each is reviewed against its brief, and nothing merges without me.</li>
+  <li><strong>Tested, or it does not ship.</strong> Every change carries its own tests. The full suite and the linters run automatically on each pull request.</li>
+  <li><strong>Efficient by default.</strong> I check how the work grows with the data: indexed lookups instead of scans, capped result sizes, and nothing slow inside a step that runs on every message.</li>
+  <li><strong>Built to grow.</strong> Storage is moving from loose files to a database with migrations, modules stay small, and every write has one clear owner, so more users and more agents do not mean a rewrite.</li>
+  <li><strong>Secure by design.</strong> Least access by default: the new design gives each client its own credentials that I can revoke. Secrets stay out of the code, and anything that touches access gets a second, independent security review.</li>
+  <li><strong>Private by default.</strong> Personal data stays on my machine. Personal-data checks run on incoming messages, and nothing leaves the house without my approval.</li>
+  <li><strong>Measured, not assumed.</strong> Performance claims come from benchmarks I can run again, written down with their limits.</li>
+  <li><strong>Fails safe.</strong> A change that breaks the tests is rolled back to the original file, and risky actions wait for my approval.</li>
+  <li><strong>Documented as it goes.</strong> Plans, decisions and results live in the repository beside the code.</li>
 </ul>
-<p>The first contract shows why. The second reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
+<p>The first design contract shows why the second review matters. The reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
         </div>
       </section>
       <section>
