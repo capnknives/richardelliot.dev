@@ -95,13 +95,49 @@
         <h2>Where it is going</h2>
         <div class="body">
 <ol>
-  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a gateway that gives each client its own identity and scopes.</li>
-  <li><strong>Agents in.</strong> An MCP server, so outside agents can use WITS tools and memory, with access I can revoke.</li>
+  <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Nearly done; the findings are below.</li>
+  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away.</li>
+  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a fast model and a heavy model with a router between them.</li>
   <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
-  <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, and their results pass the same tested-edit rule.</li>
+  <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
 </ol>
-<p class="fine">Planned as of November 17, 2026. No phase has started.</p>
+<p class="fine">Plan last updated November 21, 2026. Measuring is nearly done. The contract for the workspace is written and reviewed, and waits on my sign-off.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What measuring found</h2>
+        <div class="body">
+<p>The machine is a mid-range desktop: an RTX 3070 with 8 GB of video memory, a six-core i5-12400F and 32 GB of DDR4. Before building anything I had a benchmark written and ran every model I keep. One day of measuring changed the plan more than a week of reading would have.</p>
+<table class="figures">
+  <caption>Tokens generated per second, warm, at an 8k context. Measured on my own machine, November 21, 2026.</caption>
+  <tr><th scope="row">Small model, all of it on the graphics card</th><td>208</td></tr>
+  <tr><th scope="row">35B model, as the machine was that morning</th><td>28</td></tr>
+  <tr><th scope="row">Same model, after moving one RAM stick</th><td>36</td></tr>
+  <tr><th scope="row">Same model, on llama.cpp with its expert cache</th><td>46 <small>about</small></td></tr>
+</table>
+<ul>
+  <li><strong>A stick in the wrong slot cost a quarter.</strong> Three mismatched sticks sat with 8 GB on one memory channel and 24 GB on the other. Moving one balanced them, and both large models ran about 25% faster. It cost nothing.</li>
+  <li><strong>The readout was wrong.</strong> Ollama reported one large model as 82% on the graphics card. Its own log showed 3.8 GB on the card and 13.2 GB in system memory. I go by the log now.</li>
+  <li><strong>A newer engine beat the convenient one.</strong> llama.cpp added a cache that keeps the busiest parts of a mixture-of-experts model on the graphics card. On this card it took the largest model from 36 to about 46. That is two short runs on one prompt, so I expect less in mixed use.</li>
+  <li><strong>Fast is not the same as dependable.</strong> A second test replays 36 fixed tool-calling cases and scores them in code, with no model as judge. In the first run the fastest model was also the least reliable.</li>
+  <li><strong>The test had bugs of its own.</strong> That first run turned up a tool description that YAML had silently mangled, and a few cases that were unfair to every model. The test gets fixed before its scores decide anything.</li>
+  <li><strong>The PC shut itself off mid-run.</strong> A hard power cut with no crash record, in a case packed with dust. I still do not know the exact cause. Long runs now go through a watcher that logs temperatures and stops the job before a limit.</li>
+</ul>
+<p class="fine">Full tables, the exact commands and the caveats are in <a href="https://github.com/capnknives/WitsV3/tree/main/docs/benchmarks">the repository's benchmark notes</a>.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How the work is run</h2>
+        <div class="body">
+<p>I do not write most of this code by hand, and I do not let one model run loose on it either. The build follows rules that are written down in the repository.</p>
+<ul>
+  <li><strong>Contracts first.</strong> Interfaces are fixed in a document before anything is built against them.</li>
+  <li><strong>Small packages.</strong> One brief, one fresh agent, one pull request. The cheapest model that can pass the tests builds it.</li>
+  <li><strong>Review the diff, not the story.</strong> A lead model checks every diff against its brief and runs the tests again. Anything that touches access or security also goes to a second reviewer that sees only the brief and the diff.</li>
+  <li><strong>I merge.</strong> Nothing reaches the main branch without me.</li>
+</ul>
+<p>The first contract shows why. The second reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
         </div>
       </section>
       <section>
