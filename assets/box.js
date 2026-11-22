@@ -278,7 +278,7 @@
       ],
       [
           "He who has felt the deepest grief is best able to experience supreme happiness.",
-          "Alexandre Dumas, The Count of Monte Cristo"
+          "Edmond Dant\u00e8s, The Count of Monte Cristo"
       ],
       [
           "For all have sinned, and come short of the glory of God.",
