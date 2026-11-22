@@ -122,7 +122,6 @@
   <li><strong>A newer engine beat the convenient one.</strong> llama.cpp added a cache that keeps the busiest parts of a mixture-of-experts model on the graphics card. On this card it took the largest model from 36 to about 46. That is two short runs on one prompt, so I expect less in mixed use.</li>
   <li><strong>Fast is not the same as dependable.</strong> A second test replays 36 fixed tool-calling cases and scores them in code, with no model as judge. In the first run the fastest model was also the least reliable.</li>
   <li><strong>The test had bugs of its own.</strong> That first run turned up a tool description that YAML had silently mangled, and a few cases that were unfair to every model. The test gets fixed before its scores decide anything.</li>
-  <li><strong>The PC shut itself off mid-run.</strong> A hard power cut with no crash record, in a case packed with dust. I still do not know the exact cause. Long runs now go through a watcher that logs temperatures and stops the job before a limit.</li>
 </ul>
 <p class="fine">Full tables, the exact commands and the caveats are in <a href="https://github.com/capnknives/WitsV3/tree/main/docs/benchmarks">the repository's benchmark notes</a>.</p>
         </div>
@@ -130,12 +129,12 @@
       <section>
         <h2>How the work is run</h2>
         <div class="body">
-<p>I do not write most of this code by hand, and I do not let one model run loose on it either. The build follows rules that are written down in the repository.</p>
+<p>On a project this size I work as the architect and the reviewer. I set the design and the rules, and AI agents write much of the code under them. The smaller things I build by hand where I can: much of Riftforge, and tools like the pool water balance calculator. Here, the build follows rules that are written down in the repository.</p>
 <ul>
   <li><strong>Contracts first.</strong> Interfaces are fixed in a document before anything is built against them.</li>
   <li><strong>Small packages.</strong> One brief, one fresh agent, one pull request. The cheapest model that can pass the tests builds it.</li>
   <li><strong>Review the diff, not the story.</strong> A lead model checks every diff against its brief and runs the tests again. Anything that touches access or security also goes to a second reviewer that sees only the brief and the diff.</li>
-  <li><strong>I merge.</strong> Nothing reaches the main branch without me.</li>
+  <li><strong>I decide and I merge.</strong> The open questions come to me one at a time, and nothing reaches the main branch without me.</li>
 </ul>
 <p>The first contract shows why. The second reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
         </div>
