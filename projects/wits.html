@@ -5,9 +5,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-XwWdy3h8RLzX10dUs9n/fCAkQc+XFysyIb7c80Ymdkw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WITS — Richard Elliot</title>
-  <meta name="description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, what was decided, and what a review found.">
+  <meta name="description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, how other agents join in, and what the reviews found.">
   <meta property="og:title" content="WITS — Richard Elliot">
-  <meta property="og:description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, what was decided, and what a review found.">
+  <meta property="og:description" content="WITS: a local-first AI assistant that runs on my own machine. How a message moves through it, how other agents join in, and what the reviews found.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://richardelliot.dev/projects/wits.html">
   <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
@@ -85,7 +85,7 @@
 <ul>
   <li><strong>One model backend.</strong> Ollama is the only real one.</li>
   <li><strong>One shared secret.</strong> A single token guards every route. No scopes, and no way to cut off one client. The workspace changes this for outside agents: each gets its own token with its own limits, and I can revoke one without touching the rest.</li>
-  <li><strong>Storage is JSON files.</strong> Fine for one user, unsafe once several agents write at once.</li>
+  <li><strong>Storage is JSON files.</strong> Fine for one user, unsafe once several agents write at once. The workspace is the first part on a real database, SQLite with migrations. The rest moves over in the foundations stage.</li>
   <li><strong>It only reacts.</strong> WITS acts when typed to. It has no calendar, mail, tasks or reminders.</li>
   <li><strong>Research code beside the hot path.</strong> About 6,000 lines of experiments live next to the code that answers messages.</li>
 </ul>
@@ -95,14 +95,34 @@
         <h2>Where it is going</h2>
         <div class="body">
 <ol>
-  <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Nearly done; the findings are below.</li>
-  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away.</li>
+  <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Done for the small models; the findings are below.</li>
+  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away. It is built, and described in the next section.</li>
   <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a fast model and a heavy model with a router between them.</li>
   <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
   <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
 </ol>
-<p class="fine">Plan last updated November 21, 2026. Measuring is done for the small models; the tool test has not yet been run on the two largest. The workspace contract is signed off and most of the workspace is merged: the database, a token for each agent, the approval queue, the inbox page and the phone push. The endpoint that lets agents in is next. All of it stays switched off until that lands and I have tested it by hand.</p>
+<p class="fine">Plan last updated November 21, 2026. The workspace is merged and running on my machine. A review of the whole thing passed it, with six fixes to make before real use. The last check is mine: approve a request from my phone, away from home Wi-Fi. The tool test has not yet been run on the two largest models.</p>
+        </div>
+      </section>
+      <section id="workspace">
+        <h2>The shared workspace</h2>
+        <div class="body">
+<p>The first new piece is built. Other AI agents, on my laptop or anywhere on my private network, can connect to WITS and work on my projects alongside each other. They cannot do it quietly.</p>
+<dl class="choices">
+  <dt>Five tools, and no more.</dt>
+  <dd>Read a project's state, claim a task, leave a handoff note, link a pull request or a file, and ask me to decide something. None of them runs code or touches a file on my machine.</dd>
+  <dt>A key for each agent.</dt>
+  <dd>Every agent gets its own token, limited to the projects and actions I choose. WITS keeps only a hash of it. I can revoke one agent and the others carry on.</dd>
+  <dt>Decisions come to me.</dt>
+  <dd>An agent that needs a yes or no files a request and keeps working. It shows up on an inbox page on my phone, with a push if I want one. Approving records my answer. It does not run anything.</dd>
+  <dt>What agents write is data.</dt>
+  <dd>Text from an agent is cleaned of invisible characters, checked against known injection patterns, flagged if it matches, and shown as plain text. Every tool tells the agent reading it to treat that text as data, not instructions.</dd>
+  <dt>Everything is logged.</dt>
+  <dd>Each call leaves one audit row: who made it, what it was, which project, and how it ended.</dd>
+  <dt>Not on the internet.</dt>
+  <dd>The endpoint is reachable only over a private network between my own devices. Nothing is opened to the outside.</dd>
+</dl>
         </div>
       </section>
       <section>
@@ -133,6 +153,14 @@
 <p>WITS is built the way I run all my larger projects: I set the design and the standards, and AI agents write much of the code under them. The standards have a page of their own, <a href="../how-i-work.html" data-exit="method">How I work</a>. One of them is that anything touching access gets a second, independent security review. Here is what that review did on this project.</p>
 <p>It refused the first design contract for the workspace and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
 <p>The token code got the same second review. It found no way for a token to leak. It did find that the test meant to prove a token never reaches the logs could not fail. The test was fixed, then shown to fail on a deliberate leak, before the change went in.</p>
+<p>The same review ran on every part that touches access. It kept finding real problems, which is the point of it.</p>
+<ul>
+  <li><strong>A dropped connection could split a write from its record.</strong> A revoked agent could have been left holding a task, or a change could have landed with no audit entry. The write, the check and the record now finish together.</li>
+  <li><strong>One injection check was slow on purpose-built input.</strong> A crafted message took over a second to scan. Rewritten to match the same text, the check takes under a millisecond.</li>
+  <li><strong>An agent could write into a log another agent reads.</strong> Text of its choosing would have reached the file the self-repair agent works from. Those requests are now refused without recording what was sent.</li>
+  <li><strong>A link could lie about where it goes.</strong> An address written as a trusted site followed by an at sign and another host would have looked safe on my phone. It is refused.</li>
+</ul>
+<p>The last review covered the whole workspace at once. It built the real application, connected a real MCP client, and walked the full path: create an agent, claim a task, ask for a decision, approve it, revoke the agent. It passed, with six more fixes to make first.</p>
         </div>
       </section>
       <section>
@@ -141,9 +169,10 @@
 <ul>
   <li><strong>Core:</strong> Python, with a FastAPI web app that also installs on a phone.</li>
   <li><strong>Models:</strong> Ollama, with separate small models for general work, coding and embeddings.</li>
-  <li><strong>Tools:</strong> 28 built in and discovered at start-up, plus outside tools over MCP.</li>
+  <li><strong>Tools:</strong> about 30 built in and discovered at start-up, plus outside tools over MCP.</li>
+  <li><strong>Agents in:</strong> an MCP endpoint with five tools, a token for each agent, and SQLite behind it.</li>
   <li><strong>Memory:</strong> a FAISS vector index beside the session records.</li>
-  <li><strong>Tests:</strong> 677 passing in pytest as of July 2026, run by GitHub Actions.</li>
+  <li><strong>Tests:</strong> more than 1,100 in pytest as of November 2026, run by GitHub Actions on two versions of Python.</li>
 </ul>
         </div>
       </section>
