@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-XwWdy3h8RLzX10dUs9n/fCAkQc+XFysyIb7c80Ymdkw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How I work — Richard Elliot</title>
+  <meta name="description" content="How I run software work: who writes the code, and the engineering standards every change is held to before I accept it.">
+  <meta property="og:title" content="How I work — Richard Elliot">
+  <meta property="og:description" content="How I run software work: who writes the code, and the engineering standards every change is held to before I accept it.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://richardelliot.dev/how-i-work.html">
+  <meta property="og:image" content="https://richardelliot.dev/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Richard Elliot: I build apps and AI tools. I research how to make AI forget.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://richardelliot.dev/how-i-work.html">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/touch-icon.png">
+  <link rel="preload" href="assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/site.css?v=22">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+<body data-room="method">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="masthead">
+    <a class="name" href="index.html">Richard Elliot</a>
+    <nav aria-label="Site">
+      <a href="index.html#worlds">Projects</a>
+      <a href="index.html#about">About</a>
+      <a href="https://github.com/capnknives">GitHub</a>
+      <button type="button" class="plain-toggle" data-plain hidden aria-pressed="false">Plain view</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="room-head">
+      <p class="state">The same on every project.</p>
+      <h1>How I work</h1>
+      <p class="lede">I set the design and the standards. Every change is held to them, whoever writes it.</p>
+      <p class="actions"><a class="primary" href="mailto:hello@richardelliot.dev?subject=Something%20to%20build">Email hello@richardelliot.dev</a><a href="index.html#worlds">See the projects</a></p>
+    </div>
+
+    <div class="sheet">
+      <section>
+        <h2>Who writes the code</h2>
+        <div class="body">
+<p>On my larger projects I work as the lead: the architect and the reviewer. I set the design and the standards, and AI agents write much of the code under them. I write more of the code by hand on the smaller ones, like the <a href="tools/pool-balance.html">pool water balance calculator</a>. <a href="projects/riftforge.html">Riftforge</a> is the exception among the large projects. I wrote a good deal of specific code for it myself, as a learning exercise.</p>
+<p>Whoever writes a change, I hold it to the same engineering standards before I accept it.</p>
+        </div>
+      </section>
+      <section>
+        <h2>The standards</h2>
+        <div class="body">
+<ul>
+  <li><strong>Design before code.</strong> Interfaces and data shapes are agreed in a written contract first, so parts built separately fit together.</li>
+  <li><strong>Small, reviewable changes.</strong> One purpose per pull request, small enough to read in full. Each is reviewed against its brief, and nothing merges without me.</li>
+  <li><strong>Tested, or it does not ship.</strong> Every change carries its own tests. The full suite and the linters run automatically on each pull request.</li>
+  <li><strong>Efficient by default.</strong> I check how the work grows with the data: indexed lookups instead of scans, capped result sizes, and nothing slow inside a step that runs on every request.</li>
+  <li><strong>Built to grow.</strong> Modules stay small and every write has one clear owner, so more users do not mean a rewrite. In WITS that meant moving storage from loose files to a database with migrations.</li>
+  <li><strong>Secure by design.</strong> Least access by default, and credentials that can be revoked one at a time. Secrets stay out of the code, and anything that touches access gets a second, independent security review.</li>
+  <li><strong>Private by default.</strong> Personal data stays where its owner put it unless they say otherwise. In WITS it stays on my machine, and nothing leaves the house without my approval. This site keeps nothing about its visitors.</li>
+  <li><strong>Measured, not assumed.</strong> Performance claims come from benchmarks I can run again, written down with their limits.</li>
+  <li><strong>Fails safe.</strong> A change that breaks the tests does not land, and risky actions wait for my approval.</li>
+  <li><strong>Documented as it goes.</strong> Plans, decisions and results live in the repository beside the code.</li>
+</ul>
+        </div>
+      </section>
+      <section>
+        <h2>The standards at work</h2>
+        <div class="body">
+<p>A list like this is easy to write. The <a href="projects/wits.html#second-review">WITS case study</a> has two times it earned its keep: a design contract the second reviewer refused, with seven security defects in it, and a test that could not fail.</p>
+<p>Each project also taught me a shorter rule of its own. Those are on the front page, under <a href="index.html#rules-title">Rules I work by</a>.</p>
+        </div>
+      </section>
+    </div>
+
+    <nav class="exits" aria-label="Projects">
+      <h2>Exits</h2>
+      <ul>
+        <li><a href="index.html" data-exit="home">Front page</a></li>
+        <li data-room="retractbench"><a href="projects/retractbench.html" data-exit="retractbench">retractbench</a></li>
+        <li data-room="storygecko"><a href="projects/storygecko.html" data-exit="storygecko">StoryGecko</a></li>
+        <li data-room="aquainspection"><a href="projects/aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
+        <li data-room="riftforge"><a href="projects/riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="wits"><a href="projects/wits.html" data-exit="wits">WITS</a></li>
+        <li data-room="tools"><a href="tools/index.html" data-exit="tools">Side doors</a></li>
+      </ul>
+    </nav>
+
+  </main>
+
+
+  <footer class="colophon">
+    <p>Richard Elliot. Plain HTML, CSS and a little JavaScript. No framework, no build step.</p>
+    <p><a href="https://github.com/capnknives/richardelliot.dev">Source for this site</a></p>
+  </footer>
+
+  <div class="prompt" role="region" aria-label="Command bar" data-prompt data-room-text="A drafting room. One long table, a contract pinned flat at each corner, and a red pencil worn short.">
+    <p class="prompt-log" data-prompt-log aria-live="polite" tabindex="-1"></p>
+    <form autocomplete="off">
+      <label for="cmd" aria-label="Command">&gt;</label>
+      <input id="cmd" type="text" inputmode="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Type look, or back">
+    </form>
+  </div>
+
+  <script src="assets/box.js?v=22"></script>
+  <script src="assets/prompt.js?v=22"></script>
+  <script src="assets/backdrop.js?v=22"></script>
+</body>
+</html>

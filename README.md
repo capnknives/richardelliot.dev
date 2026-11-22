@@ -12,6 +12,7 @@ wall's server code and the workflows are not served.
 | --- | --- |
 | `index.html` | Front page: the inside of the box (headline), the 3D corridor whose doors are links, the world bar (number, constants, jump), a band per project, side doors (small tools), hire me, the workshop, beliefs, working rules, the record, about. |
 | `projects/*.html` | One page per project: retractbench, StoryGecko, Aquainspection, Riftforge, WITS. StoryGecko and WITS are full case studies (where it came from, how work moves through it, decisions and what they cost, what testing or review found). Their facts come from each project's own repository (build log, roadmap, README): recheck them there before changing a number. No screenshots of the private apps. |
+| `how-i-work.html` | How I work: who writes the code on which projects, and the ten engineering standards every change is held to. It is general on purpose: project pages link to it instead of repeating it, and keep only their own examples (WITS keeps "What the second review caught", which this page links to as `#second-review`). Linked from "Hire me", "Rules I work by" and the exits list of every project page. Its room key is `method`, styled with the same dark scheme as Side doors. |
 | `tools/index.html` | Side doors: the room that lists the small tools. It has one door in the corridor; the tools themselves no longer have doors there. |
 | `tools/*.html` | One page per small tool, listed in `tools/index.html` and named in the short "Side doors" section of the front page. |
 | `assets/cadence.css`, `assets/cadence.js`, `assets/cadence-words.js` | The Cadence tool (`tools/cadence.html`): a syllable counter for lyrics. `cadence.js` holds the spelling rules, the line-by-line reading and the click playback (anything in square brackets is never counted, and the page's instructions say so); `cadence-words.js` is a table of the common words the rules get wrong, derived from the CMU Pronouncing Dictionary (license in `assets/cadence-words.LICENSE.txt`). Loaded on that page only. The top half of `cadence.js` also runs in Node. |
@@ -115,6 +116,8 @@ corridor has room for eight doors and all eight are in use: a ninth link needs t
 not get a door. Trace says its checks, reasons, gates and block messages are the ones in WITS: if
 the router in `capnknives/WitsV3` changes order or wording, change `assets/trace.js` to match, or
 change the sentences under "What is real here" on the page.
+
+"How I work" states standards as true of every larger project (tests on every change, linters on each pull request, a second security review for anything touching access): keep them true, or change the sentence. It also repeats the wording about who writes the code from the Riftforge page: change both together.
 
 ## Security policy
 

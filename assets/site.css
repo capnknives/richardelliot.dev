@@ -85,6 +85,7 @@
 [data-room="feeder"] { --room: var(--feeder); --wash: var(--feeder-wash); --rule: #e0c4ba; }
 [data-room="wits"] { --room: var(--trace); --wash: var(--trace-wash); }
 [data-room="tools"] { --room: #5d4a12; --wash: #efe9d8; }
+[data-room="method"] { --room: #5d4a12; --wash: #efe9d8; }
 
 /* Dark rooms. Scoped to whole pages and front-page bands only, so a link
    that merely points at Riftforge keeps the light scheme. */
@@ -116,6 +117,7 @@ body[data-room="wits"] {
 
 body[data-room="cellar"],
 body[data-room="tools"],
+body[data-room="method"],
 body[data-room="words"] {
   --wash: #1b1d1c;
   --ink: #e9ece7;
@@ -1295,7 +1297,8 @@ body[data-room="wits"] .sheet {
 }
 
 body[data-room="cellar"] .sheet,
-body[data-room="tools"] .sheet {
+body[data-room="tools"] .sheet,
+body[data-room="method"] .sheet {
   --ink: #101820;
   --room: #5d4a12;
   --soft: #4d5a66;
@@ -1435,6 +1438,7 @@ body[data-room="forgetme"] .exits a,
 body[data-room="trace"] .exits a,
 body[data-room="wits"] .exits a,
 body[data-room="tools"] .exits a,
+body[data-room="method"] .exits a,
 body[data-room="words"] .exits a,
 body[data-room="cellar"] .exits a {
   color: var(--ink);
@@ -1445,6 +1449,7 @@ body[data-room="forgetme"] .exits a:hover,
 body[data-room="trace"] .exits a:hover,
 body[data-room="wits"] .exits a:hover,
 body[data-room="tools"] .exits a:hover,
+body[data-room="method"] .exits a:hover,
 body[data-room="words"] .exits a:hover,
 body[data-room="cellar"] .exits a:hover {
   color: var(--room);
