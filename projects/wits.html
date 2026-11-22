@@ -55,12 +55,12 @@
         <div class="body">
 <ol class="flow">
   <li><b>Arrive</b> Everything anyone says comes in on one path.</li>
-  <li><b>Route</b> A list of plain checks runs in order. The first one that says yes decides where the message goes. Many messages never reach a model.</li>
+  <li><b>Route</b> Exact commands are handled in code and never reach a model. Everything else goes to one loop.</li>
   <li><b>Guard</b> Injection patterns, personal-data patterns and the guest allowlist each get to say no.</li>
-  <li><b>Work</b> The orchestrator plans and calls tools, or hands off to a specialist: coding, book writing or self-repair.</li>
+  <li><b>Work</b> In that loop the model decides whether to reply or call a tool, and checks in code stand between its choice and the tool. Coding, book writing and self-repair are still specialists for now.</li>
   <li><b>Answer</b> One reply comes back, however many steps it took.</li>
 </ol>
-<p>The router is ported to this site, with no model behind it, so you can type a message and watch the path it takes. <a href="../tools/trace.html">Open Trace</a>.</p>
+<p>The older keyword router, which still serves guest accounts, is ported to this site, with no model behind it, so you can type a message and watch the path it takes. <a href="../tools/trace.html">Open Trace</a>.</p>
         </div>
       </section>
       <section>
@@ -69,8 +69,10 @@
 <dl class="choices">
   <dt>Local first.</dt>
   <dd>The default models fit in about 8 GB of video memory. Small models are weaker, and I accept that. Asking a cloud model is possible, and it needs my approval each time. It is never automatic.</dd>
-  <dt>Route before you think.</dt>
-  <dd>Cheap checks in plain code come before any model call. That is faster and it is predictable: I can read why a message went where it did. The cost is phrase lists that have to be kept up by hand.</dd>
+  <dt>Check in code, decide in one loop.</dt>
+  <dd>Exact commands are handled in plain code. Everything else goes to one loop where the model decides whether to reply or call a tool, and code checks every call. That is faster than a separate classification call and keyword routing, and I can still read what happened. The cost is that the model now makes the routing choice, and a small model gets some of them wrong. The old path is still there behind a setting.</dd>
+  <dt>One base folder.</dt>
+  <dd>The assistant works inside a single base folder: an inbox it may read and index, and an outbox and a projects folder it may write. Every file read, write and index goes through one check, and files that look like credentials are refused everywhere. Owner-approved grants that expire, for other folders, are being built next.</dd>
   <dt>Edits have to prove themselves.</dt>
   <dd>When WITS changes its own code, the change is written, the tests are run, and it is committed only if they pass. Otherwise the file goes back to its original bytes.</dd>
   <dt>Guests get less.</dt>
@@ -97,8 +99,8 @@
 <ol>
   <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Done for the small models; the findings are below.</li>
   <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away. It shipped on November 22, 2026, and is described in the next section.</li>
-  <li><strong>A simpler conversation core.</strong> In progress. One tool-calling loop on one resident model replaces the separate intent-classification call and the keyword routing. The specialist agents become skills plus tools, and the tested-edit pipeline stays as code. Shipped so far: per-turn metrics, which time each model call and tool call and store no message text, and a golden set of 30 cases checked by code rather than by a model. Next are serving settings, a tool-call guard (schema checks, retries, and caps on repeats and steps), and the new loop behind a setting.</li>
-  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a fast model and a heavy model with a router between them.</li>
+  <li><strong>A simpler conversation core.</strong> The new loop is live as the front door for my own turns. One tool-calling loop on one resident model replaced the separate intent-classification call and the keyword routing. The old path is still there behind a setting and still serves guest accounts. Shipped with it: per-turn metrics, which time each model call and tool call and store no message text; a golden set of 30 cases checked by code rather than by a model, run in a sandbox folder; and a tool-call guard that checks argument schemas and caps retries, repeats and steps. Tools get the session and role from the loop, not from the model. On my 8 GB card, with the same model and the same 30 cases, the old path passed 20 and the new loop passed 25, and the 25 held across three runs. Tool turns went from 5 to 35 seconds down to about one second: a memory search from 35 seconds to about 1, listing files from 8 seconds to 1. Next: a fixed short tool list with a lookup for the rest, skills in place of the specialist agents, and streaming replies in the interface.</li>
+  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and one resident model, with a heavier model only by an explicit rule.</li>
   <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
   <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
@@ -139,6 +141,7 @@
   <tr><th scope="row">Same model, on llama.cpp with its expert cache</th><td>46 <small>about</small></td></tr>
 </table>
 <ul>
+  <li><strong>The context size was the biggest fix.</strong> Turn metrics showed the model loading with a 40,960-token context by default and spilling onto the CPU. Fixing it at 8,192 took a short reply from about 25 to 43 seconds down to about one second, before any redesign.</li>
   <li><strong>A stick in the wrong slot cost a quarter.</strong> Three mismatched sticks sat with 8 GB on one memory channel and 24 GB on the other. Moving one balanced them, and both large models ran about 25% faster. It cost nothing.</li>
   <li><strong>The readout was wrong.</strong> Ollama reported one large model as 82% on the graphics card. Its own log showed 3.8 GB on the card and 13.2 GB in system memory. I go by the log now.</li>
   <li><strong>A newer engine beat the convenient one.</strong> llama.cpp added a cache that keeps the busiest parts of a mixture-of-experts model on the graphics card. On this card it took the largest model from 36 to about 46. That is two short runs on one prompt, so I expect less in mixed use.</li>
@@ -174,7 +177,7 @@
   <li><strong>Tools:</strong> about 30 built in and discovered at start-up, plus outside tools over MCP.</li>
   <li><strong>Agents in:</strong> an MCP endpoint with five tools, a token for each agent, and SQLite behind it.</li>
   <li><strong>Memory:</strong> a FAISS vector index beside the session records.</li>
-  <li><strong>Tests:</strong> more than 1,100 in pytest as of November 2026, run by GitHub Actions on two versions of Python.</li>
+  <li><strong>Tests:</strong> more than 1,500 in pytest as of November 2026, run by GitHub Actions on two versions of Python.</li>
 </ul>
         </div>
       </section>
