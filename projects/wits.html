@@ -19,7 +19,7 @@
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/touch-icon.png">
   <link rel="preload" href="../assets/fonts/sofia-sans-extra-condensed-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/site.css?v=21">
+  <link rel="stylesheet" href="../assets/site.css?v=22">
   <script>document.documentElement.classList.remove("no-js");</script>
 </head>
 <body data-room="wits">
@@ -127,24 +127,11 @@
 <p class="fine">Full tables, the exact commands and the caveats are in <a href="https://github.com/capnknives/WitsV3/tree/main/docs/benchmarks">the repository's benchmark notes</a>.</p>
         </div>
       </section>
-      <section>
-        <h2>How the work is run</h2>
+      <section id="second-review">
+        <h2>What the second review caught</h2>
         <div class="body">
-<p>On my larger projects I work as the lead: the architect and the reviewer. I set the design and the standards, and AI agents write much of the code under them. I write more of the code by hand on the smaller ones, like the pool water balance calculator. Riftforge is the exception among the large projects. I wrote a good deal of specific code for it myself, as a learning exercise.</p>
-<p>Whoever writes a change, I hold it to the same engineering standards before I accept it.</p>
-<ul>
-  <li><strong>Design before code.</strong> Interfaces and data shapes are agreed in a written contract first, so parts built separately fit together.</li>
-  <li><strong>Small, reviewable changes.</strong> One purpose per pull request, small enough to read in full. Each is reviewed against its brief, and nothing merges without me.</li>
-  <li><strong>Tested, or it does not ship.</strong> Every change carries its own tests. The full suite and the linters run automatically on each pull request.</li>
-  <li><strong>Efficient by default.</strong> I check how the work grows with the data: indexed lookups instead of scans, capped result sizes, and nothing slow inside a step that runs on every message.</li>
-  <li><strong>Built to grow.</strong> Storage is moving from loose files to a database with migrations, modules stay small, and every write has one clear owner, so more users and more agents do not mean a rewrite.</li>
-  <li><strong>Secure by design.</strong> Least access by default: the new design gives each client its own credentials that I can revoke. Secrets stay out of the code, and anything that touches access gets a second, independent security review.</li>
-  <li><strong>Private by default.</strong> Personal data stays on my machine. Personal-data checks run on incoming messages, and nothing leaves the house without my approval.</li>
-  <li><strong>Measured, not assumed.</strong> Performance claims come from benchmarks I can run again, written down with their limits.</li>
-  <li><strong>Fails safe.</strong> A change that breaks the tests is rolled back to the original file, and risky actions wait for my approval.</li>
-  <li><strong>Documented as it goes.</strong> Plans, decisions and results live in the repository beside the code.</li>
-</ul>
-<p>The first design contract shows why the second review matters. The reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
+<p>WITS is built the way I run all my larger projects: I set the design and the standards, and AI agents write much of the code under them. The standards have a page of their own, <a href="../how-i-work.html" data-exit="method">How I work</a>. One of them is that anything touching access gets a second, independent security review. Here is what that review did on this project.</p>
+<p>It refused the first design contract for the workspace and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
 <p>The token code got the same second review. It found no way for a token to leak. It did find that the test meant to prove a token never reaches the logs could not fail. The test was fixed, then shown to fail on a deliberate leak, before the change went in.</p>
         </div>
       </section>
@@ -170,6 +157,7 @@
         <li data-room="storygecko"><a href="storygecko.html" data-exit="storygecko">StoryGecko</a></li>
         <li data-room="aquainspection"><a href="aquainspection.html" data-exit="aquainspection">Aquainspection</a></li>
         <li data-room="riftforge"><a href="riftforge.html" data-exit="riftforge">Riftforge</a></li>
+        <li data-room="method"><a href="../how-i-work.html">How I work</a></li>
         <li data-room="tools"><a href="../tools/index.html" data-exit="tools">Side doors</a></li>
       </ul>
     </nav>
@@ -190,8 +178,8 @@
     </form>
   </div>
 
-  <script src="../assets/box.js?v=21"></script>
-  <script src="../assets/prompt.js?v=21"></script>
-  <script src="../assets/backdrop.js?v=21"></script>
+  <script src="../assets/box.js?v=22"></script>
+  <script src="../assets/prompt.js?v=22"></script>
+  <script src="../assets/backdrop.js?v=22"></script>
 </body>
 </html>
