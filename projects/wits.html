@@ -84,7 +84,7 @@
 <p>In November 2026 I reviewed the whole codebase against what I want it to become. The list was not flattering, and it is the plan now.</p>
 <ul>
   <li><strong>One model backend.</strong> Ollama is the only real one.</li>
-  <li><strong>One shared secret.</strong> A single token guards every route. No scopes, and no way to cut off one client.</li>
+  <li><strong>One shared secret.</strong> A single token guards every route. No scopes, and no way to cut off one client. The workspace changes this for outside agents: each gets its own token with its own limits, and I can revoke one without touching the rest.</li>
   <li><strong>Storage is JSON files.</strong> Fine for one user, unsafe once several agents write at once.</li>
   <li><strong>It only reacts.</strong> WITS acts when typed to. It has no calendar, mail, tasks or reminders.</li>
   <li><strong>Research code beside the hot path.</strong> About 6,000 lines of experiments live next to the code that answers messages.</li>
@@ -102,7 +102,7 @@
   <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
 </ol>
-<p class="fine">Plan last updated November 21, 2026. Measuring is nearly done. The contract for the workspace is written and reviewed, and waits on my sign-off.</p>
+<p class="fine">Plan last updated November 21, 2026. Measuring is done for the small models; the tool test has not yet been run on the two largest. The workspace contract is signed off and most of the workspace is merged: the database, a token for each agent, the approval queue, the inbox page and the phone push. The endpoint that lets agents in is next. All of it stays switched off until that lands and I have tested it by hand.</p>
         </div>
       </section>
       <section>
@@ -120,8 +120,9 @@
   <li><strong>A stick in the wrong slot cost a quarter.</strong> Three mismatched sticks sat with 8 GB on one memory channel and 24 GB on the other. Moving one balanced them, and both large models ran about 25% faster. It cost nothing.</li>
   <li><strong>The readout was wrong.</strong> Ollama reported one large model as 82% on the graphics card. Its own log showed 3.8 GB on the card and 13.2 GB in system memory. I go by the log now.</li>
   <li><strong>A newer engine beat the convenient one.</strong> llama.cpp added a cache that keeps the busiest parts of a mixture-of-experts model on the graphics card. On this card it took the largest model from 36 to about 46. That is two short runs on one prompt, so I expect less in mixed use.</li>
-  <li><strong>Fast is not the same as dependable.</strong> A second test replays 36 fixed tool-calling cases and scores them in code, with no model as judge. In the first run the fastest model was also the least reliable.</li>
-  <li><strong>The test had bugs of its own.</strong> That first run turned up a tool description that YAML had silently mangled, and a few cases that were unfair to every model. The test gets fixed before its scores decide anything.</li>
+  <li><strong>Fast is not the same as dependable.</strong> A second test replays 36 fixed tool-calling cases and scores them in code, with no model as judge. Among the small models, the most reliable got 89% right. The fastest answered in about a quarter of a second and got 75%.</li>
+  <li><strong>The test had bugs of its own.</strong> The first run turned up a tool description that YAML had silently mangled, and a few cases that were unfair to every model. The cases were fixed and the run repeated before any score counted.</li>
+  <li><strong>Small models give up politely.</strong> When a tool call failed, the small models mostly told me so and stopped. They did not try again. That is safe, and it means retries belong in my code, not in the model.</li>
 </ul>
 <p class="fine">Full tables, the exact commands and the caveats are in <a href="https://github.com/capnknives/WitsV3/tree/main/docs/benchmarks">the repository's benchmark notes</a>.</p>
         </div>
@@ -144,6 +145,7 @@
   <li><strong>Documented as it goes.</strong> Plans, decisions and results live in the repository beside the code.</li>
 </ul>
 <p>The first design contract shows why the second review matters. The reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
+<p>The token code got the same second review. It found no way for a token to leak. It did find that the test meant to prove a token never reaches the logs could not fail. The test was fixed, then shown to fail on a deliberate leak, before the change went in.</p>
         </div>
       </section>
       <section>
