@@ -95,13 +95,55 @@
         <h2>Where it is going</h2>
         <div class="body">
 <ol>
-  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a gateway that gives each client its own identity and scopes.</li>
-  <li><strong>Agents in.</strong> An MCP server, so outside agents can use WITS tools and memory, with access I can revoke.</li>
+  <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Nearly done; the findings are below.</li>
+  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away.</li>
+  <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a fast model and a heavy model with a router between them.</li>
   <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
-  <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, and their results pass the same tested-edit rule.</li>
+  <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
 </ol>
-<p class="fine">Planned as of November 17, 2026. No phase has started.</p>
+<p class="fine">Plan last updated November 21, 2026. Measuring is nearly done. The contract for the workspace is written and reviewed, and waits on my sign-off.</p>
+        </div>
+      </section>
+      <section>
+        <h2>What measuring found</h2>
+        <div class="body">
+<p>The machine is a mid-range desktop: an RTX 3070 with 8 GB of video memory, a six-core i5-12400F and 32 GB of DDR4. Before building anything I had a benchmark written and ran every model I keep. One day of measuring changed the plan more than a week of reading would have.</p>
+<table class="figures">
+  <caption>Tokens generated per second, warm, at an 8k context. Measured on my own machine, November 21, 2026.</caption>
+  <tr><th scope="row">Small model, all of it on the graphics card</th><td>208</td></tr>
+  <tr><th scope="row">35B model, as the machine was that morning</th><td>28</td></tr>
+  <tr><th scope="row">Same model, after moving one RAM stick</th><td>36</td></tr>
+  <tr><th scope="row">Same model, on llama.cpp with its expert cache</th><td>46 <small>about</small></td></tr>
+</table>
+<ul>
+  <li><strong>A stick in the wrong slot cost a quarter.</strong> Three mismatched sticks sat with 8 GB on one memory channel and 24 GB on the other. Moving one balanced them, and both large models ran about 25% faster. It cost nothing.</li>
+  <li><strong>The readout was wrong.</strong> Ollama reported one large model as 82% on the graphics card. Its own log showed 3.8 GB on the card and 13.2 GB in system memory. I go by the log now.</li>
+  <li><strong>A newer engine beat the convenient one.</strong> llama.cpp added a cache that keeps the busiest parts of a mixture-of-experts model on the graphics card. On this card it took the largest model from 36 to about 46. That is two short runs on one prompt, so I expect less in mixed use.</li>
+  <li><strong>Fast is not the same as dependable.</strong> A second test replays 36 fixed tool-calling cases and scores them in code, with no model as judge. In the first run the fastest model was also the least reliable.</li>
+  <li><strong>The test had bugs of its own.</strong> That first run turned up a tool description that YAML had silently mangled, and a few cases that were unfair to every model. The test gets fixed before its scores decide anything.</li>
+</ul>
+<p class="fine">Full tables, the exact commands and the caveats are in <a href="https://github.com/capnknives/WitsV3/tree/main/docs/benchmarks">the repository's benchmark notes</a>.</p>
+        </div>
+      </section>
+      <section>
+        <h2>How the work is run</h2>
+        <div class="body">
+<p>On my larger projects I work as the lead: the architect and the reviewer. I set the design and the standards, and AI agents write much of the code under them. I write more of the code by hand on the smaller ones, like the pool water balance calculator. Riftforge is the exception among the large projects. I wrote a good deal of specific code for it myself, as a learning exercise.</p>
+<p>Whoever writes a change, I hold it to the same engineering standards before I accept it.</p>
+<ul>
+  <li><strong>Design before code.</strong> Interfaces and data shapes are agreed in a written contract first, so parts built separately fit together.</li>
+  <li><strong>Small, reviewable changes.</strong> One purpose per pull request, small enough to read in full. Each is reviewed against its brief, and nothing merges without me.</li>
+  <li><strong>Tested, or it does not ship.</strong> Every change carries its own tests. The full suite and the linters run automatically on each pull request.</li>
+  <li><strong>Efficient by default.</strong> I check how the work grows with the data: indexed lookups instead of scans, capped result sizes, and nothing slow inside a step that runs on every message.</li>
+  <li><strong>Built to grow.</strong> Storage is moving from loose files to a database with migrations, modules stay small, and every write has one clear owner, so more users and more agents do not mean a rewrite.</li>
+  <li><strong>Secure by design.</strong> Least access by default: the new design gives each client its own credentials that I can revoke. Secrets stay out of the code, and anything that touches access gets a second, independent security review.</li>
+  <li><strong>Private by default.</strong> Personal data stays on my machine. Personal-data checks run on incoming messages, and nothing leaves the house without my approval.</li>
+  <li><strong>Measured, not assumed.</strong> Performance claims come from benchmarks I can run again, written down with their limits.</li>
+  <li><strong>Fails safe.</strong> A change that breaks the tests is rolled back to the original file, and risky actions wait for my approval.</li>
+  <li><strong>Documented as it goes.</strong> Plans, decisions and results live in the repository beside the code.</li>
+</ul>
+<p>The first design contract shows why the second review matters. The reviewer refused it and listed seven security defects. One would have let an agent close tasks in a project it had no access to. Another left room for an agent to approve its own request. All seven were fixed before I would build on it.</p>
         </div>
       </section>
       <section>
