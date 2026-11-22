@@ -96,19 +96,20 @@
         <div class="body">
 <ol>
   <li><strong>Measure the machine.</strong> Benchmarks before any building, so the plan rests on numbers. Done for the small models; the findings are below.</li>
-  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away. It is built, and described in the next section.</li>
+  <li><strong>A shared workspace.</strong> An MCP server where outside agents claim tasks, leave handoff notes and ask me for decisions. Approvals come to my phone, and I can cut off any one agent. This moved ahead of everything else because I can use it right away. It shipped on November 22, 2026, and is described in the next section.</li>
+  <li><strong>A simpler conversation core.</strong> In progress. One tool-calling loop on one resident model replaces the separate intent-classification call and the keyword routing. The specialist agents become skills plus tools, and the tested-edit pipeline stays as code. Shipped so far: per-turn metrics, which time each model call and tool call and store no message text, and a golden set of 30 cases checked by code rather than by a model. Next are serving settings, a tool-call guard (schema checks, retries, and caps on repeats and steps), and the new loop behind a setting.</li>
   <li><strong>Foundations.</strong> A database in place of JSON files, more than one model provider, and a fast model and a heavy model with a router between them.</li>
   <li><strong>Daily affairs.</strong> Tasks, reminders, a scheduler that starts work on its own, calendar and mail with approval before anything is sent.</li>
   <li><strong>Agents out.</strong> WITS hands whole jobs to other coding agents as supervised workers, one graphics-card job at a time, and their results pass the same tested-edit rule.</li>
   <li><strong>Voice.</strong> Local speech in and out.</li>
 </ol>
-<p class="fine">Plan last updated November 21, 2026. The workspace is merged and running on my machine. A review of the whole thing passed it, with six fixes to make before real use. The last check is mine: approve a request from my phone, away from home Wi-Fi. The tool test has not yet been run on the two largest models.</p>
+<p class="fine">Plan last updated November 22, 2026. The workspace passed its gate on that day. The tool test has not yet been run on the two largest models. A UI overhaul is planned.</p>
         </div>
       </section>
       <section id="workspace">
         <h2>The shared workspace</h2>
         <div class="body">
-<p>The first new piece is built. Other AI agents, on my laptop or anywhere on my private network, can connect to WITS and work on my projects alongside each other. They cannot do it quietly.</p>
+<p>The first new piece is built and passed its gate on November 22, 2026. Other AI agents, on my laptop or anywhere on my private network, can connect to WITS and work on my projects alongside each other. They cannot do it quietly.</p>
 <dl class="choices">
   <dt>Five tools, and no more.</dt>
   <dd>Read a project's state, claim a task, leave a handoff note, link a pull request or a file, and ask me to decide something. None of them runs code or touches a file on my machine.</dd>
@@ -123,6 +124,7 @@
   <dt>Not on the internet.</dt>
   <dd>The endpoint is reachable only over a private network between my own devices. Nothing is opened to the outside.</dd>
 </dl>
+<p>The gate was a live test. An outside agent connected with its own token, claimed a task, left a handoff note and asked for a decision. I approved it from my phone over a private network. Then I revoked the token, and its access was cut immediately.</p>
         </div>
       </section>
       <section>
